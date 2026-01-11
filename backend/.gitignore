@@ -21,3 +21,10 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Claude Code documentation (synced from root)
+.claude-rules
+AGENT_GUIDE.md
+COMMIT_MESSAGES.md
+git-commands.md
+ARCHITECTURE.md

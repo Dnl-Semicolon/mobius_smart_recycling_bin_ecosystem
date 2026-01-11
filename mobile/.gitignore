@@ -43,3 +43,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Claude Code documentation (synced from root)
+.claude-rules
+AGENT_GUIDE.md
+COMMIT_MESSAGES.md
+git-commands.md
+ARCHITECTURE.md
