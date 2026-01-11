@@ -6,6 +6,8 @@
 git-commands.md
 AGENT_GUIDE.md
 COMMIT_MESSAGES.md
+ARCHITECTURE.md
+commit_message.txt
 
 # OS files
 .DS_Store
