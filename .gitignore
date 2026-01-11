@@ -4,6 +4,8 @@
 
 # Git reference (personal notes)
 git-commands.md
+AGENT_GUIDE.md
+COMMIT_MESSAGES.md
 
 # OS files
 .DS_Store
