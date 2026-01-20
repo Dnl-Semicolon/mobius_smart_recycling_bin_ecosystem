@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Example;
 
+use Database\Factories\Example\AddressFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Address extends Model
 {
-    /** @use HasFactory<\Database\Factories\AddressFactory> */
+    /** @use HasFactory<\Database\Factories\Example\AddressFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -23,5 +24,10 @@ class Address extends Model
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
+    }
+
+    protected static function newFactory(): AddressFactory
+    {
+        return AddressFactory::new();
     }
 }

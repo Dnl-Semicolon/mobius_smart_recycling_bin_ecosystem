@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Example;
 
 use App\Http\Controllers\Controller;
 use App\Logging\WideEvent;
-use App\Models\Address;
+use App\Models\Example\Address;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

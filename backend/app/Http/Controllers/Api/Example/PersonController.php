@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Example;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePersonRequest;
-use App\Http\Requests\UpdatePersonRequest;
-use App\Http\Resources\PersonResource;
+use App\Http\Requests\Example\StorePersonRequest;
+use App\Http\Requests\Example\UpdatePersonRequest;
+use App\Http\Resources\Example\PersonResource;
 use App\Logging\WideEvent;
-use App\Models\Person;
+use App\Models\Example\Person;
 use Illuminate\Http\JsonResponse;
 
 class PersonController extends Controller

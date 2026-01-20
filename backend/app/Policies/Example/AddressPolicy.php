@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Policies;
+namespace App\Policies\Example;
 
-use App\Models\Address;
+use App\Models\Example\Address;
 use App\Models\User;
 
 class AddressPolicy

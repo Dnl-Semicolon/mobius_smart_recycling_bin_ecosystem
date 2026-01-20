@@ -25,4 +25,5 @@ Thumbs.db
 
 # Claude teaching files (Z_ prefix sorts to bottom)
 Z_Claude_*
+Z_Claude.*
 Z_*

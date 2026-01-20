@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Example;
 
-use App\Http\Requests\StorePersonRequest;
-use App\Http\Requests\UpdatePersonRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Example\StorePersonRequest;
+use App\Http\Requests\Example\UpdatePersonRequest;
 use App\Logging\WideEvent;
-use App\Models\Person;
+use App\Models\Example\Person;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -19,7 +20,7 @@ class PersonController extends Controller
 
         $this->wideEvent->enrich('business.person.list_count', $people->count());
 
-        return view('pages.persons.index', compact('people'));
+        return view('pages.examples.persons.index', compact('people'));
     }
 
     public function create(): View
@@ -31,7 +32,7 @@ class PersonController extends Controller
             'business.person.state_count' => count($states),
         ]);
 
-        return view('pages.persons.create', compact('states'));
+        return view('pages.examples.persons.create', compact('states'));
     }
 
     public function store(StorePersonRequest $request): RedirectResponse
@@ -88,7 +89,7 @@ class PersonController extends Controller
             'business.address.state' => $address?->state,
         ]);
 
-        return view('pages.persons.show', compact('person'));
+        return view('pages.examples.persons.show', compact('person'));
     }
 
     public function edit(Person $person): View
@@ -101,7 +102,7 @@ class PersonController extends Controller
             'business.person.id' => $person->id,
         ]);
 
-        return view('pages.persons.edit', compact('person', 'states'));
+        return view('pages.examples.persons.edit', compact('person', 'states'));
     }
 
     public function update(UpdatePersonRequest $request, Person $person): RedirectResponse

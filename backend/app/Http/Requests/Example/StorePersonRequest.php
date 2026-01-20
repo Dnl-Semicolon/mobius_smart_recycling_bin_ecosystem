@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Example;
 
 use App\Logging\WideEvent;
 use Illuminate\Foundation\Http\FormRequest;

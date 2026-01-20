@@ -231,7 +231,7 @@ test('validation errors are captured in wide event business context', function (
     expect($event['business']['validation']['error_count'])->toBeGreaterThan(0);
     expect($event['business']['validation']['fields'])->toContain('name');
     expect($event['business']['validation']['messages'])->toHaveKey('name');
-    expect($event['business']['validation']['request'])->toBe(App\Http\Requests\StorePersonRequest::class);
+    expect($event['business']['validation']['request'])->toBe(App\Http\Requests\Example\StorePersonRequest::class);
 });
 
 test('wide event error field captures exception details when thrown', function () {

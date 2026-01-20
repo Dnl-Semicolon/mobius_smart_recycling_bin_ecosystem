@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\PersonController;
+use App\Http\Controllers\Example\PersonController;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => view('pages.home'))->name('home');
-Route::get('/components', fn () => view('pages.components-demo'));
+Route::get('/', fn () => view('pages.examples.home'))->name('home');
+Route::get('/components', fn () => view('pages.examples.components-demo'));
 
 Route::get('/persons', [PersonController::class, 'index'])->name('persons.index');
 Route::get('/persons/create', [PersonController::class, 'create'])->name('persons.create');
