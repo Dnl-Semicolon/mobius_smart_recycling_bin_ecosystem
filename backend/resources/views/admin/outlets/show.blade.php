@@ -13,6 +13,13 @@
         </x-button>
     </x-slot:actions>
 
+    {{-- Flash Messages --}}
+    @if (session('success'))
+        <div class="mb-4 p-4 rounded-xl bg-green-50 text-green-700 text-sm">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <div class="space-y-6">
         {{-- Status Badge --}}
         <div class="flex items-center gap-2">

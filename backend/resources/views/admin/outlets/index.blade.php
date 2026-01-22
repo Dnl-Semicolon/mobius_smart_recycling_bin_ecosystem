@@ -13,6 +13,13 @@
         </x-button>
     </x-slot:actions>
 
+    {{-- Flash Messages --}}
+    @if (session('success'))
+        <div class="mb-4 p-4 rounded-xl bg-green-50 text-green-700 text-sm">
+            {{ session('success') }}
+        </div>
+    @endif
+
     {{-- Filters --}}
     <form method="GET" action="{{ route('admin.outlets.index') }}" class="mb-6">
         <div class="flex gap-2">

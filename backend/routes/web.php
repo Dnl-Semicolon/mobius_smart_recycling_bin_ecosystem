@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\BinController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DetectionEventController;
 use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Example\PersonController;
 use Illuminate\Support\Facades\File;
@@ -12,17 +14,16 @@ Route::get('/', fn () => view('pages.examples.home'))->name('home');
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Outlets (Sprint 10: index, show | Sprint 11: create, store, edit, update, destroy)
-    Route::get('outlets', [OutletController::class, 'index'])->name('outlets.index');
-    Route::get('outlets/create', fn () => abort(404, 'Coming in Sprint 11'))->name('outlets.create');
-    Route::get('outlets/{outlet}', [OutletController::class, 'show'])->name('outlets.show');
-    Route::get('outlets/{outlet}/edit', fn () => abort(404, 'Coming in Sprint 11'))->name('outlets.edit');
-    Route::delete('outlets/{outlet}', fn () => abort(404, 'Coming in Sprint 11'))->name('outlets.destroy');
+    // Outlets (complete CRUD)
+    Route::resource('outlets', OutletController::class);
 
-    // Placeholder routes for future sprints (Sprint 12-14)
-    Route::get('bins', fn () => abort(404, 'Coming in Sprint 12'))->name('bins.index');
-    Route::get('bins/{bin}', fn () => abort(404, 'Coming in Sprint 12'))->name('bins.show');
-    Route::get('detection-events', fn () => abort(404, 'Coming in Sprint 14'))->name('detection-events.index');
+    // Bins (complete CRUD + assign/unassign)
+    Route::resource('bins', BinController::class);
+    Route::post('bins/{bin}/assign', [BinController::class, 'assign'])->name('bins.assign');
+    Route::post('bins/{bin}/unassign', [BinController::class, 'unassign'])->name('bins.unassign');
+
+    // Detection Events (read-only: index, show)
+    Route::resource('detection-events', DetectionEventController::class)->only(['index', 'show']);
 });
 Route::get('/components', fn () => view('pages.examples.components-demo'));
 
