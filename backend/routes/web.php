@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Example\PersonController;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
@@ -11,9 +12,16 @@ Route::get('/', fn () => view('pages.examples.home'))->name('home');
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Placeholder routes for future sprints (Sprint 10-14)
-    Route::get('outlets', fn () => abort(404, 'Coming in Sprint 10'))->name('outlets.index');
+    // Outlets (Sprint 10: index, show | Sprint 11: create, store, edit, update, destroy)
+    Route::get('outlets', [OutletController::class, 'index'])->name('outlets.index');
+    Route::get('outlets/create', fn () => abort(404, 'Coming in Sprint 11'))->name('outlets.create');
+    Route::get('outlets/{outlet}', [OutletController::class, 'show'])->name('outlets.show');
+    Route::get('outlets/{outlet}/edit', fn () => abort(404, 'Coming in Sprint 11'))->name('outlets.edit');
+    Route::delete('outlets/{outlet}', fn () => abort(404, 'Coming in Sprint 11'))->name('outlets.destroy');
+
+    // Placeholder routes for future sprints (Sprint 12-14)
     Route::get('bins', fn () => abort(404, 'Coming in Sprint 12'))->name('bins.index');
+    Route::get('bins/{bin}', fn () => abort(404, 'Coming in Sprint 12'))->name('bins.show');
     Route::get('detection-events', fn () => abort(404, 'Coming in Sprint 14'))->name('detection-events.index');
 });
 Route::get('/components', fn () => view('pages.examples.components-demo'));
