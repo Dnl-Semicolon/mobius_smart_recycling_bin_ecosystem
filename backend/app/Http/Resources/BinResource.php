@@ -21,6 +21,12 @@ class BinResource extends JsonResource
             'current_assignment' => $this->whenLoaded('currentAssignment', function () {
                 return new BinAssignmentResource($this->currentAssignment);
             }),
+            'assignments' => $this->whenLoaded('assignments', function () {
+                return BinAssignmentResource::collection($this->assignments);
+            }),
+            'recent_detections' => $this->whenLoaded('detectionEvents', function () {
+                return DetectionEventResource::collection($this->detectionEvents);
+            }),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];
