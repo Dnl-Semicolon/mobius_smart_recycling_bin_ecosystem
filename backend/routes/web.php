@@ -1,10 +1,21 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Example\PersonController;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('pages.examples.home'))->name('home');
+
+// Admin Routes
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Placeholder routes for future sprints (Sprint 10-14)
+    Route::get('outlets', fn () => abort(404, 'Coming in Sprint 10'))->name('outlets.index');
+    Route::get('bins', fn () => abort(404, 'Coming in Sprint 12'))->name('bins.index');
+    Route::get('detection-events', fn () => abort(404, 'Coming in Sprint 14'))->name('detection-events.index');
+});
 Route::get('/components', fn () => view('pages.examples.components-demo'));
 
 Route::get('/persons', [PersonController::class, 'index'])->name('persons.index');
