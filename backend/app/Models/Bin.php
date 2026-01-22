@@ -20,6 +20,11 @@ class Bin extends Model
         'status',
     ];
 
+    protected $attributes = [
+        'fill_level' => 0,
+        'status' => 'active',
+    ];
+
     protected function casts(): array
     {
         return [
