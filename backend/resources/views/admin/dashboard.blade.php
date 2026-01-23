@@ -1,4 +1,4 @@
-<x-layouts.app title="Admin Dashboard">
+<x-layouts.admin title="Admin Dashboard">
     <x-slot:header>
         Dashboard
     </x-slot:header>
@@ -110,16 +110,4 @@
         @endif
     </div>
 
-    {{-- Quick Links --}}
-    <div class="grid grid-cols-3 gap-3">
-        <x-button href="{{ route('admin.outlets.index') }}" class="justify-center">
-            Outlets
-        </x-button>
-        <x-button href="{{ route('admin.bins.index') }}" class="justify-center">
-            Bins
-        </x-button>
-        <x-button href="{{ route('admin.detection-events.index') }}" class="justify-center">
-            Events
-        </x-button>
-    </div>
-</x-layouts.app>
+</x-layouts.admin>

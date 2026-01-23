@@ -1,4 +1,4 @@
-<x-layouts.app :title="'Detection #' . $detectionEvent->id">
+<x-layouts.admin :title="'Detection #' . $detectionEvent->id">
     <x-slot:back>
         <x-back-button href="{{ route('admin.detection-events.index') }}" />
     </x-slot:back>
@@ -130,4 +130,4 @@
             </a>
         </div>
     </div>
-</x-layouts.app>
+</x-layouts.admin>

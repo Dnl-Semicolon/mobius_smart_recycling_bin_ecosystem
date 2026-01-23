@@ -1,4 +1,4 @@
-<x-layouts.app :title="$outlet->name">
+<x-layouts.admin :title="$outlet->name">
     <x-slot:back>
         <x-back-button href="{{ route('admin.outlets.index') }}" />
     </x-slot:back>
@@ -188,4 +188,4 @@
             </form>
         </div>
     </div>
-</x-layouts.app>
+</x-layouts.admin>

@@ -1,8 +1,4 @@
-<x-layouts.app title="Bins">
-    <x-slot:back>
-        <x-back-button href="{{ route('admin.dashboard') }}" />
-    </x-slot:back>
-
+<x-layouts.admin title="Bins">
     <x-slot:header>
         Bins
     </x-slot:header>
@@ -144,4 +140,4 @@
             {{ $bins->links() }}
         </div>
     @endif
-</x-layouts.app>
+</x-layouts.admin>

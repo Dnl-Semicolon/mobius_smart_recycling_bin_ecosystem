@@ -1,8 +1,4 @@
-<x-layouts.app title="Detection Events">
-    <x-slot:back>
-        <x-back-button href="{{ route('admin.dashboard') }}" />
-    </x-slot:back>
-
+<x-layouts.admin title="Detection Events">
     <x-slot:header>
         Events
     </x-slot:header>
@@ -124,4 +120,4 @@
             {{ $events->links() }}
         </div>
     @endif
-</x-layouts.app>
+</x-layouts.admin>

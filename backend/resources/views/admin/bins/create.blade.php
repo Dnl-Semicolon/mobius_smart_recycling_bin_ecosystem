@@ -1,4 +1,4 @@
-<x-layouts.app title="Create Bin">
+<x-layouts.admin title="Create Bin">
     <x-slot:back>
         <x-back-button href="{{ route('admin.bins.index') }}" />
     </x-slot:back>
@@ -68,4 +68,4 @@
             </div>
         </form>
     </x-card>
-</x-layouts.app>
+</x-layouts.admin>

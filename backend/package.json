@@ -6,6 +6,11 @@
         "build": "vite build",
         "dev": "vite"
     },
+    "dependencies": {
+        "@alpinejs/persist": "^3.14.0",
+        "alpinejs": "^3.14.0",
+        "playwright": "^1.57.0"
+    },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.11.0",

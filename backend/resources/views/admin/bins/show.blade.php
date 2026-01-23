@@ -1,4 +1,4 @@
-<x-layouts.app :title="$bin->serial_number">
+<x-layouts.admin :title="$bin->serial_number">
     <x-slot:back>
         <x-back-button href="{{ route('admin.bins.index') }}" />
     </x-slot:back>
@@ -210,4 +210,4 @@
             </form>
         </div>
     </div>
-</x-layouts.app>
+</x-layouts.admin>

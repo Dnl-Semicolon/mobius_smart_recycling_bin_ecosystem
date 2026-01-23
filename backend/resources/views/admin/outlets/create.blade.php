@@ -1,4 +1,4 @@
-<x-layouts.app title="Create Outlet">
+<x-layouts.admin title="Create Outlet">
     <x-slot:back>
         <x-back-button href="{{ route('admin.outlets.index') }}" />
     </x-slot:back>
@@ -128,4 +128,4 @@
             </div>
         </form>
     </x-card>
-</x-layouts.app>
+</x-layouts.admin>
