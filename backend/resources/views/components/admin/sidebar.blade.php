@@ -35,9 +35,9 @@
 
     {{-- Navigation --}}
     <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
-        <x-admin.sidebar-item route="admin.dashboard" label="Dashboard" />
-        <x-admin.sidebar-item route="admin.outlets.index" label="Outlets" match="admin.outlets.*" />
-        <x-admin.sidebar-item route="admin.bins.index" label="Bins" match="admin.bins.*" />
-        <x-admin.sidebar-item route="admin.detection-events.index" label="Detection Events" match="admin.detection-events.*" />
+        <x-admin.sidebar-item route="admin.dashboard" label="Dashboard" :exact="true" />
+        <x-admin.sidebar-item route="admin.outlets.index" label="Outlets" />
+        <x-admin.sidebar-item route="admin.bins.index" label="Bins" />
+        <x-admin.sidebar-item route="admin.detection-events.index" label="Detection Events" />
     </nav>
 </aside>

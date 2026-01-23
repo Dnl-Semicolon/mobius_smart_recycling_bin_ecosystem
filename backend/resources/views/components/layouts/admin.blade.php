@@ -15,8 +15,10 @@
     hx-boost="true"
     x-data="{
         sidebarOpen: $persist(true).as('admin-sidebar-open'),
-        mobileMenuOpen: false
+        mobileMenuOpen: false,
+        currentPath: window.location.pathname
     }"
+    @htmx:pushed-into-history.window="currentPath = window.location.pathname"
 >
     {{-- Mobile overlay --}}
     <div

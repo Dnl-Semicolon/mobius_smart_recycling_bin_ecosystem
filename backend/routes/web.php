@@ -4,11 +4,10 @@ use App\Http\Controllers\Admin\BinController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DetectionEventController;
 use App\Http\Controllers\Admin\OutletController;
-use App\Http\Controllers\Example\PersonController;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => view('pages.examples.home'))->name('home');
+Route::get('/', fn () => redirect()->route('admin.dashboard'));
 
 // Admin Routes
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -25,16 +24,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Detection Events (read-only: index, show)
     Route::resource('detection-events', DetectionEventController::class)->only(['index', 'show']);
 });
-Route::get('/components', fn () => view('pages.examples.components-demo'));
-
-Route::get('/persons', [PersonController::class, 'index'])->name('persons.index');
-Route::get('/persons/create', [PersonController::class, 'create'])->name('persons.create');
-Route::post('/persons', [PersonController::class, 'store'])->name('persons.store');
-Route::get('/persons/{person}', [PersonController::class, 'show'])->name('persons.show');
-Route::get('/persons/{person}/edit', [PersonController::class, 'edit'])->name('persons.edit');
-Route::put('/persons/{person}', [PersonController::class, 'update'])->name('persons.update');
-Route::delete('/persons/{person}', [PersonController::class, 'destroy'])->name('persons.destroy');
-
 Route::get('/wide-events-log', function () {
     if (! app()->isLocal()) {
         abort(403);
