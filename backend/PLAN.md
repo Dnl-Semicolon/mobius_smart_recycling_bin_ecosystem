@@ -100,6 +100,7 @@ This demo shows that our bin can identify common waste items in real time, class
 - **What it does:** Runs single-image object detection and prints one JSON result containing class, confidence, and bounding box.
 - **What it proves:** The inference path can read an image, produce a detection, and output a structured result for downstream logging.
 - **What it does NOT do:** No training, no dataset handling, no batch processing, no UI integration.
+- A lightweight COCO → waste_type mapping layer ensures demo compatibility. This is a temporary pre-training bridge.
 
 ## Next Step (One Task Only)
 - Add a simple filename → `waste_type` mapping list in `ai/data/cups_raw/seed/labels_seed.csv` (done).

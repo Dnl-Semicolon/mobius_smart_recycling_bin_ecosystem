@@ -6,7 +6,7 @@ Usage:
     python ai/src/yolo_infer_one.py /path/to/image.jpg
 
 Outputs JSON to stdout:
-    {"class": "cup", "confidence": 0.93, "bbox": [x, y, w, h]}
+    {"waste_type": "paper_cup", "raw_class": "cup", "confidence": 0.93, "bbox": [x, y, w, h], "model_version": "yolo11n"}
 """
 from __future__ import annotations
 
@@ -14,6 +14,8 @@ import argparse
 import json
 from pathlib import Path
 from typing import Any
+
+from yolo_waste_map import map_to_waste_type
 
 
 def parse_args() -> argparse.Namespace:
@@ -31,9 +33,11 @@ def parse_args() -> argparse.Namespace:
 
 def build_empty_result() -> dict[str, Any]:
     return {
-        "class": None,
+        "waste_type": None,
+        "raw_class": None,
         "confidence": 0.0,
         "bbox": [0, 0, 0, 0],
+        "model_version": "yolo11n",
     }
 
 
@@ -75,10 +79,14 @@ def main() -> int:
     xywh = boxes.xywh[best_index].tolist()
     bbox = [float(x) for x in xywh]
 
+    waste_type = map_to_waste_type(class_name)
+
     output = {
-        "class": class_name,
+        "waste_type": waste_type,
+        "raw_class": class_name,
         "confidence": confidence,
         "bbox": bbox,
+        "model_version": "yolo11n",
     }
 
     print(json.dumps(output))
