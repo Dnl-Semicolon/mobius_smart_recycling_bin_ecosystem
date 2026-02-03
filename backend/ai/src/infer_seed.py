@@ -1,61 +1,109 @@
 #!/usr/bin/env python3
+"""
+[4] INFER SEED — Run inference on all seed images.
+
+WHY THIS FILE EXISTS:
+This is the main entry point for batch inference. It reads your labeled
+dataset (CSV), runs each image through the model, and writes results to
+a JSONL file. Other scripts (report.py) read this output.
+
+USAGE:
+    python ai/src/infer_seed.py
+
+OUTPUT:
+    ai/runs/seed_inference_results.jsonl
+
+PREVIOUS: class_map.py [3] for the ImageNet → waste_type bridge.
+NEXT: report.py [5] to see human-readable results.
+"""
 import csv
 import json
-from pathlib import Path
 
-from PIL import Image
-import torch
-from torchvision import models
+from config import SEED_DIR, SEED_LABELS_CSV, SEED_RESULTS_JSONL
+from core import infer_image
 
 
-def load_model():
-    weights = models.MobileNet_V2_Weights.DEFAULT
-    model = models.mobilenet_v2(weights=weights)
-    model.eval()
-    return model, weights
+# =============================================================================
+# [4.1] MAIN FUNCTION
+# =============================================================================
 
+def main() -> int:
+    """
+    Run inference on all images listed in the seed CSV.
 
-def infer(image_path: Path, model, weights):
-    image = Image.open(image_path).convert("RGB")
-    tensor = weights.transforms()(image).unsqueeze(0)
+    HOW IT WORKS:
+    1. Read labels_seed.csv to get (filename, expected_waste_type) pairs
+    2. For each image, run inference via core.infer_image()
+    3. Write results to JSONL (one JSON object per line)
 
-    with torch.no_grad():
-        logits = model(tensor)
-        probs = torch.nn.functional.softmax(logits, dim=1)
+    WHY JSONL:
+    JSON Lines format is easy to append to and stream-process.
+    Each line is independent, so you can read line-by-line without
+    loading the entire file into memory.
+    """
 
-    confidence, index = probs.max(1)
-    categories = weights.meta.get("categories", [])
-    label = categories[index.item()] if categories else f"class_{index.item()}"
-    return label, float(confidence.item())
+    # [4.1.1] Validate input file exists
+    if not SEED_LABELS_CSV.exists():
+        print(f"Error: Labels file not found: {SEED_LABELS_CSV}")
+        print("Make sure you have images in ai/data/cups_raw/seed/")
+        return 1
 
+    # [4.1.2] Ensure output directory exists
+    SEED_RESULTS_JSONL.parent.mkdir(parents=True, exist_ok=True)
 
-def main() -> None:
-    labels_path = Path("ai/data/cups_raw/seed/labels_seed.csv")
-    output_path = Path("ai/runs/seed_inference_results.jsonl")
+    # [4.1.3] Process each image
+    results_written = 0
 
-    model, weights = load_model()
+    with (
+        SEED_LABELS_CSV.open("r", encoding="utf-8", newline="") as csv_file,
+        SEED_RESULTS_JSONL.open("w", encoding="utf-8") as output_file,
+    ):
+        reader = csv.DictReader(csv_file)
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with labels_path.open(newline="", encoding="utf-8") as handle, output_path.open(
-        "w", encoding="utf-8"
-    ) as out:
-        reader = csv.DictReader(handle)
         for row in reader:
             filename = row["filename"].strip()
-            expected = row["waste_type"].strip()
-            image_path = labels_path.parent / filename
+            expected_waste_type = row["waste_type"].strip()
+            image_path = SEED_DIR / filename
 
-            predicted, confidence = infer(image_path, model, weights)
+            # [4.1.4] Skip missing images with a warning
+            if not image_path.exists():
+                print(f"Warning: Image not found, skipping: {image_path}")
+                continue
 
+            # [4.1.5] Run inference
+            result = infer_image(image_path)
+
+            # [4.1.6] Build output record
             record = {
                 "filename": filename,
-                "predicted_waste_type": predicted,
-                "confidence": confidence,
-                "expected_waste_type": expected,
+                "expected_waste_type": expected_waste_type,
+                "predicted_waste_type": result.predicted_label,
+                "confidence": result.confidence,
             }
-            out.write(json.dumps(record) + "\n")
+
+            # [4.1.7] Write as JSON line
+            output_file.write(json.dumps(record) + "\n")
+            results_written += 1
+
+    # [4.1.8] Summary
+    print(f"Inference complete: {results_written} images processed")
+    print(f"Results written to: {SEED_RESULTS_JSONL}")
+    print()
+    print("Next step: python ai/src/report.py")
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
+
+
+# =============================================================================
+# [4.2] READING ORDER
+# =============================================================================
+#
+# You're reading:  [4] infer_seed.py
+# Previous:        [3] class_map.py — ImageNet → waste_type mappings
+# Next read:       [5] report.py    — human-readable output
+#
+# =============================================================================

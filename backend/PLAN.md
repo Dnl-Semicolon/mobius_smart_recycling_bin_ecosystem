@@ -68,3 +68,65 @@
 
 ## Next Step (One Task Only)
 - Add a simple filename → `waste_type` mapping list in `ai/data/cups_raw/seed/labels_seed.csv` (done).
+
+---
+
+## AI Tooling Workflow (How to Use the Scripts)
+
+### Quick Reference
+
+| Script | Purpose | Command |
+|--------|---------|---------|
+| `infer_one.py` | Single image inference | `python ai/src/infer_one.py <image_path>` |
+| `infer_seed.py` | Batch inference on seed dataset | `python ai/src/infer_seed.py` |
+| `evaluate_seed.py` | Show accuracy stats | `python ai/src/evaluate_seed.py` |
+| `report_seed.py` | Human-readable report | `python ai/src/report_seed.py` |
+| `check_seed_data.py` | Verify CSV matches files | `python ai/src/check_seed_data.py` |
+| `add_image.py` | Add new image to dataset | `python ai/src/add_image.py <path> <label>` |
+
+### Before Running Any Script
+
+```bash
+cd /Users/danieltan/mobius_smart_recycling_bin_ecosystem/backend
+source ai/.venv/bin/activate
+```
+
+### Adding New Images (Phase 1B Workflow)
+
+1. **Take a photo** of a cup/lid/straw/etc.
+2. **Add it to the dataset:**
+   ```bash
+   python ai/src/add_image.py ~/Desktop/my_photo.jpg cup
+   ```
+   - Auto-generates filename like `cup_16.jpg`
+   - Or use custom name: `--name cup_16_blue_plastic.jpg`
+   - Preview first: `--dry-run`
+
+3. **Verify integrity:**
+   ```bash
+   python ai/src/check_seed_data.py
+   ```
+
+4. **Re-run inference:**
+   ```bash
+   python ai/src/infer_seed.py
+   python ai/src/report_seed.py
+   ```
+
+### Valid Waste Types (Labels)
+
+Use consistent labels. Current convention:
+- `cup` — any cup (paper or plastic)
+- `plastic_cup` — specifically plastic
+- `paper_cup` — specifically paper
+- `lid` — cup lids
+- `straw` — straws
+- `napkin` — napkins
+- `liquid_waste` — spilled liquids
+- `unknown` — test images or unclear items
+
+### Output Locations
+
+- Inference results: `ai/runs/seed_inference_results.jsonl`
+- Images: `ai/data/cups_raw/seed/` (gitignored)
+- Labels: `ai/data/cups_raw/seed/labels_seed.csv` (committed)
