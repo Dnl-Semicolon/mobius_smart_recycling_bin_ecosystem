@@ -1,0 +1,7 @@
+/data/**
+/runs/**
+/models/**
+
+!/data/README.md
+!/data/cups_raw/.gitkeep
+!/data/cups_labeled/.gitkeep

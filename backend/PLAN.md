@@ -46,3 +46,20 @@
   - Verify the event appears in the admin UI list and detail view.
 - **Done means:** One real photo leads to one visible `detection_events` record with plausible `waste_type` and `confidence`, tied to a real `bin_id`.
 - **Do NOT do yet:** No model training, no automated pipelines, no new tables, no background jobs, no optimization or scaling work.
+
+## Phase 1: Cup Object Detection Dataset + Labeling (No Training Yet)
+
+### Phase 1A: Seed Dataset (10–30 images, no labeling tools)
+- **Goal:** A stress-free, same-day starter set that proves capture and basic organization.
+- **Images to collect:** 10–30 photos across simple variations: paper/plastic cups, lids, straws, napkins, liquid spills; empty vs. partially filled bins; mixed backgrounds and lighting.
+- **Label format to use:** Simple file naming or a tiny CSV/JSON list that maps filename → `waste_type` (no boxes yet).
+- **Tool to label with:** None. Manual notes only.
+- **Where to store data safely (gitignore guidance):** Keep images in `ai/data/cups_raw/seed/` and make sure `ai/data/` is gitignored.
+- **Done means:** 10–30 images captured, organized, and mapped to `waste_type` values.
+
+### Phase 1B: Full Dataset (later)
+- **Images to collect (quantity + variety):** 500–1,000 images covering real outlet conditions: different cup materials, lids/straws/napkins, liquid spills, empty/partial/full bins, varied lighting, angles, and backgrounds.
+- **Label format to use:** COCO-style bounding boxes with categories matching `waste_type` (`paper_cup`, `plastic_cup`, `lid`, `straw`, `napkin`, `liquid_waste`).
+- **Tool to label with:** CVAT (self-hosted or desktop) for consistent COCO export.
+- **Where to store data safely (gitignore guidance):** Keep raw images and labels outside git or in `ai/data/` with gitignore protection.
+- **Done means:** A COCO export, a stable category list aligned to `waste_type`, and a documented image count and split (train/val/test).
