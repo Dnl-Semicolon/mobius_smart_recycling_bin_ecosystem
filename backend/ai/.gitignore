@@ -2,6 +2,11 @@
 /runs/**
 /models/**
 
+!/data/
 !/data/README.md
+!/data/cups_raw/
 !/data/cups_raw/.gitkeep
+!/data/cups_raw/seed/
+!/data/cups_raw/seed/README.md
+!/data/cups_labeled/
 !/data/cups_labeled/.gitkeep
