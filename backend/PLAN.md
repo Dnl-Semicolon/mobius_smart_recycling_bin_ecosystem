@@ -37,6 +37,7 @@
 - **What assumptions must be preserved now so AI training/inference is possible later:** Do not overwrite or delete historical detection events or assignments (history is training data). Keep enums like `waste_type` and `status` stable and versioned if they ever change. Preserve consistent time semantics (`detected_at`, `assigned_at`, `unassigned_at`) and units (fill level 0–100, lat/long decimals). Maintain durable storage for `image_path` assets so future training can access the raw inputs.
 
 ## Phase 0: Camera → Inference on Mac (No Training)
+- **Status:** Completed. Local inference script works.
 - **Goal:** Prove you can capture a real image on your Mac, run a single local inference, and record the result using existing data terms (`waste_type`, `confidence`, `detected_at`, `image_path`).
 - **Steps (setup → run → output):**
   - Confirm you can capture a photo from a Mac camera and save it locally with a clear filename.
@@ -50,6 +51,7 @@
 ## Phase 1: Cup Object Detection Dataset + Labeling (No Training Yet)
 
 ### Phase 1A: Seed Dataset (10–30 images, no labeling tools)
+- **Status:** Completed. Seed images captured with naming convention; README added. Images are not committed.
 - **Goal:** A stress-free, same-day starter set that proves capture and basic organization.
 - **Images to collect:** 10–30 photos across simple variations: paper/plastic cups, lids, straws, napkins, liquid spills; empty vs. partially filled bins; mixed backgrounds and lighting.
 - **Label format to use:** Simple file naming or a tiny CSV/JSON list that maps filename → `waste_type` (no boxes yet).
@@ -63,3 +65,6 @@
 - **Tool to label with:** CVAT (self-hosted or desktop) for consistent COCO export.
 - **Where to store data safely (gitignore guidance):** Keep raw images and labels outside git or in `ai/data/` with gitignore protection.
 - **Done means:** A COCO export, a stable category list aligned to `waste_type`, and a documented image count and split (train/val/test).
+
+## Next Step (One Task Only)
+- Add a simple filename → `waste_type` mapping list in `ai/data/cups_raw/seed/labels_seed.csv` (done).
