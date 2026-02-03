@@ -66,6 +66,41 @@
 - **Where to store data safely (gitignore guidance):** Keep raw images and labels outside git or in `ai/data/` with gitignore protection.
 - **Done means:** A COCO export, a stable category list aligned to `waste_type`, and a documented image count and split (train/val/test).
 
+## Phase 3: Object Detection Demo Checklist (YOLO-class)
+
+### 1) Demo Goal (1–2 sentences)
+Phase 3 demonstrates that the system can detect and classify common waste items at the bin in real time and record the result as a detection event. It proves smart waste sorting behavior without any brand recognition.
+
+### 2) Pre-Demo Setup Checklist
+- Camera is mounted at a fixed angle with the bin fully in view.
+- Lighting is stable and adequate for item visibility.
+- Demo bin is assigned and active in the system.
+- Model file is present and accessible to the inference runner.
+- Waste-type classes are defined and match system labels.
+- Inference script exists and can run on a single frame.
+- Image storage path is writable (if images are captured).
+- Admin UI is accessible for verification.
+
+### 3) Live Demo Steps
+1. Show the bin in its idle state and confirm the demo bin identity.
+2. Insert one item (e.g., cup, lid, straw, napkin) into the bin.
+3. System performs object detection and classifies the item’s waste type.
+4. Bin performs the expected sorting action for that class.
+5. A detection event is logged with time, bin, class, and confidence.
+
+### 4) Post-Demo Verification
+- Admin Detection Events list shows the new event with waste type, confidence, and timestamp.
+- Detection Event detail view shows the associated bin and current outlet (if assigned).
+- If an image was captured, it is visible in the event detail view.
+
+### 5) 30-Second Examiner Explanation
+This demo shows that our bin can identify common waste items in real time, classify them into the correct waste-type category, and record each detection as a system event. The focus is on practical sorting accuracy and traceability in the admin UI, not on brand recognition.
+
+## YOLOv11 Inference Stub
+- **What it does:** Runs single-image object detection and prints one JSON result containing class, confidence, and bounding box.
+- **What it proves:** The inference path can read an image, produce a detection, and output a structured result for downstream logging.
+- **What it does NOT do:** No training, no dataset handling, no batch processing, no UI integration.
+
 ## Next Step (One Task Only)
 - Add a simple filename → `waste_type` mapping list in `ai/data/cups_raw/seed/labels_seed.csv` (done).
 
