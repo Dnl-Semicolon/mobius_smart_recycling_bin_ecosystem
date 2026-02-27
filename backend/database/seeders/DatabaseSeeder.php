@@ -15,6 +15,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Admin account — use this to log in and demo the admin panel
+        User::factory()->admin()->create([
+            'name' => 'Admin',
+            'email' => 'admin@mobius.test',
+        ]);
+
+        // Collector account — use this to log in as a waste collector
+        User::factory()->collector()->create([
+            'name' => 'Collector',
+            'email' => 'collector@mobius.test',
+        ]);
+
+        // Regular public user
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
@@ -24,6 +37,7 @@ class DatabaseSeeder extends Seeder
             OutletSeeder::class,
             BinSeeder::class,
             DetectionEventSeeder::class,
+            PickupRequestSeeder::class,
         ]);
     }
 }

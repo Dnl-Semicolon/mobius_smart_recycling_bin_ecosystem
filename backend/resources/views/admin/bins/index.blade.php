@@ -5,13 +5,15 @@
 
     <x-slot:actions>
         <x-button href="{{ route('admin.bins.create') }}">
+            <x-heroicon-o-plus class="w-4 h-4" />
             Add
         </x-button>
     </x-slot:actions>
 
     {{-- Flash Messages --}}
     @if (session('success'))
-        <div class="mb-4 p-4 rounded-xl bg-green-50 text-green-700 text-sm">
+        <div class="mb-4 p-4 rounded-xl bg-emerald-50 text-emerald-700 text-sm flex items-center gap-2">
+            <x-heroicon-o-check-circle class="w-5 h-5 shrink-0" />
             {{ session('success') }}
         </div>
     @endif
@@ -27,14 +29,15 @@
                     :value="request('search')"
                     class="flex-1"
                 />
-                <x-button type="submit">
+                <x-button type="submit" variant="secondary">
+                    <x-heroicon-o-funnel class="w-4 h-4" />
                     Filter
                 </x-button>
             </div>
             <div class="flex gap-2 flex-wrap">
                 <select
                     name="status"
-                    class="rounded-xl border-gray-200 text-sm focus:border-gray-300 focus:ring focus:ring-gray-200 focus:ring-opacity-50"
+                    class="rounded-xl border-gray-200 text-sm focus:border-emerald-400 focus:ring focus:ring-emerald-200 focus:ring-opacity-50"
                 >
                     <option value="">All Status</option>
                     @foreach ($statuses as $status)
@@ -45,7 +48,7 @@
                 </select>
                 <select
                     name="outlet"
-                    class="rounded-xl border-gray-200 text-sm focus:border-gray-300 focus:ring focus:ring-gray-200 focus:ring-opacity-50"
+                    class="rounded-xl border-gray-200 text-sm focus:border-emerald-400 focus:ring focus:ring-emerald-200 focus:ring-opacity-50"
                 >
                     <option value="">All Outlets</option>
                     @foreach ($outlets as $outlet)
@@ -60,7 +63,7 @@
                         name="ready_for_pickup"
                         value="1"
                         @checked(request('ready_for_pickup'))
-                        class="rounded border-gray-300 text-gray-900 focus:ring-gray-200"
+                        class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-200"
                         onchange="this.form.submit()"
                     >
                     Ready for pickup
@@ -72,8 +75,10 @@
     @if ($bins->isEmpty())
         {{-- Empty State --}}
         <x-card variant="subtle" class="text-center py-16">
+            <x-heroicon-o-archive-box class="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p class="text-gray-400 mb-6">No bins found</p>
             <x-button href="{{ route('admin.bins.create') }}">
+                <x-heroicon-o-plus class="w-4 h-4" />
                 Create your first bin
             </x-button>
         </x-card>
@@ -86,10 +91,10 @@
                     $fillColor = match(true) {
                         $bin->fill_level >= 80 => 'bg-red-500',
                         $bin->fill_level >= 50 => 'bg-yellow-500',
-                        default => 'bg-green-500',
+                        default => 'bg-emerald-500',
                     };
                     $statusColors = [
-                        'active' => 'bg-green-100 text-green-700',
+                        'active' => 'bg-emerald-100 text-emerald-700',
                         'inactive' => 'bg-gray-100 text-gray-600',
                         'maintenance' => 'bg-orange-100 text-orange-700',
                     ];
@@ -100,25 +105,30 @@
                     class="p-5 {{ $isReadyForPickup ? 'ring-2 ring-red-200' : '' }}"
                 >
                     <div class="flex items-center justify-between gap-4">
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-2">
-                                <h2 class="font-semibold text-gray-900">{{ $bin->serial_number }}</h2>
-                                @if ($isReadyForPickup)
-                                    <span class="text-xs bg-red-100 text-red-700 rounded-full px-2 py-0.5">
-                                        Pickup
-                                    </span>
-                                @endif
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-xl {{ $isReadyForPickup ? 'bg-red-50' : 'bg-emerald-50' }} flex items-center justify-center shrink-0">
+                                <x-heroicon-s-archive-box class="w-5 h-5 {{ $isReadyForPickup ? 'text-red-500' : 'text-emerald-600' }}" />
                             </div>
-                            <p class="text-sm text-gray-500 mt-0.5">
-                                @if ($bin->currentAssignment)
-                                    {{ $bin->currentAssignment->outlet->name }}
-                                @else
-                                    <span class="text-gray-400">Unassigned</span>
-                                @endif
-                            </p>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h2 class="font-semibold text-gray-900">{{ $bin->serial_number }}</h2>
+                                    @if ($isReadyForPickup)
+                                        <span class="text-xs font-medium bg-red-100 text-red-700 rounded-full px-2 py-0.5">
+                                            Pickup
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="text-sm text-gray-500 mt-0.5">
+                                    @if ($bin->currentAssignment)
+                                        {{ $bin->currentAssignment->outlet->name }}
+                                    @else
+                                        <span class="text-gray-400">Unassigned</span>
+                                    @endif
+                                </p>
+                            </div>
                         </div>
                         <div class="shrink-0 flex flex-col items-end gap-2">
-                            <span class="text-xs rounded-full px-2.5 py-1 {{ $statusColors[$bin->status->value] ?? 'bg-gray-100 text-gray-600' }}">
+                            <span class="text-xs font-medium rounded-full px-2.5 py-1 {{ $statusColors[$bin->status->value] ?? 'bg-gray-100 text-gray-600' }}">
                                 {{ ucfirst($bin->status->value) }}
                             </span>
                             <div class="flex items-center gap-2">

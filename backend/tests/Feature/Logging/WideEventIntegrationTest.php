@@ -2,12 +2,16 @@
 
 use App\Logging\Sampling\TailSampler;
 use App\Logging\WideEvent;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
+use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+
     // Clear the wide events log before each test
     $logPath = storage_path('logs/wide-events.log');
     if (file_exists($logPath)) {

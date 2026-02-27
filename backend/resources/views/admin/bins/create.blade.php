@@ -13,7 +13,10 @@
 
             {{-- Bin Info Section --}}
             <div class="form-section">
-                <h2 class="form-section-title">Bin Info</h2>
+                <h2 class="form-section-title flex items-center gap-1.5">
+                    <x-heroicon-o-archive-box class="w-3.5 h-3.5" />
+                    Bin Info
+                </h2>
                 <div class="space-y-4">
                     <x-input
                         name="serial_number"
@@ -24,7 +27,7 @@
                     />
 
                     <div>
-                        <label for="fill_level" class="block text-sm font-medium text-gray-700 mb-1">
+                        <label for="fill_level" class="block text-sm font-medium text-gray-600 mb-1.5">
                             Fill Level
                         </label>
                         <div class="flex items-center gap-4">
@@ -35,16 +38,16 @@
                                 min="0"
                                 max="100"
                                 value="{{ old('fill_level', 0) }}"
-                                class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                                 oninput="document.getElementById('fill_level_display').textContent = this.value + '%'"
                             >
                             <span id="fill_level_display" class="text-sm font-medium text-gray-700 w-12 text-right">
                                 {{ old('fill_level', 0) }}%
                             </span>
                         </div>
-                        <p class="mt-1 text-xs text-gray-500">Current fill level (0-100%)</p>
+                        <p class="mt-1 text-xs text-gray-400">Current fill level (0-100%)</p>
                         @error('fill_level')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-xs text-red-600 font-medium">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -60,6 +63,7 @@
             {{-- Actions --}}
             <div class="flex items-center gap-3 pt-2">
                 <x-button type="submit">
+                    <x-heroicon-o-check class="w-4 h-4" />
                     Create Bin
                 </x-button>
                 <x-button href="{{ route('admin.bins.index') }}" variant="ghost">

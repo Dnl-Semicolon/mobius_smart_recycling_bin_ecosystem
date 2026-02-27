@@ -8,7 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Bin;
 use App\Models\DetectionEvent;
 use App\Models\Outlet;
+use App\Models\PickupRequest;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
@@ -51,6 +53,39 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'binsNeedingPickup', 'recentDetections'));
+        // Chart data
+        $chartData = [
+            'wasteTypes' => DetectionEvent::query()
+                ->selectRaw('waste_type, count(*) as count')
+                ->whereNotNull('waste_type')
+                ->groupBy('waste_type')
+                ->pluck('count', 'waste_type')
+                ->toArray(),
+            'weeklyDetections' => $this->getWeeklyDetections(),
+            'pickupStatuses' => PickupRequest::query()
+                ->selectRaw('status, count(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status')
+                ->toArray(),
+        ];
+
+        return view('admin.dashboard', compact('stats', 'binsNeedingPickup', 'recentDetections', 'chartData'));
+    }
+
+    /**
+     * @return array{labels: list<string>, data: list<int>}
+     */
+    private function getWeeklyDetections(): array
+    {
+        $labels = [];
+        $data = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            $labels[] = $date->format('D');
+            $data[] = DetectionEvent::whereDate('detected_at', $date)->count();
+        }
+
+        return ['labels' => $labels, 'data' => $data];
     }
 }

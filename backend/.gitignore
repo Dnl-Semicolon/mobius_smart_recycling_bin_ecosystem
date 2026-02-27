@@ -28,3 +28,6 @@ Thumbs.db
 Z_Claude_*
 Z_Claude.*
 Z_*
+
+# Archive (moved non-Laravel clutter here)
+/_archive

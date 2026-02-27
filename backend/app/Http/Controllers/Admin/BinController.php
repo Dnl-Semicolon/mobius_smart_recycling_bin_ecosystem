@@ -66,6 +66,8 @@ class BinController extends Controller
     {
         $bin->load([
             'currentAssignment.outlet',
+            'activePickupRequest.claimedBy',
+            'pickupRequests' => fn ($q) => $q->with('claimedBy')->latest()->limit(10),
             'assignments' => fn ($q) => $q->with('outlet')->latest('assigned_at'),
             'detectionEvents' => fn ($q) => $q->latest('detected_at')->limit(20),
         ]);

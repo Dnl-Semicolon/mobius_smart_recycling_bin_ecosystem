@@ -59,6 +59,21 @@
 - **Where to store data safely (gitignore guidance):** Keep images in `ai/data/cups_raw/seed/` and make sure `ai/data/` is gitignored.
 - **Done means:** 10–30 images captured, organized, and mapped to `waste_type` values.
 
+## Phase 1B: YOLO Day-1 Dataset (One Afternoon)
+- **Exact image targets (total 250):**
+  - Cups: 120
+  - Lids: 60
+  - Straws: 50
+  - Liquid spills: 20
+- **Capture rules:** Fixed camera angle; consistent lighting (no backlight); distances at ~0.5m, 1.0m, 1.5m; plain and cluttered backgrounds; include empty bin context in 30% of shots.
+- **Labeling tool options:** Roboflow or CVAT.
+- **Output format:** YOLO `.txt` labels (one file per image).
+- **Where to store (gitignored):**
+  - Raw images: `ai/data/cups_raw/yolo_day1/`
+  - Labeled exports: `ai/data/cups_labeled/yolo_day1/`
+  - Reminder: `ai/data/` remains gitignored.
+- **Definition of done:** 250 images captured, 80 images labeled with boxes, and a YOLO export generated.
+
 ### Phase 1B: Full Dataset (later)
 - **Images to collect (quantity + variety):** 500–1,000 images covering real outlet conditions: different cup materials, lids/straws/napkins, liquid spills, empty/partial/full bins, varied lighting, angles, and backgrounds.
 - **Label format to use:** COCO-style bounding boxes with categories matching `waste_type` (`paper_cup`, `plastic_cup`, `lid`, `straw`, `napkin`, `liquid_waste`).

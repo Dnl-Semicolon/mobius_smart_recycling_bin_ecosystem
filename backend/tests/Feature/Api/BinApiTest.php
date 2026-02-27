@@ -5,9 +5,15 @@ use App\Models\Bin;
 use App\Models\BinAssignment;
 use App\Models\DetectionEvent;
 use App\Models\Outlet;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+});
 
 // Index tests
 test('index returns paginated bins', function () {

@@ -6,29 +6,31 @@
 @source '../**/*.js';
 
 @theme {
-    --font-nunito: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+    --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --color-brand-50: oklch(0.97 0.02 160);
+    --color-brand-100: oklch(0.94 0.04 160);
+    --color-brand-500: oklch(0.60 0.15 160);
+    --color-brand-600: oklch(0.53 0.14 160);
+    --color-brand-700: oklch(0.46 0.13 160);
 }
 
-/* Base transitions */
+/* Base */
 @layer base {
     button, a, input, select, textarea {
         @apply transition-all duration-200 ease-out;
     }
 
-    /* Remove default focus outline, we handle it ourselves */
     *:focus {
         outline: none;
     }
 
-    /* Alpine.js cloak - hide until Alpine loads */
     [x-cloak] {
         display: none !important;
     }
 }
 
-/* Glass effects and core utilities */
+/* Components */
 @layer components {
-    /* Glass cards */
     .glass {
         @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-lg shadow-black/5;
     }
@@ -37,17 +39,14 @@
         @apply bg-white/50 backdrop-blur-md border border-gray-200/50 shadow-sm;
     }
 
-    /* Pill shape */
     .pill {
         @apply rounded-full px-4 py-2;
     }
 
-    /* Focus ring - Apple TV inspired glow */
     .focus-ring {
-        @apply focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
+        @apply focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
     }
 
-    /* Interactive card - for clickable cards */
     .card-interactive {
         @apply transition-all duration-200 ease-out;
     }
@@ -57,19 +56,17 @@
     }
 
     .card-interactive:focus-visible {
-        @apply ring-2 ring-black/20 ring-offset-2 ring-offset-transparent bg-white/90 -translate-y-0.5;
+        @apply ring-2 ring-emerald-500/20 ring-offset-2 ring-offset-transparent bg-white/90 -translate-y-0.5;
     }
 
     .card-interactive:active {
         @apply translate-y-0 shadow-lg;
     }
 
-    /* Form input focus - subtle inner glow */
     .input-focus {
-        @apply focus:border-gray-400 focus:bg-white focus:shadow-sm focus:shadow-black/5;
+        @apply focus:border-emerald-400 focus:bg-white focus:shadow-sm focus:shadow-emerald-500/5;
     }
 
-    /* Section divider for form groupings */
     .form-section {
         @apply relative pl-4 border-l-2 border-gray-200/60;
     }

@@ -14,7 +14,10 @@
 
             {{-- Basic Info Section --}}
             <div class="form-section">
-                <h2 class="form-section-title">Basic Info</h2>
+                <h2 class="form-section-title flex items-center gap-1.5">
+                    <x-heroicon-o-information-circle class="w-3.5 h-3.5" />
+                    Basic Info
+                </h2>
                 <div class="space-y-4">
                     <x-input
                         name="name"
@@ -25,7 +28,7 @@
                     />
 
                     <div>
-                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">
+                        <label for="address" class="block text-sm font-medium text-gray-600 mb-1.5">
                             Address <span class="text-red-500">*</span>
                         </label>
                         <textarea
@@ -34,10 +37,10 @@
                             rows="3"
                             placeholder="Full street address"
                             required
-                            class="w-full rounded-xl border-gray-200 text-sm focus:border-gray-300 focus:ring focus:ring-gray-200 focus:ring-opacity-50 @error('address') border-red-300 @enderror"
+                            class="w-full rounded-xl border-gray-200/80 bg-white/60 text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/10 @error('address') border-red-300 @enderror"
                         >{{ old('address', $outlet->address) }}</textarea>
                         @error('address')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-xs text-red-600 font-medium">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -82,7 +85,10 @@
 
             {{-- Contact Info Section --}}
             <div class="form-section">
-                <h2 class="form-section-title">Contact Info</h2>
+                <h2 class="form-section-title flex items-center gap-1.5">
+                    <x-heroicon-o-user class="w-3.5 h-3.5" />
+                    Contact Info
+                </h2>
                 <div class="space-y-4">
                     <x-input
                         name="contact_name"
@@ -111,17 +117,20 @@
 
             {{-- Notes Section --}}
             <div class="form-section">
-                <h2 class="form-section-title">Notes</h2>
+                <h2 class="form-section-title flex items-center gap-1.5">
+                    <x-heroicon-o-document-text class="w-3.5 h-3.5" />
+                    Notes
+                </h2>
                 <div>
                     <textarea
                         name="notes"
                         id="notes"
                         rows="4"
                         placeholder="Additional notes about this outlet..."
-                        class="w-full rounded-xl border-gray-200 text-sm focus:border-gray-300 focus:ring focus:ring-gray-200 focus:ring-opacity-50 @error('notes') border-red-300 @enderror"
+                        class="w-full rounded-xl border-gray-200/80 bg-white/60 text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/10 @error('notes') border-red-300 @enderror"
                     >{{ old('notes', $outlet->notes) }}</textarea>
                     @error('notes')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-1 text-xs text-red-600 font-medium">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
@@ -129,6 +138,7 @@
             {{-- Actions --}}
             <div class="flex items-center gap-3 pt-2">
                 <x-button type="submit">
+                    <x-heroicon-o-check class="w-4 h-4" />
                     Update Outlet
                 </x-button>
                 <x-button href="{{ route('admin.outlets.show', $outlet) }}" variant="ghost">

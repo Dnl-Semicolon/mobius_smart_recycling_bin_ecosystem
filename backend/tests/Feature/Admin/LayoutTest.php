@@ -2,9 +2,15 @@
 
 use App\Models\Bin;
 use App\Models\Outlet;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->admin = User::factory()->admin()->create();
+    $this->actingAs($this->admin);
+});
 
 test('admin dashboard shows sidebar navigation', function () {
     $response = $this->get(route('admin.dashboard'));
@@ -13,7 +19,7 @@ test('admin dashboard shows sidebar navigation', function () {
         ->assertSee('Dashboard')
         ->assertSee('Outlets')
         ->assertSee('Bins')
-        ->assertSee('Detection Events');
+        ->assertSee('Detections');
 });
 
 test('sidebar has correct navigation links', function () {
@@ -29,7 +35,6 @@ test('admin pages use admin layout with sidebar', function () {
     $response = $this->get(route('admin.dashboard'));
 
     $response->assertOk()
-        ->assertSee('id="admin-sidebar"', false)
         ->assertSee('data-testid="sidebar-toggle"', false)
         ->assertSee('data-testid="mobile-menu-button"', false);
 });
@@ -127,9 +132,10 @@ test('sidebar highlights active navigation item', function () {
         ->assertSee('admin-sidebar', false);
 });
 
-test('dashboard does not show quick links', function () {
+test('dashboard shows dev quicklinks footer', function () {
     $response = $this->get(route('admin.dashboard'));
 
     $response->assertOk()
-        ->assertDontSee('Quick Links');
+        ->assertSee('Mobius')
+        ->assertSee('data-testid="dev-quicklinks-footer"', false);
 });

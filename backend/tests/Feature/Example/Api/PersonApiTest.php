@@ -1,9 +1,15 @@
 <?php
 
 use App\Models\Example\Person;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+});
 
 test('index returns 200 with list of persons', function () {
     Person::factory()->count(3)->create();

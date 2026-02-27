@@ -1,7 +1,14 @@
+# --- Heavy binary data (images, weights) ---
 /data/**
 /runs/**
 /models/**
+/datasets/**
+/temp*/
+/experiments/
+/logs/
+__pycache__/
 
+# --- Allow structure + metadata through ---
 !/data/
 !/data/README.md
 !/data/cups_raw/
@@ -10,3 +17,12 @@
 !/data/cups_raw/seed/README.md
 !/data/cups_labeled/
 !/data/cups_labeled/.gitkeep
+
+!/runs/
+!/runs/bakeoff/
+!/runs/bakeoff/.gitkeep
+
+!/models/
+!/models/manifest.json
+!/models/production/
+!/models/production/.gitkeep

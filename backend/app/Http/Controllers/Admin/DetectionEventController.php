@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\WasteType;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SimulateDetectionRequest;
 use App\Models\Bin;
 use App\Models\DetectionEvent;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class DetectionEventController extends Controller
@@ -54,5 +56,26 @@ class DetectionEventController extends Controller
         $detectionEvent->load('bin.currentAssignment.outlet');
 
         return view('admin.detection-events.show', compact('detectionEvent'));
+    }
+
+    /**
+     * Simulate a detection event — for demo purposes.
+     * Creates a DetectionEvent which triggers the observer to bump bin fill_level.
+     */
+    public function simulate(SimulateDetectionRequest $request): RedirectResponse
+    {
+        $confidence = $request->input('confidence') ?? rand(75, 99);
+
+        DetectionEvent::create([
+            'bin_id' => $request->input('bin_id'),
+            'waste_type' => $request->input('waste_type'),
+            'confidence' => $confidence,
+            'detected_at' => now(),
+        ]);
+
+        $bin = Bin::find($request->input('bin_id'));
+
+        return redirect()->route('admin.detection-events.index')
+            ->with('success', "Simulated detection: {$request->input('waste_type')} in {$bin->serial_number} (fill now {$bin->fresh()->fill_level}%)");
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\BinStatus;
+use App\Enums\PickupStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -46,6 +47,18 @@ class Bin extends Model
     public function detectionEvents(): HasMany
     {
         return $this->hasMany(DetectionEvent::class);
+    }
+
+    public function pickupRequests(): HasMany
+    {
+        return $this->hasMany(PickupRequest::class);
+    }
+
+    public function activePickupRequest(): HasOne
+    {
+        return $this->hasOne(PickupRequest::class)
+            ->whereIn('status', [PickupStatus::Pending, PickupStatus::Claimed])
+            ->latest();
     }
 
     public function isReadyForPickup(): bool
