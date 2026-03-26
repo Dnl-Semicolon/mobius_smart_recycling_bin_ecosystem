@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\Admin\BinController;
+use App\Http\Controllers\Admin\BrandMonitoringController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DetectionEventController;
 use App\Http\Controllers\Admin\NotificationController;
@@ -141,6 +142,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::delete('users/{user}/avatar', [UserController::class, 'removeAvatar'])->name('users.avatar.remove');
+
+    // Brand monitoring
+    Route::get('brands', [BrandMonitoringController::class, 'index'])->name('brands.index');
+    Route::get('brands/{brand}', [BrandMonitoringController::class, 'show'])->name('brands.show');
 
     // Applications (brand + agency registrations)
     Route::prefix('applications')->name('applications.')->group(function () {
