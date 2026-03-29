@@ -106,13 +106,13 @@ test('can change password with correct current password', function () {
     $this->actingAs($admin)
         ->put(route('admin.profile.password'), [
             'current_password' => 'password',
-            'password' => 'newpassword123',
-            'password_confirmation' => 'newpassword123',
+            'password' => 'NewPass1!',
+            'password_confirmation' => 'NewPass1!',
         ])
         ->assertRedirect()
         ->assertSessionHas('success');
 
-    expect(Hash::check('newpassword123', $admin->fresh()->password))->toBeTrue();
+    expect(Hash::check('NewPass1!', $admin->fresh()->password))->toBeTrue();
 });
 
 test('cannot change password with wrong current password', function () {
@@ -121,8 +121,8 @@ test('cannot change password with wrong current password', function () {
     $this->actingAs($collector)
         ->put(route('collector.profile.password'), [
             'current_password' => 'wrongpassword',
-            'password' => 'newpassword123',
-            'password_confirmation' => 'newpassword123',
+            'password' => 'NewPass1!',
+            'password_confirmation' => 'NewPass1!',
         ])
         ->assertSessionHasErrors('current_password');
 });
@@ -145,8 +145,56 @@ test('new password must be confirmed', function () {
     $this->actingAs($admin)
         ->put(route('admin.profile.password'), [
             'current_password' => 'password',
-            'password' => 'newpassword123',
-            'password_confirmation' => 'mismatch123',
+            'password' => 'NewPass1!',
+            'password_confirmation' => 'DiffPass1!',
+        ])
+        ->assertSessionHasErrors('password');
+});
+
+test('password requires uppercase letter', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->put(route('admin.profile.password'), [
+            'current_password' => 'password',
+            'password' => 'newpass1!',
+            'password_confirmation' => 'newpass1!',
+        ])
+        ->assertSessionHasErrors('password');
+});
+
+test('password requires lowercase letter', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->put(route('admin.profile.password'), [
+            'current_password' => 'password',
+            'password' => 'NEWPASS1!',
+            'password_confirmation' => 'NEWPASS1!',
+        ])
+        ->assertSessionHasErrors('password');
+});
+
+test('password requires number', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->put(route('admin.profile.password'), [
+            'current_password' => 'password',
+            'password' => 'NewPass!!',
+            'password_confirmation' => 'NewPass!!',
+        ])
+        ->assertSessionHasErrors('password');
+});
+
+test('password requires symbol', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->put(route('admin.profile.password'), [
+            'current_password' => 'password',
+            'password' => 'NewPass12',
+            'password_confirmation' => 'NewPass12',
         ])
         ->assertSessionHasErrors('password');
 });

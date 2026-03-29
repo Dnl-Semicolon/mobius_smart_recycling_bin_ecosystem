@@ -330,10 +330,10 @@
 
                     <div class="mt-6 space-y-5 max-w-lg">
                         <div x-data="{ show: false }">
-                            <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1.5">Current password</label>
+                            <label for="current_password" class="block text-sm font-medium text-gray-600 mb-1.5">Current password</label>
                             <div class="relative">
                                 <input :type="show ? 'text' : 'password'" name="current_password" id="current_password" required
-                                    class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-3 pr-10 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-colors">
+                                    class="w-full rounded-xl border border-gray-200/80 bg-white/60 px-4 pr-10 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/10">
                                 <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
                                     <x-heroicon-o-eye x-show="!show" class="w-4 h-4" />
                                     <x-heroicon-o-eye-slash x-show="show" x-cloak class="w-4 h-4" />
@@ -342,31 +342,7 @@
                             @error('current_password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                         </div>
 
-                        <div x-data="{ show: false }">
-                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1.5">New password</label>
-                            <div class="relative">
-                                <input :type="show ? 'text' : 'password'" name="password" id="password" required
-                                    class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-3 pr-10 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-colors">
-                                <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
-                                    <x-heroicon-o-eye x-show="!show" class="w-4 h-4" />
-                                    <x-heroicon-o-eye-slash x-show="show" x-cloak class="w-4 h-4" />
-                                </button>
-                            </div>
-                            <p class="mt-1.5 text-xs text-gray-500">Minimum 8 characters.</p>
-                            @error('password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                        </div>
-
-                        <div x-data="{ show: false }">
-                            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1.5">Confirm new password</label>
-                            <div class="relative">
-                                <input :type="show ? 'text' : 'password'" name="password_confirmation" id="password_confirmation" required
-                                    class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-3 pr-10 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-colors">
-                                <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
-                                    <x-heroicon-o-eye x-show="!show" class="w-4 h-4" />
-                                    <x-heroicon-o-eye-slash x-show="show" x-cloak class="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
+                        <x-password-strength label="New Password" :confirm="true" confirmLabel="Confirm New Password" />
                     </div>
 
                     <div class="mt-8 pt-5 border-t border-gray-200/80">
