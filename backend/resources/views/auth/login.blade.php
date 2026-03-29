@@ -128,7 +128,7 @@
                         <span class="text-sm text-gray-600">Remember me</span>
                     </label>
 
-                    <x-button type="submit" class="w-full justify-center">
+                    <x-button type="submit" class="w-full justify-center cursor-pointer py-3 px-6 transition-all duration-150 active:scale-[0.98] shadow-sm hover:shadow-md">
                         <x-heroicon-o-arrow-right-on-rectangle class="w-4 h-4" />
                         Sign in
                     </x-button>
@@ -136,7 +136,7 @@
 
                 <p class="text-center text-sm text-gray-500 mt-4">
                     Don't have an account?
-                    <a href="{{ route('register') }}" class="text-emerald-600 hover:text-emerald-700 font-medium">Register</a>
+                    <a href="{{ route('register') }}" class="text-emerald-600 hover:text-emerald-700 font-medium underline decoration-emerald-300 underline-offset-2 hover:decoration-emerald-500">Register</a>
                 </p>
             </x-card>
         </div>
