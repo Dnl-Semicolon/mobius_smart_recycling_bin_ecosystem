@@ -80,8 +80,8 @@ test('user can register as public user', function () {
     $response = $this->post(route('register'), [
         'name' => 'New User',
         'email' => 'new@example.com',
-        'password' => 'password',
-        'password_confirmation' => 'password',
+        'password' => 'NewPass1!',
+        'password_confirmation' => 'NewPass1!',
     ]);
 
     $response->assertRedirect(route('verification.notice'));

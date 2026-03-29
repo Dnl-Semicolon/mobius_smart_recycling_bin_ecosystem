@@ -31,21 +31,7 @@
                         required
                     />
 
-                    <x-input
-                        name="password"
-                        type="password"
-                        label="Password"
-                        placeholder="Min 8 characters"
-                        required
-                    />
-
-                    <x-input
-                        name="password_confirmation"
-                        type="password"
-                        label="Confirm Password"
-                        placeholder="Repeat your password"
-                        required
-                    />
+                    <x-password-strength :confirm="true" confirmLabel="Confirm Password" />
 
                     <x-button type="submit" class="w-full justify-center">
                         <x-heroicon-o-user-plus class="w-4 h-4" />

@@ -9,8 +9,8 @@ it('registers a new user and returns token and user', function () {
     $response = $this->postJson('/api/v1/auth/register', [
         'name' => 'Jane Doe',
         'email' => 'jane@example.com',
-        'password' => 'password123',
-        'password_confirmation' => 'password123',
+        'password' => 'NewPass1!',
+        'password_confirmation' => 'NewPass1!',
         'device_name' => 'Test Phone',
     ]);
 
@@ -48,8 +48,8 @@ it('fails registration with duplicate email', function () {
     $response = $this->postJson('/api/v1/auth/register', [
         'name' => 'Jane Doe',
         'email' => 'taken@example.com',
-        'password' => 'password123',
-        'password_confirmation' => 'password123',
+        'password' => 'NewPass1!',
+        'password_confirmation' => 'NewPass1!',
         'device_name' => 'Test Phone',
     ]);
 
@@ -74,8 +74,8 @@ it('fails registration with mismatched password confirmation', function () {
     $response = $this->postJson('/api/v1/auth/register', [
         'name' => 'Jane Doe',
         'email' => 'jane@example.com',
-        'password' => 'password123',
-        'password_confirmation' => 'different123',
+        'password' => 'NewPass1!',
+        'password_confirmation' => 'DiffPass1!',
         'device_name' => 'Test Phone',
     ]);
 
