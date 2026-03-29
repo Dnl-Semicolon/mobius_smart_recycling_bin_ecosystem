@@ -46,9 +46,11 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         // Redirect based on the user's role:
-        return match ($request->user()->role) {
+        return match ($request->user()->primaryRole()) {
             UserRole::Admin => redirect()->intended(route('admin.dashboard')),
             UserRole::Collector => redirect()->intended(route('collector.dashboard')),
+            UserRole::StoreOwner => redirect()->intended(route('store.dashboard')),
+            UserRole::AgencyAdmin => redirect()->intended(route('agency.dashboard')),
             UserRole::PublicUser => redirect()->intended(route('public.dashboard')),
             default => redirect()->intended('/'),
         };

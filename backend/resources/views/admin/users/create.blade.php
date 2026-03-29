@@ -40,12 +40,27 @@
                         required
                     />
 
-                    <x-select
-                        name="role"
-                        label="Role"
-                        :options="collect($roles)->mapWithKeys(fn($r) => [$r->value => ucfirst(str_replace('_', ' ', $r->value))])->toArray()"
-                        placeholder="Select role"
-                    />
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Roles</label>
+                        <div class="flex flex-wrap gap-3">
+                            @foreach ($roles as $role)
+                                <label class="relative flex items-center gap-2 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        name="roles[]"
+                                        value="{{ $role->value }}"
+                                        class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-200"
+                                        @checked(is_array(old('roles')) && in_array($role->value, old('roles')))
+                                    >
+                                    <span class="text-sm text-gray-700">{{ $role->label() }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        @error('roles')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-2 text-xs text-gray-500">Select at least one role. Users with multiple roles can switch between them.</p>
+                    </div>
                 </div>
             </div>
 

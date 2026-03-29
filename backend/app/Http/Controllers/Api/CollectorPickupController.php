@@ -67,20 +67,12 @@ class CollectorPickupController extends Controller
             ->where('claimed_by', $collectorId)
             ->count();
 
-        $avgMinutes = PickupRequest::query()
-            ->where('status', PickupStatus::Completed)
-            ->where('claimed_by', $collectorId)
-            ->whereNotNull('claimed_at')
-            ->whereNotNull('completed_at')
-            ->selectRaw('AVG((julianday(completed_at) - julianday(claimed_at)) * 24 * 60) as avg_minutes')
-            ->value('avg_minutes');
-
         return response()->json([
             'data' => [
                 'total_completed' => $totalCompleted,
                 'this_week' => $thisWeek,
                 'active_now' => $activeNow,
-                'avg_minutes' => $avgMinutes !== null ? (int) round($avgMinutes) : null,
+                'avg_minutes' => PickupRequest::avgResponseMinutes($collectorId),
             ],
             'message' => 'Collector stats retrieved successfully.',
         ]);

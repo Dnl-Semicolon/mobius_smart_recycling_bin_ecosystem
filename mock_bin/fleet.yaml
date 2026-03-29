@@ -1,0 +1,22 @@
+# Fleet configuration — spawn multiple bin instances
+# Usage: python fleet.py
+# Each bin gets its own port, serial, and config overrides.
+
+bins:
+  - serial: "MBR-2026-001"
+    name: "Starbucks Gurney Plaza - Bin 1"
+    port: 9001
+    camera_index: 0       # Mac webcam
+    detector: hybrid
+
+  - serial: "MBR-2026-002"
+    name: "Starbucks Gurney Plaza - Bin 2 (YOLO)"
+    port: 9002
+    camera_index: 0       # Mac webcam — local YOLO inference
+    detector: yolo
+
+  - serial: "MBR-2026-003"
+    name: "CHAGEE Gurney Plaza - Bin 1"
+    port: 9003
+    camera_index: -1
+    detector: mock

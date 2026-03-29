@@ -49,24 +49,11 @@ class DashboardController extends Controller
                 ->where('claimed_by', $collectorId)
                 ->where('completed_at', '>=', now()->startOfWeek())
                 ->count(),
-            'avg_minutes' => $this->getAvgResponseMinutes($collectorId),
+            'avg_minutes' => PickupRequest::avgResponseMinutes($collectorId),
             'active_now' => $myActivePickups->count(),
         ];
 
         return view('collector.dashboard', compact('availablePickups', 'myActivePickups', 'myHistory', 'stats'));
-    }
-
-    private function getAvgResponseMinutes(int $collectorId): ?int
-    {
-        $result = PickupRequest::query()
-            ->where('status', PickupStatus::Completed)
-            ->where('claimed_by', $collectorId)
-            ->whereNotNull('claimed_at')
-            ->whereNotNull('completed_at')
-            ->selectRaw('AVG((julianday(completed_at) - julianday(claimed_at)) * 24 * 60) as avg_minutes')
-            ->value('avg_minutes');
-
-        return $result !== null ? (int) round($result) : null;
     }
 
     public function claim(PickupRequest $pickupRequest): RedirectResponse
@@ -76,10 +63,10 @@ class DashboardController extends Controller
                 ->with('error', 'This pickup is no longer available for claiming.');
         }
 
-        $bin = $pickupRequest->bin()->first();
+        $bin = $pickupRequest->bin;
 
         return redirect()->route('collector.dashboard')
-            ->with('success', "Claimed pickup for bin {$bin->serial_number}!");
+            ->with('success', "Claimed pickup for bin {$bin?->serial_number}!");
     }
 
     public function complete(PickupRequest $pickupRequest): RedirectResponse
@@ -96,9 +83,9 @@ class DashboardController extends Controller
                 ->with('error', 'This pickup cannot be completed.');
         }
 
-        $bin = $pickupRequest->bin()->first();
+        $bin = $pickupRequest->bin;
 
-        $admins = User::where('role', UserRole::Admin)->get();
+        $admins = User::whereJsonContains('roles', UserRole::Admin->value)->get();
         Notification::send($admins, new PickupCompleted($pickupRequest));
 
         return redirect()->route('collector.dashboard')

@@ -13,7 +13,10 @@ return new class extends Migration
             $table->id();
             $table->string('serial_number', 50)->unique();
             $table->unsignedTinyInteger('fill_level')->default(0);
+            $table->json('compartments')->nullable();
             $table->string('status')->default(BinStatus::Active->value);
+            $table->timestamp('last_seen_at')->nullable();
+            $table->string('ip_address', 45)->nullable();
             $table->timestamps();
             $table->softDeletes();
 

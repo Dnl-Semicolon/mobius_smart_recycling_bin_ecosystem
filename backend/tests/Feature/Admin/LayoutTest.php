@@ -35,8 +35,7 @@ test('admin pages use admin layout with sidebar', function () {
     $response = $this->get(route('admin.dashboard'));
 
     $response->assertOk()
-        ->assertSee('data-testid="sidebar-toggle"', false)
-        ->assertSee('data-testid="mobile-menu-button"', false);
+        ->assertSee('data-testid="sidebar-toggle"', false);
 });
 
 test('index pages do not have back buttons', function () {

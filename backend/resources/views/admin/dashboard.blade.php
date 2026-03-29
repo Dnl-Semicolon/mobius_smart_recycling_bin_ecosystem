@@ -154,22 +154,11 @@
                     <x-card variant="glass" class="p-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                @php
-                                    $typeIcons = [
-                                        'paper_cup' => 'text-amber-500',
-                                        'plastic_cup' => 'text-blue-500',
-                                        'lid' => 'text-gray-500',
-                                        'straw' => 'text-pink-500',
-                                        'napkin' => 'text-orange-400',
-                                        'liquid_waste' => 'text-cyan-500',
-                                    ];
-                                    $iconColor = $typeIcons[$detection->waste_type->value] ?? 'text-gray-400';
-                                @endphp
                                 <div class="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center">
-                                    <x-heroicon-s-beaker class="w-5 h-5 {{ $iconColor }}" />
+                                    <x-heroicon-s-beaker class="w-5 h-5 {{ $detection->waste_type->iconColor() }}" />
                                 </div>
                                 <div>
-                                    <p class="font-medium text-gray-900">{{ ucwords(str_replace('_', ' ', $detection->waste_type->value)) }}</p>
+                                    <p class="font-medium text-gray-900">{{ $detection->waste_type->label() }}</p>
                                     <p class="text-xs text-gray-500">{{ $detection->bin->serial_number }}</p>
                                 </div>
                             </div>

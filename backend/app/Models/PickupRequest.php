@@ -168,4 +168,20 @@ class PickupRequest extends Model
 
         return $result;
     }
+
+    /**
+     * Average minutes between claim and completion for a collector's pickups.
+     */
+    public static function avgResponseMinutes(int $collectorId): ?int
+    {
+        $result = static::query()
+            ->where('status', PickupStatus::Completed)
+            ->where('claimed_by', $collectorId)
+            ->whereNotNull('claimed_at')
+            ->whereNotNull('completed_at')
+            ->selectRaw('AVG((julianday(completed_at) - julianday(claimed_at)) * 24 * 60) as avg_minutes')
+            ->value('avg_minutes');
+
+        return $result !== null ? (int) round($result) : null;
+    }
 }

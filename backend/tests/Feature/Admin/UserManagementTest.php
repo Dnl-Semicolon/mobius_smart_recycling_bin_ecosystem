@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -33,30 +32,30 @@ test('admin can create a new collector', function () {
             'name' => 'New Collector',
             'email' => 'newcollector@mobius.test',
             'password' => 'password123',
-            'role' => 'collector',
+            'roles' => ['collector'],
         ])
         ->assertRedirect(route('admin.users.index'))
         ->assertSessionHas('success');
 
     $user = User::where('email', 'newcollector@mobius.test')->first();
     expect($user)->not->toBeNull()
-        ->and($user->role)->toBe(UserRole::Collector);
+        ->and($user->getRolesArray())->toBe(['collector']);
 });
 
 test('admin can update a users role', function () {
     $admin = User::factory()->admin()->create();
-    $user = User::factory()->create(['role' => UserRole::PublicUser]);
+    $user = User::factory()->publicUser()->create();
 
     $this->actingAs($admin)
         ->put(route('admin.users.update', $user), [
             'name' => $user->name,
             'email' => $user->email,
-            'role' => 'collector',
+            'roles' => ['collector'],
         ])
-        ->assertRedirect(route('admin.users.index'))
+        ->assertRedirect(route('admin.users.edit', $user))
         ->assertSessionHas('success');
 
-    expect($user->fresh()->role)->toBe(UserRole::Collector);
+    expect($user->fresh()->getRolesArray())->toBe(['collector']);
 });
 
 test('admin cannot delete themselves', function () {

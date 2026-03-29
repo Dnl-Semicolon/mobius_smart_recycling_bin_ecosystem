@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobius Bin — {{ config.bin.serial }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { mobius: '#16a34a' }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/static/css/display.css">
+</head>
+<body class="h-full text-neutral-900 font-sans antialiased">
+    <div id="app" class="flex flex-col h-screen max-w-3xl mx-auto">
+
+        <!-- Header -->
+        <header class="flex items-center gap-3 px-5 py-3 border-b border-neutral-200">
+            <div class="text-xl font-bold tracking-widest text-mobius">MOBIUS</div>
+            <div class="flex-1 text-right">
+                <div class="font-mono text-sm text-neutral-500" id="binSerial">{{ config.bin.serial }}</div>
+                <div class="text-xs text-neutral-400">{{ config.bin.name }}</div>
+            </div>
+            <div id="statusDot" class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+        </header>
+
+        <!-- Main: state panels -->
+        <main class="flex-1 flex items-center justify-center p-5 relative overflow-hidden">
+
+            <!-- IDLE -->
+            <div class="state-panel flex flex-col items-center gap-5 w-full" id="stateIdle">
+                <div id="cameraContainer" class="relative w-full max-w-md aspect-[4/3] rounded-xl border-2 border-neutral-200 bg-neutral-100 overflow-hidden cursor-pointer" tabindex="0" role="button" aria-label="Upload image">
+                    <img id="cameraFeed" src="/camera/stream" class="w-full h-full object-cover" onerror="this.classList.add('hidden')">
+                    <img id="uploadedPreview" class="hidden w-full h-full object-cover absolute inset-0">
+                    <div id="cameraPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-neutral-400">
+                        <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/></svg>
+                        <p class="text-sm">Camera feed</p>
+                    </div>
+                    <input type="file" id="imageUpload" accept="image/jpeg,image/png" class="hidden">
+                </div>
+                <div class="text-center">
+                    <p class="text-2xl font-semibold">Place your item in the bin</p>
+                    <p class="text-sm text-neutral-500 mt-1">Scan QR with Mobius app to earn points</p>
+                </div>
+            </div>
+
+            <!-- DETECTING -->
+            <div class="state-panel hidden flex flex-col items-center gap-4" id="stateDetecting">
+                <img id="detectingPreview" class="hidden w-48 h-36 object-cover rounded-lg border border-neutral-200">
+                <div class="w-16 h-16 border-4 border-neutral-200 border-t-neutral-900 rounded-full animate-spin"></div>
+                <p class="text-xl">Scanning item...</p>
+            </div>
+
+            <!-- DRAINING -->
+            <div class="state-panel hidden flex flex-col items-center gap-4 w-full max-w-sm" id="stateDraining">
+                <svg class="w-16 h-16 text-cyan-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+                <p class="text-lg">Draining remaining liquid...</p>
+                <div class="w-full h-2 bg-neutral-200 rounded-full overflow-hidden">
+                    <div id="drainProgress" class="h-full bg-cyan-500 rounded-full" style="width:0%; transition: width 100ms linear"></div>
+                </div>
+                <p id="drainAmount" class="text-sm text-neutral-500"></p>
+            </div>
+
+            <!-- RESULT -->
+            <div class="state-panel hidden flex flex-col items-center gap-4 text-center animate-fade-in" id="stateResult">
+                <img id="resultPreview" class="hidden w-40 h-32 object-cover rounded-lg border border-neutral-200">
+                <h2 id="resultType" class="text-3xl font-bold"></h2>
+                <div class="flex gap-4 text-neutral-500">
+                    <span id="resultConfidence"></span>
+                    <span id="resultWeight" class="font-mono text-amber-600"></span>
+                </div>
+                <p id="resultLiquid" class="text-sm text-cyan-600"></p>
+                <p class="text-lg text-neutral-600">Thank you for recycling</p>
+                <button id="btnNext" onclick="advanceToFeedback()"
+                    class="mt-4 px-12 py-4 text-xl font-semibold bg-neutral-900 text-white rounded-full hover:bg-neutral-800 active:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2">
+                    Next
+                </button>
+            </div>
+
+            <!-- FEEDBACK -->
+            <div class="state-panel hidden flex flex-col items-center gap-6 text-center animate-fade-in" id="stateFeedback">
+                <h2 class="text-2xl font-semibold">Detection Summary</h2>
+                <div class="bg-neutral-50 border border-neutral-200 rounded-xl p-6 w-full max-w-sm">
+                    <p id="feedbackType" class="text-xl font-bold"></p>
+                    <p id="feedbackBrand" class="text-neutral-500 mt-1"></p>
+                    <p id="feedbackCompartment" class="text-sm text-neutral-400 mt-2"></p>
+                </div>
+                <p class="text-lg text-neutral-600">Was this detection accurate?</p>
+                <div class="flex gap-4">
+                    <button onclick="submitFeedback(true)"
+                        class="px-10 py-4 text-xl font-semibold bg-neutral-900 text-white rounded-full hover:bg-neutral-800 active:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2">
+                        Yes
+                    </button>
+                    <button onclick="submitFeedback(false)"
+                        class="px-10 py-4 text-xl font-semibold bg-white text-neutral-900 rounded-full border border-neutral-300 hover:bg-neutral-50 active:bg-neutral-100 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2">
+                        No
+                    </button>
+                </div>
+            </div>
+
+            <!-- MAINTENANCE -->
+            <div class="state-panel hidden flex flex-col items-center gap-4 text-center" id="stateMaintenance">
+                <svg class="w-20 h-20 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.42 15.17l-5.1 5.1a2.121 2.121 0 11-3-3l5.1-5.1m0 0L3.34 8.09a2.121 2.121 0 113-3l5.08 5.08m4.08-4.08l5.1-5.1a2.121 2.121 0 113 3l-5.1 5.1m0 0l5.08 5.08a2.121 2.121 0 11-3 3l-5.08-5.08"/></svg>
+                <h2 class="text-2xl font-bold text-red-500">Out of Service</h2>
+                <p class="text-neutral-500">Please use another bin nearby</p>
+            </div>
+
+            <!-- BOOTING -->
+            <div class="state-panel hidden flex flex-col items-center gap-4" id="stateBooting">
+                <div class="w-16 h-16 border-4 border-neutral-200 border-t-neutral-900 rounded-full animate-spin"></div>
+                <p class="text-lg">Starting up...</p>
+            </div>
+        </main>
+
+        <!-- Footer: gauges -->
+        <footer class="px-5 py-3 border-t border-neutral-200">
+            <div class="flex items-center gap-4">
+                <!-- Fill height -->
+                <div class="flex flex-col items-center gap-1">
+                    <div class="w-5 h-12 bg-neutral-200 rounded-sm overflow-hidden relative">
+                        <div id="fillHeightBar" class="absolute bottom-0 w-full bg-green-500 transition-all duration-500" style="height:0%"></div>
+                    </div>
+                    <span id="fillHeight" class="text-xs text-neutral-400 font-mono">0cm</span>
+                </div>
+
+                <!-- Gauges -->
+                <div class="flex-1 flex flex-col gap-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-neutral-500 w-12">Solids</span>
+                        <div class="flex-1 h-2 bg-neutral-200 rounded-full overflow-hidden">
+                            <div id="fillSolids" class="h-full bg-green-500 rounded-full transition-all duration-500" style="width:0%"></div>
+                        </div>
+                        <span id="valueSolids" class="text-xs text-neutral-500 font-mono w-8 text-right">0%</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-neutral-500 w-12">Liquid</span>
+                        <div class="flex-1 h-2 bg-neutral-200 rounded-full overflow-hidden">
+                            <div id="fillLiquid" class="h-full bg-cyan-500 rounded-full transition-all duration-500" style="width:0%"></div>
+                        </div>
+                        <span id="valueLiquid" class="text-xs text-neutral-500 font-mono w-8 text-right">0%</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-neutral-500 w-12">Overall</span>
+                        <div class="flex-1 h-2 bg-neutral-200 rounded-full overflow-hidden">
+                            <div id="fillOverall" class="h-full bg-amber-500 rounded-full transition-all duration-500" style="width:0%"></div>
+                        </div>
+                        <span id="valueOverall" class="text-xs text-neutral-500 font-mono w-8 text-right">0%</span>
+                    </div>
+                </div>
+
+                <!-- Weight -->
+                <div class="flex flex-col items-center">
+                    <span id="totalWeight" class="text-lg font-mono text-amber-600">0g</span>
+                    <span class="text-xs text-neutral-400">Weight</span>
+                </div>
+            </div>
+            <div id="itemsToday" class="text-center text-xs text-neutral-400 mt-2">0 items today</div>
+        </footer>
+
+        <!-- Dev controls -->
+        {% if config.display.show_dev_controls %}
+        <div class="border-t border-neutral-200">
+            <div class="text-center text-xs text-neutral-400 py-2 cursor-pointer select-none" onclick="toggleDevPanel()">Dev Controls</div>
+            <div id="devBody" class="hidden px-4 pb-3 space-y-2 bg-neutral-50">
+                <div class="flex gap-2">
+                    <select id="devWasteType" class="flex-1 bg-white text-neutral-900 text-sm rounded px-2 py-1.5 border border-neutral-300">
+                        <option value="paper_cup">Paper Cup</option>
+                        <option value="plastic_cup">Plastic Cup</option>
+                        <option value="lid">Lid</option>
+                        <option value="straw">Straw</option>
+                        <option value="napkin">Napkin</option>
+                        <option value="liquid_waste">Liquid Waste</option>
+                    </select>
+                    <input type="number" id="devConfidence" value="85" min="0" max="100" class="w-16 bg-white text-neutral-900 text-sm rounded px-2 py-1.5 border border-neutral-300">
+                    <button onclick="simulateDeposit()" class="bg-neutral-900 text-white text-sm px-3 py-1.5 rounded-full hover:bg-neutral-800">Sim</button>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="captureAndDetect()" class="flex-1 bg-neutral-900 text-white text-sm px-3 py-1.5 rounded-full hover:bg-neutral-800">Capture</button>
+                    <button onclick="resetFill()" class="flex-1 bg-neutral-900 text-white text-sm px-3 py-1.5 rounded-full hover:bg-neutral-800">Reset</button>
+                    <button onclick="toggleMaintenance()" class="flex-1 bg-neutral-900 text-white text-sm px-3 py-1.5 rounded-full hover:bg-neutral-800">Maint.</button>
+                </div>
+                <div id="devLog" class="max-h-24 overflow-y-auto text-xs font-mono text-neutral-600 bg-white rounded p-2 border border-neutral-200"></div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="/static/js/display.js"></script>
+</body>
+</html>

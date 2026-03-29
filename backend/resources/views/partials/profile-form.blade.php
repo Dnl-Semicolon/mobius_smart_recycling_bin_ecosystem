@@ -41,7 +41,7 @@
                             <span class="text-xs text-gray-400 uppercase tracking-wide">Role</span>
                             <p class="mt-0.5">
                                 <span class="text-sm font-medium bg-emerald-100 text-emerald-700 rounded-full px-3 py-1">
-                                    {{ ucfirst($user->role->value) }}
+                                    {{ $user->primaryRole()->label() }}
                                 </span>
                             </p>
                         </div>

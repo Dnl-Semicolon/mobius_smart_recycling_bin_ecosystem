@@ -29,6 +29,7 @@ Route::prefix('v1')->name('api.')->group(function (): void {
     */
     Route::post('auth/login', [AuthController::class, 'login'])->name('auth.login');
     Route::post('auth/register', [AuthController::class, 'register'])->name('auth.register');
+    Route::get('check-username', [ProfileController::class, 'checkUsername'])->name('check-username');
     Route::post('detect', [DetectionEventController::class, 'store'])->name('detect.store');
     Route::patch('detect/{detectionEvent}/classify', [DetectionEventController::class, 'classify'])->name('detect.classify');
     Route::post('detection-events/{detectionEvent}/feedback', [DetectionEventController::class, 'feedback'])->name('detection-events.feedback');

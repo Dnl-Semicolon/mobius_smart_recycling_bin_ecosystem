@@ -5,32 +5,16 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('unauthenticated root redirects to login', function () {
-    $response = $this->get('/');
-
-    $response->assertRedirect(route('login'));
+test('root shows landing page for guests', function () {
+    $this->get('/')->assertOk()->assertSee('Mobius');
 });
 
-test('admin root redirects to admin dashboard', function () {
+test('root shows landing page for authenticated users', function () {
     $admin = User::factory()->admin()->create();
 
-    $response = $this->actingAs($admin)->get('/');
-
-    $response->assertRedirect(route('admin.dashboard'));
+    $this->actingAs($admin)->get('/')->assertOk()->assertSee('Mobius');
 });
 
-test('collector root redirects to collector dashboard', function () {
-    $collector = User::factory()->collector()->create();
-
-    $response = $this->actingAs($collector)->get('/');
-
-    $response->assertRedirect(route('collector.dashboard'));
-});
-
-test('public user root redirects to public dashboard', function () {
-    $publicUser = User::factory()->create();
-
-    $response = $this->actingAs($publicUser)->get('/');
-
-    $response->assertRedirect(route('public.dashboard'));
+test('/home redirects to root', function () {
+    $this->get('/home')->assertRedirect('/');
 });

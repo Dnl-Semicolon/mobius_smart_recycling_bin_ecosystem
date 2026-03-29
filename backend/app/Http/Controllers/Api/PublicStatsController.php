@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\BinStatus;
 use App\Enums\PickupStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Bin;
@@ -25,7 +26,7 @@ class PublicStatsController extends Controller
             'data' => [
                 'total_detections' => DetectionEvent::count(),
                 'pickups_completed' => PickupRequest::where('status', PickupStatus::Completed)->count(),
-                'active_bins' => Bin::where('status', 'active')->count(),
+                'active_bins' => Bin::where('status', BinStatus::Active)->count(),
                 'outlets_served' => Outlet::count(),
                 'waste_type_distribution' => $wasteTypeDistribution,
             ],

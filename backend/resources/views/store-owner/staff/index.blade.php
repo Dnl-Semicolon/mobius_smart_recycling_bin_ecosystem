@@ -103,11 +103,7 @@
                                     <form action="{{ route('store.staff.remove', $manager) }}" method="POST" class="shrink-0">
                                         @csrf
                                         @method('DELETE')
-                                        <button
-                                            type="submit"
-                                            class="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                                            onclick="return confirm('Remove {{ $manager->name }} from this outlet?')"
-                                        >
+                                        <button type="submit" class="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer" onclick="return confirm('Remove {{ $manager->name }} from this outlet?')">
                                             <x-heroicon-o-trash class="w-3.5 h-3.5" />
                                             Remove
                                         </button>

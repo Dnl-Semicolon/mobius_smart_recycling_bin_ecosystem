@@ -58,9 +58,9 @@ test('collector cannot access admin pickup requests', function () {
         ->assertForbidden();
 });
 
-test('guest is redirected to login', function () {
+test('guest gets 403', function () {
     $this->get(route('admin.pickup-requests.index'))
-        ->assertRedirect(route('login'));
+        ->assertForbidden();
 });
 
 test('admin can cancel a pending pickup', function () {

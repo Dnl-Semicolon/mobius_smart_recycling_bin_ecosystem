@@ -10,7 +10,7 @@
         "@alpinejs/persist": "^3.14.0",
         "alpinejs": "^3.14.0",
         "chart.js": "^4.5.1",
-        "playwright": "^1.57.0"
+        "leaflet": "^1.9.4"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",

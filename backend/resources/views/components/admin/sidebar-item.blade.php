@@ -1,26 +1,20 @@
 @props(['route', 'label', 'icon' => null, 'badge' => null, 'exact' => false])
 
 @php
-    $href = route($route);
-    $path = parse_url($href, PHP_URL_PATH);
+    $isActive = $exact ? request()->routeIs($route) : request()->routeIs($route . '*');
 @endphp
 
 <a
-    href="{{ $href }}"
-    x-data="{ get isActive() { return {{ $exact ? 'true' : 'false' }} ? currentPath === '{{ $path }}' : currentPath.startsWith('{{ $path }}') } }"
-    :class="isActive ? 'bg-emerald-50 text-emerald-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
-    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors"
+    href="{{ route($route) }}"
+    class="sidebar-nav-item {{ $isActive ? 'sidebar-nav-item--active' : '' }}"
 >
     @if ($icon)
-        <span class="shrink-0 w-5 h-5" :class="isActive ? 'text-emerald-600' : 'text-gray-400'">
+        <span class="shrink-0 w-5 h-5 text-gray-600">
             {{ $icon }}
         </span>
     @endif
-    <span x-show="sidebarOpen" class="flex-1">{{ $label }}</span>
+    <span class="flex-1">{{ $label }}</span>
     @isset($badge)
-        <span x-show="sidebarOpen" class="text-xs font-medium bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">{{ $badge }}</span>
+        <span class="text-xs font-medium bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">{{ $badge }}</span>
     @endisset
-    @if (!$icon)
-        <span x-show="!sidebarOpen" class="w-full text-center" x-cloak>{{ Str::substr($label, 0, 1) }}</span>
-    @endif
 </a>

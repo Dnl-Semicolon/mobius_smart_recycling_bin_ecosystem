@@ -10,6 +10,7 @@ use App\Http\Resources\BinResource;
 use App\Models\Bin;
 use App\Models\BinAssignment;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class BinController extends Controller
 {
@@ -85,6 +86,58 @@ class BinController extends Controller
         return BinResource::make($bin)
             ->additional(['message' => 'Bin assigned to outlet successfully.'])
             ->response();
+    }
+
+    /**
+     * Public endpoint for IoT bins to resolve their serial number to a bin ID.
+     */
+    public function resolve(string $serial): JsonResponse
+    {
+        $bin = Bin::where('serial_number', $serial)->first();
+
+        if (! $bin) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Bin not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => [
+                'id' => $bin->id,
+                'serial_number' => $bin->serial_number,
+                'name' => $bin->name,
+            ],
+            'message' => 'Bin resolved.',
+        ]);
+    }
+
+    /**
+     * Public heartbeat endpoint for IoT bins to report their status.
+     */
+    public function heartbeat(Request $request, Bin $bin): JsonResponse
+    {
+        $validated = $request->validate([
+            'fill_level' => ['required', 'integer', 'min:0', 'max:100'],
+            'compartments' => ['nullable', 'array'],
+            'ip_address' => ['nullable', 'string', 'max:45'],
+        ]);
+
+        $bin->update([
+            'fill_level' => $validated['fill_level'],
+            'compartments' => $validated['compartments'] ?? $bin->compartments,
+            'ip_address' => $validated['ip_address'] ?? $request->ip(),
+            'last_seen_at' => now(),
+        ]);
+
+        return response()->json([
+            'data' => [
+                'id' => $bin->id,
+                'fill_level' => $bin->fill_level,
+                'last_seen_at' => $bin->last_seen_at->toIso8601String(),
+            ],
+            'message' => 'Heartbeat received.',
+        ]);
     }
 
     public function unassign(Bin $bin): JsonResponse

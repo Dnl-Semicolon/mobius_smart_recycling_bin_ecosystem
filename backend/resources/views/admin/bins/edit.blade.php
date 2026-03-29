@@ -55,12 +55,12 @@
                         @enderror
                     </div>
 
-                    <x-select
+                    <x-dropdown.select
                         name="status"
                         label="Status"
-                        :options="collect($statuses)->mapWithKeys(fn($s) => [$s->value => ucfirst($s->value)])->toArray()"
+                        :options="collect($statuses)->mapWithKeys(fn($s) => [$s->value => $s->label()])->toArray()"
+                        :selected="old('status', $bin->status->value)"
                         placeholder="Select status"
-                        :value="old('status', $bin->status->value)"
                     />
                 </div>
             </div>

@@ -1,0 +1,22 @@
+cliArgs:
+  path: ""
+  port: 3000
+  router: "osrm"
+  threads: 4
+  limit: "none"
+  timeout: 300000
+  logdir: "../log"
+  logsize: "100M"
+  maxlocations: 1000
+  maxvehicles: 200
+  explore: 5
+  geometry: true
+  override: true
+  planmode: false
+  baseurl: "/"
+
+routingServers:
+  osrm:
+    car:
+      host: "osrm-backend"
+      port: "5000"

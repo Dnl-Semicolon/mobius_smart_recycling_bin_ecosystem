@@ -3,14 +3,6 @@
         Detections
     </x-slot:header>
 
-    {{-- Success Flash --}}
-    @if (session('success'))
-        <div class="mb-4 flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200/60 px-4 py-3 text-sm text-emerald-700">
-            <x-heroicon-s-check-circle class="w-5 h-5 shrink-0" />
-            {{ session('success') }}
-        </div>
-    @endif
-
     {{-- Simulate Detection --}}
     <div x-data="{ open: false }" class="mb-6">
         <button @click="open = !open" type="button" class="flex items-center gap-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 mb-2">
@@ -40,7 +32,7 @@
                             <select name="waste_type" required class="w-full rounded-xl border-gray-200 text-sm focus:border-emerald-400 focus:ring focus:ring-emerald-200 focus:ring-opacity-50">
                                 <option value="">Select type...</option>
                                 @foreach ($wasteTypes as $type)
-                                    <option value="{{ $type->value }}">{{ ucwords(str_replace('_', ' ', $type->value)) }}</option>
+                                    <option value="{{ $type->value }}">{{ $type->label() }}</option>
                                 @endforeach
                             </select>
                             @error('waste_type')
@@ -83,7 +75,7 @@
                     <option value="">All Types</option>
                     @foreach ($wasteTypes as $type)
                         <option value="{{ $type->value }}" @selected(request('waste_type') === $type->value)>
-                            {{ ucwords(str_replace('_', ' ', $type->value)) }}
+                            {{ $type->label() }}
                         </option>
                     @endforeach
                 </select>
@@ -130,32 +122,39 @@
         {{-- Empty State --}}
         <x-card variant="subtle" class="text-center py-16">
             <x-heroicon-o-eye class="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p class="text-gray-400">No detection events found</p>
+            @if (request()->hasAny(['bin', 'waste_type', 'from', 'to', 'min_confidence']))
+                <p class="text-gray-400">No detections match your filters</p>
+                <a href="{{ route('admin.detection-events.index') }}" class="inline-flex items-center gap-1.5 mt-4 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+                    <x-heroicon-o-x-mark class="w-3.5 h-3.5" />
+                    Clear filters
+                </a>
+            @else
+                <p class="text-gray-400">No detection events yet</p>
+                <p class="text-sm text-gray-400 mt-1">Events appear here when bins detect waste items.</p>
+            @endif
         </x-card>
     @else
         {{-- Event List --}}
         <div class="space-y-3">
             @foreach ($events as $event)
-                @php
-                    $typeIcons = [
-                        'paper_cup' => 'text-amber-500',
-                        'plastic_cup' => 'text-blue-500',
-                        'lid' => 'text-gray-500',
-                        'straw' => 'text-pink-500',
-                        'napkin' => 'text-orange-400',
-                        'liquid_waste' => 'text-cyan-500',
-                    ];
-                    $iconColor = $event->waste_type ? ($typeIcons[$event->waste_type->value] ?? 'text-gray-400') : 'text-gray-400';
-                @endphp
                 <x-card :href="route('admin.detection-events.show', $event)" :interactive="true" class="p-5">
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex items-start gap-3 min-w-0">
                             <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center shrink-0 mt-0.5">
-                                <x-heroicon-s-beaker class="w-5 h-5 {{ $iconColor }}" />
+                                <x-heroicon-s-beaker class="w-5 h-5 {{ $event->waste_type?->iconColor() ?? 'text-gray-400' }}" />
                             </div>
                             <div class="min-w-0">
-                                <h2 class="font-semibold text-gray-900">
-                                    {{ $event->waste_type ? ucwords(str_replace('_', ' ', $event->waste_type->value)) : 'Pending Inference' }}
+                                <h2 class="font-semibold text-gray-900 flex items-center gap-2">
+                                    {{ $event->waste_type?->label() ?? 'Pending Inference' }}
+                                    @if ($event->detectedBrand && $event->waste_type?->isCup())
+                                        @php
+                                            $evBinBrand = $event->bin->currentAssignment?->outlet?->brand;
+                                            $evIsMatch = $evBinBrand && $evBinBrand->id === $event->detectedBrand->id;
+                                        @endphp
+                                        <span class="text-xs font-normal px-1.5 py-0.5 rounded-full {{ $evIsMatch ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600' }}">
+                                            {{ $event->detectedBrand->name }}
+                                        </span>
+                                    @endif
                                 </h2>
                                 <p class="text-sm text-gray-500 mt-0.5 flex items-center gap-1">
                                     <x-heroicon-o-archive-box class="w-3.5 h-3.5" />
@@ -180,9 +179,14 @@
                                     default => 'bg-gray-100 text-gray-600',
                                 };
                             @endphp
-                            <span class="text-xs font-medium rounded-full px-2.5 py-1 {{ $confidenceColor }}">
-                                {{ $event->confidence }}%
-                            </span>
+                            <div class="flex items-center gap-1.5">
+                                @if ($event->weight_g)
+                                    <span class="text-xs font-mono text-amber-500">{{ $event->weight_g }}g</span>
+                                @endif
+                                <span class="text-xs font-medium rounded-full px-2.5 py-1 {{ $confidenceColor }}">
+                                    {{ $event->confidence }}%
+                                </span>
+                            </div>
                             @if ($event->image_path)
                                 <span class="text-xs text-gray-400 flex items-center gap-1">
                                     <x-heroicon-o-camera class="w-3 h-3" />

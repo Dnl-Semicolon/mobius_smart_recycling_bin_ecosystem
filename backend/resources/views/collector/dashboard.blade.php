@@ -4,10 +4,8 @@
         <header class="bg-white border-b border-gray-200/60">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <span class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-                        <x-heroicon-s-arrow-path class="w-5 h-5 text-white" />
-                    </span>
-                    <span class="font-bold text-gray-900 tracking-tight">Mobius</span>
+                    <img src="{{ asset('images/mobius-icon.png') }}" alt="Mobius" class="w-8 h-8 object-contain">
+                    <img src="{{ asset('images/mobius-wordmark.png') }}" alt="Mobius" class="h-5 object-contain">
                     <span class="text-xs text-gray-400 border-l border-gray-200 pl-3 ml-1">Collector</span>
                 </div>
                 <div class="flex items-center gap-4">

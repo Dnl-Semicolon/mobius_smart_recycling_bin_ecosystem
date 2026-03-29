@@ -17,10 +17,20 @@ class DetectionEventResource extends JsonResource
             'bin_id' => $this->bin_id,
             'waste_type' => $this->waste_type?->value,
             'confidence' => $this->confidence,
+            'weight_g' => $this->weight_g,
+            'detected_brand_id' => $this->detected_brand_id,
             'image_path' => $this->image_path,
             'detected_at' => $this->detected_at?->toIso8601String(),
             'bin' => $this->whenLoaded('bin', function () {
                 return new BinResource($this->bin);
+            }),
+            'detected_brand' => $this->whenLoaded('detectedBrand', function () {
+                return [
+                    'id' => $this->detectedBrand->id,
+                    'name' => $this->detectedBrand->name,
+                    'slug' => $this->detectedBrand->slug,
+                    'logo_path' => $this->detectedBrand->logo_path,
+                ];
             }),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),

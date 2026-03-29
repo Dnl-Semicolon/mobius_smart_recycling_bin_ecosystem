@@ -45,6 +45,29 @@ Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->
 
 /*
 |--------------------------------------------------------------------------
+| Email Verification
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+        $request->fulfill();
+
+        return redirect('/');
+    })->middleware('signed')->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('status', 'Verification link sent!');
+    })->middleware('throttle:6,1')->name('verification.send');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Corporate Home + Registration + Subscription
 |--------------------------------------------------------------------------
 */
@@ -94,7 +117,7 @@ Route::get('/', function () {
 | Admin Routes — requires login + admin role
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('z-acodex-temp-workbench', [Z_ACodex_TempWorkbenchController::class, 'index'])->name('z-acodex-temp-workbench');
 
@@ -183,7 +206,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 | Collector Routes — requires login + collector role
 |--------------------------------------------------------------------------
 */
-Route::prefix('collector')->name('collector.')->middleware(['auth', 'role:collector'])->group(function () {
+Route::prefix('collector')->name('collector.')->middleware(['auth', 'verified', 'role:collector'])->group(function () {
     Route::get('/', [CollectorDashboardController::class, 'index'])->name('dashboard');
     Route::post('pickups/{pickupRequest}/claim', [CollectorDashboardController::class, 'claim'])->name('pickups.claim');
     Route::post('pickups/{pickupRequest}/complete', [CollectorDashboardController::class, 'complete'])->name('pickups.complete');
@@ -199,7 +222,7 @@ Route::prefix('collector')->name('collector.')->middleware(['auth', 'role:collec
 | Store Owner Routes — requires login + store_owner role
 |--------------------------------------------------------------------------
 */
-Route::prefix('store')->name('store.')->middleware(['auth', 'role:store_owner'])->group(function () {
+Route::prefix('store')->name('store.')->middleware(['auth', 'verified', 'role:store_owner'])->group(function () {
     Route::get('/', [StoreOwnerDashboardController::class, 'index'])->name('dashboard');
     Route::get('analytics', [StoreOwnerDashboardController::class, 'analytics'])->name('analytics');
 
@@ -228,7 +251,7 @@ Route::prefix('store')->name('store.')->middleware(['auth', 'role:store_owner'])
 | Agency Admin Routes — requires login + agency_admin role
 |--------------------------------------------------------------------------
 */
-Route::prefix('agency')->name('agency.')->middleware(['auth', 'role:agency_admin'])->group(function () {
+Route::prefix('agency')->name('agency.')->middleware(['auth', 'verified', 'role:agency_admin'])->group(function () {
     Route::get('/', [Agency\DashboardController::class, 'index'])->name('dashboard');
     Route::get('analytics', [Agency\DashboardController::class, 'analytics'])->name('analytics');
 
@@ -248,7 +271,7 @@ Route::prefix('agency')->name('agency.')->middleware(['auth', 'role:agency_admin
     Route::put('profile/password', [ProfileController::class, 'password'])->name('profile.password');
 });
 
-Route::prefix('public')->name('public.')->middleware(['auth', 'role:public_user'])->group(function () {
+Route::prefix('public')->name('public.')->middleware(['auth', 'verified', 'role:public_user'])->group(function () {
     Route::get('/', [PublicDashboardController::class, 'index'])->name('dashboard');
 });
 

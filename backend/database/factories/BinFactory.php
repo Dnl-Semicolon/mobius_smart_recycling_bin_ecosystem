@@ -16,7 +16,6 @@ class BinFactory extends Factory
     public function definition(): array
     {
         return [
-            'serial_number' => 'MBR-'.date('Y').'-'.str_pad(fake()->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
             'fill_level' => fake()->numberBetween(0, 100),
             'status' => fake()->randomElement(BinStatus::cases()),
         ];

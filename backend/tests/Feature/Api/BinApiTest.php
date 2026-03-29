@@ -104,66 +104,38 @@ test('show returns 404 for missing bin', function () {
 });
 
 // Store tests
-test('store creates bin with valid data', function () {
+test('store creates bin with auto-generated serial number', function () {
     $data = [
-        'serial_number' => 'MBR-TEST-001',
         'fill_level' => 50,
         'status' => 'active',
     ];
 
     $response = $this->postJson('/api/v1/bins', $data);
 
+    $year = date('Y');
+
     $response->assertCreated()
-        ->assertJsonPath('data.serial_number', 'MBR-TEST-001')
         ->assertJsonPath('data.fill_level', 50)
         ->assertJsonPath('data.status', 'active')
         ->assertJsonPath('message', 'Bin created successfully.');
 
-    $this->assertDatabaseHas('bins', [
-        'serial_number' => 'MBR-TEST-001',
-    ]);
+    expect($response->json('data.serial_number'))->toMatch("/^MBR-{$year}-\\d{3}$/");
 });
 
-test('store creates bin with minimal required data', function () {
-    $data = [
-        'serial_number' => 'MBR-MINIMAL-001',
-    ];
+test('store creates bin with minimal data and auto-generates serial', function () {
+    $response = $this->postJson('/api/v1/bins', []);
 
-    $response = $this->postJson('/api/v1/bins', $data);
+    $year = date('Y');
 
     $response->assertCreated()
-        ->assertJsonPath('data.serial_number', 'MBR-MINIMAL-001')
         ->assertJsonPath('data.fill_level', 0)
         ->assertJsonPath('data.status', 'active');
-});
 
-test('store fails without required serial number', function () {
-    $data = [
-        'fill_level' => 50,
-    ];
-
-    $response = $this->postJson('/api/v1/bins', $data);
-
-    $response->assertUnprocessable()
-        ->assertJsonValidationErrors(['serial_number']);
-});
-
-test('store fails with duplicate serial number', function () {
-    Bin::factory()->create(['serial_number' => 'MBR-DUPE-001']);
-
-    $data = [
-        'serial_number' => 'MBR-DUPE-001',
-    ];
-
-    $response = $this->postJson('/api/v1/bins', $data);
-
-    $response->assertUnprocessable()
-        ->assertJsonValidationErrors(['serial_number']);
+    expect($response->json('data.serial_number'))->toMatch("/^MBR-{$year}-\\d{3}$/");
 });
 
 test('store fails with invalid fill level', function () {
     $data = [
-        'serial_number' => 'MBR-TEST-001',
         'fill_level' => 150, // Invalid: must be 0-100
     ];
 
@@ -175,7 +147,6 @@ test('store fails with invalid fill level', function () {
 
 test('store fails with invalid status', function () {
     $data = [
-        'serial_number' => 'MBR-TEST-001',
         'status' => 'invalid_status',
     ];
 

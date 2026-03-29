@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
  * WHAT HAPPENS:
  * 1. Laravel calls this middleware BEFORE your controller runs
  * 2. We grab the logged-in user from the request
- * 3. We check if their role is in the allowed list
+ * 3. We check if any of their roles is in the allowed list
  * 4. If yes → continue to the controller
  * 5. If no → return 403 Forbidden (or redirect to login page for web)
  */
@@ -36,14 +36,17 @@ class EnsureUserHasRole
         if (! $user) {
             return $request->expectsJson()
                 ? response()->json(['message' => 'Unauthenticated.'], 401)
-                : redirect()->route('login');
+                : abort(403, 'You do not have permission to access this page.');
         }
 
         // Convert the string role names ('admin', 'collector') into UserRole enums
-        // and check if the user's role is one of them.
         $allowedRoles = array_map(fn (string $role) => UserRole::from($role), $roles);
 
-        if (! in_array($user->role, $allowedRoles, true)) {
+        // Check if any of the user's roles match any of the allowed roles
+        $userRoles = $user->getRolesArray();
+        $hasAllowed = collect($allowedRoles)->contains(fn (UserRole $r) => in_array($r->value, $userRoles, true));
+
+        if (! $hasAllowed) {
             // User is logged in but doesn't have the right role.
             // For API requests: return JSON 403.
             // For web requests: abort with a 403 page.

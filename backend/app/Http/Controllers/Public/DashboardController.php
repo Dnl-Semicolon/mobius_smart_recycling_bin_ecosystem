@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Enums\BinStatus;
 use App\Enums\PickupStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Bin;
@@ -17,7 +18,7 @@ class DashboardController extends Controller
         $impactStats = [
             'total_detections' => DetectionEvent::count(),
             'pickups_completed' => PickupRequest::where('status', PickupStatus::Completed)->count(),
-            'active_bins' => Bin::where('status', 'active')->count(),
+            'active_bins' => Bin::where('status', BinStatus::Active)->count(),
             'outlets_served' => Outlet::count(),
         ];
 

@@ -117,6 +117,9 @@ test('dashboard returns correct assigned and unassigned bin counts', function ()
 });
 
 test('dashboard returns correct detection event counts', function () {
+    // Freeze to Thursday so "earlier this week" (Tuesday) is never today
+    $this->travelTo(now()->next('Thursday')->setTime(12, 0));
+
     $bin = Bin::factory()->create();
 
     // Events today
@@ -125,7 +128,7 @@ test('dashboard returns correct detection event counts', function () {
         'detected_at' => now(),
     ]);
 
-    // Events earlier this week
+    // Events earlier this week (Tuesday)
     DetectionEvent::factory()->count(3)->create([
         'bin_id' => $bin->id,
         'detected_at' => now()->startOfWeek()->addDay(),

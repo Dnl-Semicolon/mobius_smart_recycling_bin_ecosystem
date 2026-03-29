@@ -1,0 +1,22 @@
+services:
+  osrm-backend:
+    image: osrm/osrm-backend:latest
+    platform: linux/amd64
+    container_name: mobius-osrm
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./docker/osrm:/data
+    command: osrm-routed --algorithm ch /data/malaysia-singapore-brunei-latest.osrm
+    restart: unless-stopped
+
+  vroom:
+    build:
+      context: ./docker/vroom
+      dockerfile: Dockerfile
+    container_name: mobius-vroom
+    ports:
+      - "3000:3000"
+    depends_on:
+      - osrm-backend
+    restart: unless-stopped

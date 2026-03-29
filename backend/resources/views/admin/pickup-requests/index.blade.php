@@ -13,7 +13,7 @@
                 <option value="">All Statuses</option>
                 @foreach ($statuses as $status)
                     <option value="{{ $status->value }}" @selected(request('status') === $status->value)>
-                        {{ ucfirst($status->value) }}
+                        {{ $status->label() }}
                     </option>
                 @endforeach
             </select>
@@ -32,8 +32,16 @@
     @if ($pickupRequests->isEmpty())
         <x-card variant="subtle" class="text-center py-16">
             <x-heroicon-o-truck class="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p class="text-gray-400 text-lg">No pickup requests found</p>
-            <p class="text-sm text-gray-400 mt-1">Pickup requests are automatically created when a bin reaches 80% fill.</p>
+            @if (request()->hasAny(['status', 'bin']))
+                <p class="text-gray-400">No pickup requests match your filters</p>
+                <a href="{{ route('admin.pickup-requests.index') }}" class="inline-flex items-center gap-1.5 mt-4 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+                    <x-heroicon-o-x-mark class="w-3.5 h-3.5" />
+                    Clear filters
+                </a>
+            @else
+                <p class="text-gray-400">No pickup requests yet</p>
+                <p class="text-sm text-gray-400 mt-1">Pickup requests are automatically created when a bin reaches 80% fill.</p>
+            @endif
         </x-card>
     @else
         <div class="space-y-3">
@@ -45,6 +53,7 @@
                         \App\Enums\PickupStatus::Pending => ['bg' => 'bg-amber-100 text-amber-700', 'icon' => 'clock', 'border' => 'border-l-amber-400'],
                         \App\Enums\PickupStatus::Claimed => ['bg' => 'bg-blue-100 text-blue-700', 'icon' => 'hand-raised', 'border' => 'border-l-blue-400'],
                         \App\Enums\PickupStatus::Completed => ['bg' => 'bg-emerald-100 text-emerald-700', 'icon' => 'check-circle', 'border' => 'border-l-emerald-400'],
+                        \App\Enums\PickupStatus::Cancelled => ['bg' => 'bg-red-100 text-red-700', 'icon' => 'x-circle', 'border' => 'border-l-red-400'],
                     };
                 @endphp
                 <x-card
@@ -72,7 +81,7 @@
                         </div>
                         <div class="shrink-0 flex flex-col items-end gap-2">
                             <span class="text-xs font-semibold rounded-full px-3 py-1 {{ $statusConfig['bg'] }}">
-                                {{ ucfirst($pickupRequest->status->value) }}
+                                {{ $pickupRequest->status->label() }}
                             </span>
                             <span class="text-xs text-gray-400">
                                 {{ $pickupRequest->created_at->diffForHumans() }}

@@ -62,12 +62,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role->value,
-            ],
+            'user' => $this->userPayload($user),
         ]);
     }
 
@@ -98,11 +93,26 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        return response()->json([
+        return response()->json($this->userPayload($user));
+    }
+
+    private function userPayload(User $user): array
+    {
+        return [
             'id' => $user->id,
             'name' => $user->name,
+            'username' => $user->username,
             'email' => $user->email,
-            'role' => $user->role->value,
-        ]);
+            'phone' => $user->phone ?? null,
+            'bio' => $user->bio,
+            'avatar_url' => $user->avatar_path ? asset('storage/'.$user->avatar_path) : null,
+            'role' => $user->getRolesArray()[0],
+            'roles' => $user->getRolesArray(),
+            'points_balance' => $user->points_balance ?? 0,
+            'current_streak' => $user->current_streak ?? 0,
+            'longest_streak' => $user->longest_streak ?? 0,
+            'last_recycled_at' => $user->last_recycled_at,
+            'created_at' => $user->created_at,
+        ];
     }
 }

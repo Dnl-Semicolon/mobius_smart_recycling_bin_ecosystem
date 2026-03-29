@@ -19,20 +19,6 @@
     @endphp
 
     <div class="space-y-6">
-        {{-- Flash Messages --}}
-        @if (session('success'))
-            <div class="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200/60 px-4 py-3 text-sm text-emerald-700">
-                <x-heroicon-s-check-circle class="w-5 h-5 shrink-0" />
-                {{ session('success') }}
-            </div>
-        @endif
-        @if (session('error'))
-            <div class="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200/60 px-4 py-3 text-sm text-red-700">
-                <x-heroicon-s-exclamation-circle class="w-5 h-5 shrink-0" />
-                {{ session('error') }}
-            </div>
-        @endif
-
         {{-- Status Banner --}}
         <x-card class="p-6">
             <div class="flex items-center justify-between">

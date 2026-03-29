@@ -11,6 +11,7 @@ return new class extends Migration
     {
         Schema::create('outlets', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('brand_id')->nullable();
             $table->string('name');
             $table->string('address', 500);
             $table->decimal('latitude', 10, 8)->nullable();
@@ -18,9 +19,10 @@ return new class extends Migration
             $table->string('contact_name')->nullable();
             $table->string('contact_phone', 50)->nullable();
             $table->string('contact_email')->nullable();
-            $table->string('operating_hours', 500)->nullable();
+            $table->text('operating_hours')->nullable();
             $table->string('contract_status')->default(ContractStatus::Pending->value);
             $table->text('notes')->nullable();
+            $table->string('photo_path')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

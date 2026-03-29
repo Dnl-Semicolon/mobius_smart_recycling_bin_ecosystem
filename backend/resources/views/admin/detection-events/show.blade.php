@@ -27,21 +27,10 @@
                     <div>
                         <dt class="text-xs text-gray-400">Waste Type</dt>
                         <dd class="text-lg font-semibold text-gray-900 flex items-center gap-2 mt-1">
-                            @php
-                                $typeIcons = [
-                                    'paper_cup' => 'text-amber-500',
-                                    'plastic_cup' => 'text-blue-500',
-                                    'lid' => 'text-gray-500',
-                                    'straw' => 'text-pink-500',
-                                    'napkin' => 'text-orange-400',
-                                    'liquid_waste' => 'text-cyan-500',
-                                ];
-                                $iconColor = $typeIcons[$detectionEvent->waste_type->value] ?? 'text-gray-400';
-                            @endphp
                             <span class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
-                                <x-heroicon-s-beaker class="w-5 h-5 {{ $iconColor }}" />
+                                <x-heroicon-s-beaker class="w-5 h-5 {{ $detectionEvent->waste_type->iconColor() }}" />
                             </span>
-                            {{ ucwords(str_replace('_', ' ', $detectionEvent->waste_type->value)) }}
+                            {{ $detectionEvent->waste_type->label() }}
                         </dd>
                     </div>
                     <div>
@@ -58,6 +47,49 @@
                             </span>
                         </dd>
                     </div>
+                    @if ($detectionEvent->weight_g)
+                        <div>
+                            <dt class="text-xs text-gray-400">Weight</dt>
+                            <dd class="text-lg font-semibold text-amber-600 font-mono flex items-center gap-1.5">
+                                <x-heroicon-o-scale class="w-4 h-4 text-amber-400" />
+                                {{ $detectionEvent->weight_g >= 1000 ? number_format($detectionEvent->weight_g / 1000, 1) . 'kg' : $detectionEvent->weight_g . 'g' }}
+                            </dd>
+                        </div>
+                    @endif
+                    @if ($detectionEvent->waste_type?->isCup())
+                        <div>
+                            <dt class="text-xs text-gray-400">Detected Cup Brand</dt>
+                            <dd class="flex items-center gap-2 mt-1">
+                                @if ($detectionEvent->detectedBrand)
+                                    @php
+                                        $binBrand = $detectionEvent->bin->currentAssignment?->outlet?->brand;
+                                        $isMatch = $binBrand && $binBrand->id === $detectionEvent->detectedBrand->id;
+                                        $isCompetitor = $binBrand && !$isMatch;
+                                    @endphp
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium {{ $isMatch ? 'bg-emerald-100 text-emerald-700' : ($isCompetitor ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700') }}">
+                                        @if ($detectedBrandLogoPath = $detectionEvent->detectedBrand->logo_path)
+                                            <img src="{{ asset('storage/' . $detectedBrandLogoPath) }}" alt="" class="w-4 h-4 rounded-full object-cover">
+                                        @else
+                                            <x-heroicon-o-building-storefront class="w-4 h-4" />
+                                        @endif
+                                        {{ $detectionEvent->detectedBrand->name }}
+                                        @if ($isMatch)
+                                            <x-heroicon-s-check-circle class="w-3.5 h-3.5 text-emerald-500" />
+                                        @elseif ($isCompetitor)
+                                            <x-heroicon-s-exclamation-triangle class="w-3.5 h-3.5 text-red-500" />
+                                        @endif
+                                    </span>
+                                    @if ($isMatch)
+                                        <span class="text-xs text-emerald-600">Brand match — full bonus</span>
+                                    @elseif ($isCompetitor)
+                                        <span class="text-xs text-red-600">Competitor — 0.3× penalty</span>
+                                    @endif
+                                @else
+                                    <span class="text-gray-400 text-sm">Not detected</span>
+                                @endif
+                            </dd>
+                        </div>
+                    @endif
                     <div>
                         <dt class="text-xs text-gray-400">Detected At</dt>
                         <dd class="text-gray-900 flex items-center gap-1.5">

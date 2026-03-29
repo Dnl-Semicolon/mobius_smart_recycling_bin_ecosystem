@@ -18,14 +18,6 @@
                     Bin Info
                 </h2>
                 <div class="space-y-4">
-                    <x-input
-                        name="serial_number"
-                        label="Serial Number"
-                        placeholder="e.g. MBR-2024-001"
-                        hint="Unique identifier for this bin"
-                        required
-                    />
-
                     <div>
                         <label for="fill_level" class="block text-sm font-medium text-gray-600 mb-1.5">
                             Fill Level
@@ -51,10 +43,10 @@
                         @enderror
                     </div>
 
-                    <x-select
+                    <x-dropdown.select
                         name="status"
                         label="Status"
-                        :options="collect($statuses)->mapWithKeys(fn($s) => [$s->value => ucfirst($s->value)])->toArray()"
+                        :options="collect($statuses)->mapWithKeys(fn($s) => [$s->value => $s->label()])->toArray()"
                         placeholder="Select status"
                     />
                 </div>

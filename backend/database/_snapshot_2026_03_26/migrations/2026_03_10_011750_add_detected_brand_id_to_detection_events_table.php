@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('detection_events', function (Blueprint $table) {
+            $table->foreignId('detected_brand_id')
+                ->nullable()
+                ->after('weight_g')
+                ->constrained('brands')
+                ->nullOnDelete();
+            $table->index('detected_brand_id');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('detection_events', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('detected_brand_id');
+        });
+    }
+};

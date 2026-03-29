@@ -20,14 +20,14 @@ beforeEach(function () {
 });
 
 test('api request includes X-Request-Id header', function () {
-    $response = $this->getJson('/api/v1/persons');
+    $response = $this->getJson('/api/v1/bins');
 
     $response->assertHeader('X-Request-Id');
     expect($response->headers->get('X-Request-Id'))->toMatch('/^[a-f0-9-]{36}$/');
 });
 
 test('wide event is logged to wide-events channel', function () {
-    $this->getJson('/api/v1/persons');
+    $this->getJson('/api/v1/bins');
 
     $logPath = storage_path('logs/wide-events.log');
     expect(file_exists($logPath))->toBeTrue();
@@ -44,19 +44,19 @@ test('wide event is logged to wide-events channel', function () {
 });
 
 test('wide event contains http metadata', function () {
-    $this->getJson('/api/v1/persons?page=1');
+    $this->getJson('/api/v1/bins?page=1');
 
     $logPath = storage_path('logs/wide-events.log');
     $event = json_decode(trim(file_get_contents($logPath)), true);
 
     expect($event['http']['method'])->toBe('GET');
-    expect($event['http']['path'])->toBe('api/v1/persons');
+    expect($event['http']['path'])->toBe('api/v1/bins');
     expect($event['http']['query_params'])->toBe('page=1');
     expect($event['http']['status_code'])->toBe(200);
 });
 
 test('wide event contains timing data', function () {
-    $this->getJson('/api/v1/persons');
+    $this->getJson('/api/v1/bins');
 
     $logPath = storage_path('logs/wide-events.log');
     $event = json_decode(trim(file_get_contents($logPath)), true);
@@ -67,7 +67,7 @@ test('wide event contains timing data', function () {
 });
 
 test('wide event contains service metadata', function () {
-    $this->getJson('/api/v1/persons');
+    $this->getJson('/api/v1/bins');
 
     $logPath = storage_path('logs/wide-events.log');
     $event = json_decode(trim(file_get_contents($logPath)), true);
@@ -77,7 +77,7 @@ test('wide event contains service metadata', function () {
 });
 
 test('wide event captures 404 as error outcome', function () {
-    $this->getJson('/api/v1/persons/99999');
+    $this->getJson('/api/v1/bins/99999');
 
     $logPath = storage_path('logs/wide-events.log');
     $event = json_decode(trim(file_get_contents($logPath)), true);
@@ -90,7 +90,7 @@ test('exactly one event emitted per request', function () {
     $logPath = storage_path('logs/wide-events.log');
 
     // Make first request
-    $this->getJson('/api/v1/persons');
+    $this->getJson('/api/v1/bins');
 
     $lines1 = array_filter(explode("\n", file_get_contents($logPath)));
     expect($lines1)->toHaveCount(1);
@@ -199,7 +199,7 @@ test('wide event is scoped per request', function () {
 });
 
 test('log output is valid json per line', function () {
-    $this->getJson('/api/v1/persons');
+    $this->getJson('/api/v1/bins');
 
     $logPath = storage_path('logs/wide-events.log');
     $lines = array_filter(explode("\n", file_get_contents($logPath)));
@@ -222,8 +222,8 @@ test('exception handler captures error in wide event', function () {
     expect($event['timing']['outcome'])->toBe('error');
 });
 
-test('validation errors are captured in wide event business context', function () {
-    $response = $this->postJson('/api/v1/persons', []);
+test('validation errors are captured in wide event', function () {
+    $response = $this->postJson('/api/v1/bins', []);
 
     $response->assertUnprocessable();
 
@@ -231,11 +231,7 @@ test('validation errors are captured in wide event business context', function (
     $event = json_decode(trim(file_get_contents($logPath)), true);
 
     expect($event['http']['status_code'])->toBe(422);
-    expect($event['business']['validation']['failed'])->toBeTrue();
-    expect($event['business']['validation']['error_count'])->toBeGreaterThan(0);
-    expect($event['business']['validation']['fields'])->toContain('name');
-    expect($event['business']['validation']['messages'])->toHaveKey('name');
-    expect($event['business']['validation']['request'])->toBe(App\Http\Requests\Example\StorePersonRequest::class);
+    expect($event['timing']['outcome'])->toBe('error');
 });
 
 test('wide event error field captures exception details when thrown', function () {

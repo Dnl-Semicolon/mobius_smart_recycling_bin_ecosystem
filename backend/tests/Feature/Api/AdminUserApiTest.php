@@ -18,7 +18,7 @@ test('admin can list users', function () {
         ->assertJsonPath('message', 'Users retrieved successfully.');
 
     // 3 users + 1 admin = 4
-    expect(count($response->json('data.data')))->toBe(4);
+    expect(count($response->json('data')))->toBe(4);
 });
 
 test('admin can filter users by role', function () {
@@ -31,7 +31,7 @@ test('admin can filter users by role', function () {
     $response = $this->getJson(route('api.admin.users.index', ['role' => 'collector']));
 
     $response->assertOk();
-    expect(count($response->json('data.data')))->toBe(2);
+    expect(count($response->json('data')))->toBe(2);
 });
 
 test('admin can view a single user', function () {

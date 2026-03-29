@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -30,7 +29,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'role' => UserRole::PublicUser,
+            'roles' => ['public_user'],
         ];
     }
 
@@ -48,7 +47,7 @@ class UserFactory extends Factory
     public function admin(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => UserRole::Admin,
+            'roles' => ['admin'],
         ]);
     }
 
@@ -56,7 +55,7 @@ class UserFactory extends Factory
     public function collector(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => UserRole::Collector,
+            'roles' => ['collector'],
         ]);
     }
 
@@ -64,7 +63,23 @@ class UserFactory extends Factory
     public function publicUser(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => UserRole::PublicUser,
+            'roles' => ['public_user'],
+        ]);
+    }
+
+    /** Create a store owner user. */
+    public function storeOwner(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'roles' => ['store_owner'],
+        ]);
+    }
+
+    /** Create an agency admin user. */
+    public function agencyAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'roles' => ['agency_admin'],
         ]);
     }
 }

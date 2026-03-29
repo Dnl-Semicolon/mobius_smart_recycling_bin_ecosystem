@@ -14,4 +14,22 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'vroom' => [
+        'url' => env('VROOM_URL', 'http://localhost:3000'),
+    ],
+
+    'google_maps' => [
+        'api_key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+
+    'route' => [
+        'proximity_threshold_meters' => (int) env('ROUTE_PROXIMITY_THRESHOLD_METERS', 200),
+    ],
+
+    'stripe' => [
+        'prices' => [
+            'basic' => env('STRIPE_PRICE_BASIC'),
+            'premium' => env('STRIPE_PRICE_PREMIUM'),
+        ],
+    ],
 ];

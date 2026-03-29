@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\WasteType;
 use App\Models\Bin;
+use App\Models\Brand;
 use App\Models\DetectionEvent;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -50,6 +51,20 @@ class DetectionEventFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'detected_at' => fake()->dateTimeBetween('today', 'now'),
+        ]);
+    }
+
+    public function withDetectedBrand(?Brand $brand = null): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'detected_brand_id' => $brand?->id ?? Brand::factory(),
+        ]);
+    }
+
+    public function cup(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'waste_type' => fake()->randomElement([WasteType::PaperCup, WasteType::PlasticCup]),
         ]);
     }
 

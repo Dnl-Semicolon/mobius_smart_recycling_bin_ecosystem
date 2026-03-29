@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // in routes. This is how Laravel 12 registers middleware — no Kernel.php needed.
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
+            'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         ]);
 
         // Sanctum: make API routes stateful so cookies work from the same domain.

@@ -1,7 +1,7 @@
 @import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
@@ -16,8 +16,9 @@
 
 /* Base */
 @layer base {
-    button, a, input, select, textarea {
-        @apply transition-all duration-200 ease-out;
+
+    html, body {
+        overscroll-behavior: none;
     }
 
     *:focus {
@@ -47,20 +48,12 @@
         @apply focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
     }
 
-    .card-interactive {
-        @apply transition-all duration-200 ease-out;
-    }
-
     .card-interactive:hover {
-        @apply bg-white/90 shadow-xl shadow-black/8 -translate-y-0.5;
+        @apply bg-white/90 shadow-xl shadow-black/8;
     }
 
     .card-interactive:focus-visible {
-        @apply ring-2 ring-emerald-500/20 ring-offset-2 ring-offset-transparent bg-white/90 -translate-y-0.5;
-    }
-
-    .card-interactive:active {
-        @apply translate-y-0 shadow-lg;
+        @apply ring-2 ring-emerald-500/20 ring-offset-2 ring-offset-transparent bg-white/90;
     }
 
     .input-focus {
@@ -74,9 +67,130 @@
     .form-section-title {
         @apply text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4;
     }
+
+    .settings-nav-link {
+        @apply text-gray-600;
+    }
+    .settings-nav-link:hover {
+        @apply bg-gray-100 text-gray-900;
+    }
+    .settings-nav-link.active {
+        @apply bg-emerald-50 text-emerald-700 border border-emerald-200/60;
+    }
+
+    /* GitHub-style squared icon buttons for the top bar */
+    .topbar-icon-btn {
+        @apply inline-flex items-center justify-center h-10 w-10 rounded-md border border-gray-300 text-gray-500 bg-white transition-colors duration-100 cursor-pointer;
+    }
+    .topbar-icon-btn:hover {
+        @apply bg-gray-50 border-gray-400 text-gray-800;
+    }
+    .topbar-icon-btn--wide {
+        @apply w-auto px-2.5 gap-0.5;
+    }
+
+    /* Topbar dropdown items */
+    .topbar-dropdown-item {
+        @apply flex items-center gap-3 mx-2 px-2.5 py-[7px] text-sm text-gray-800 text-left rounded-md cursor-pointer transition-colors duration-75;
+    }
+    .topbar-dropdown-item:hover {
+        @apply bg-gray-100;
+    }
+
+    /* Sidebar nav items */
+    .sidebar-nav-item {
+        @apply flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-800 transition-colors duration-75 cursor-pointer relative;
+    }
+    .sidebar-nav-item:hover {
+        @apply bg-gray-100;
+    }
+    .sidebar-nav-item--active {
+        @apply bg-gray-100 font-medium;
+    }
+    .sidebar-nav-item--active::before {
+        content: '';
+        @apply absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-emerald-500;
+    }
 }
 
-/* HTMX view transitions */
-@view-transition {
-    navigation: auto;
+/* Pinned sidebar — desktop only */
+@media (min-width: 1024px) {
+    body.sidebar-pinned [data-sidebar] {
+        top: 0;
+        bottom: 0;
+        left: 0;
+        border-radius: 0;
+        border: none;
+        border-right: 1px solid var(--color-gray-200, #e5e7eb);
+        box-shadow: none;
+        transform: translateX(0);
+    }
+
+    body.sidebar-pinned [data-sidebar-backdrop] {
+        display: none !important;
+    }
+
+    body.sidebar-pinned [data-main-content] {
+        margin-left: 20rem;
+        transition: margin-left 200ms ease-out;
+    }
+
+    body.sidebar-pinned [data-sidebar-toggle] {
+        display: none;
+    }
+
+    body.sidebar-pinned [data-sidebar-close] {
+        display: none;
+    }
 }
+
+/* ── Marketing page animations ── */
+
+@keyframes hero-fade-up {
+    from { opacity: 0; transform: translateY(1.5rem); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -20px) scale(1.05); }
+    66% { transform: translate(-20px, 15px) scale(0.95); }
+}
+
+@keyframes pulse-soft {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.reveal {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+.hero-animate {
+    animation: hero-fade-up 0.9s ease-out both;
+}
+.hero-animate-delay-1 { animation-delay: 0.15s; }
+.hero-animate-delay-2 { animation-delay: 0.3s; }
+.hero-animate-delay-3 { animation-delay: 0.5s; }
+.hero-animate-delay-4 { animation-delay: 0.7s; }
+
+.hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    will-change: transform;
+    animation: float 20s ease-in-out infinite;
+}
+

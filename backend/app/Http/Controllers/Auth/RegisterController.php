@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,12 +36,13 @@ class RegisterController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => $validated['password'],  // Auto-hashed via the 'hashed' cast on the model
-            'role' => UserRole::PublicUser,
+            'roles' => ['public_user'],
         ]);
 
-        // Log the user in immediately after registration.
+        event(new Registered($user));
+
         Auth::login($user);
 
-        return redirect('/');
+        return redirect()->route('verification.notice');
     }
 }

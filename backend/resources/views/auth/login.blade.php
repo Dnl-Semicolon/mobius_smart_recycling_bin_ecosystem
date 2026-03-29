@@ -24,13 +24,32 @@
                         autofocus
                     />
 
-                    <x-input
-                        name="password"
-                        type="password"
-                        label="Password"
-                        placeholder="Your password"
-                        required
-                    />
+                    <div x-data="{ show: false }" class="space-y-1.5">
+                        <label for="password" class="block text-sm font-medium text-gray-600">Password</label>
+                        <div class="relative">
+                            <input
+                                id="password"
+                                name="password"
+                                :type="show ? 'text' : 'password'"
+                                value="{{ old('password') }}"
+                                placeholder="Your password"
+                                required
+                                class="w-full rounded-xl border bg-white/60 px-4 py-2.5 pr-10 text-sm text-gray-900 placeholder:text-gray-400 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/10 {{ $errors->has('password') ? 'border-red-300 bg-red-50/50' : 'border-gray-200/80' }}"
+                            >
+                            <button
+                                type="button"
+                                @click="show = !show"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                                tabindex="-1"
+                            >
+                                <x-heroicon-o-eye x-show="!show" class="w-4.5 h-4.5" />
+                                <x-heroicon-o-eye-slash x-show="show" class="w-4.5 h-4.5" x-cloak />
+                            </button>
+                        </div>
+                        @error('password')
+                            <p class="text-xs text-red-600 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
 
                     <label class="flex items-center gap-2">
                         <input

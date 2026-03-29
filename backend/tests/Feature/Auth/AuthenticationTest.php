@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -85,11 +84,11 @@ test('user can register as public user', function () {
         'password_confirmation' => 'password',
     ]);
 
-    $response->assertRedirect('/');
+    $response->assertRedirect(route('verification.notice'));
     $this->assertAuthenticated();
 
     $user = User::where('email', 'new@example.com')->first();
-    expect($user->role)->toBe(UserRole::PublicUser);
+    expect($user->getRolesArray())->toBe(['public_user']);
 });
 
 /*

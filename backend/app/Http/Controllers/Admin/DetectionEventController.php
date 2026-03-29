@@ -15,7 +15,7 @@ class DetectionEventController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = DetectionEvent::query()->with(['bin.currentAssignment.outlet']);
+        $query = DetectionEvent::query()->with(['bin.currentAssignment.outlet.brand', 'detectedBrand']);
 
         // Filter by bin_id
         if ($request->filled('bin')) {
@@ -53,7 +53,7 @@ class DetectionEventController extends Controller
 
     public function show(DetectionEvent $detectionEvent): View
     {
-        $detectionEvent->load('bin.currentAssignment.outlet');
+        $detectionEvent->load(['bin.currentAssignment.outlet.brand', 'detectedBrand']);
 
         return view('admin.detection-events.show', compact('detectionEvent'));
     }

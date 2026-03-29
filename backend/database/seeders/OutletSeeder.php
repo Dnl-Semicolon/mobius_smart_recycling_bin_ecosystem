@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\ContractStatus;
 use App\Models\Outlet;
+use Database\Factories\OutletFactory;
 use Illuminate\Database\Seeder;
 
 class OutletSeeder extends Seeder
@@ -19,7 +20,7 @@ class OutletSeeder extends Seeder
                 'contact_name' => 'Lim Bee Hoon',
                 'contact_phone' => '012-483 7291',
                 'contact_email' => 'gurneyplaza@example.com',
-                'operating_hours' => '10:00-22:00',
+                'operating_hours' => OutletFactory::buildStructuredHours('10:00', '22:00'),
                 'contract_status' => ContractStatus::Active,
                 'notes' => 'High traffic mall location. 3 bins allocated.',
             ],
@@ -31,7 +32,7 @@ class OutletSeeder extends Seeder
                 'contact_name' => 'Tan Kah Wei',
                 'contact_phone' => '012-519 4603',
                 'contact_email' => 'gurneyparagon@example.com',
-                'operating_hours' => '10:00-22:00',
+                'operating_hours' => OutletFactory::buildStructuredHours('10:00', '22:00'),
                 'contract_status' => ContractStatus::Active,
                 'notes' => null,
             ],
@@ -43,7 +44,7 @@ class OutletSeeder extends Seeder
                 'contact_name' => 'Mohd Faizal bin Ismail',
                 'contact_phone' => '013-472 8156',
                 'contact_email' => 'sunwaycarnival@example.com',
-                'operating_hours' => '10:00-22:00',
+                'operating_hours' => OutletFactory::buildStructuredHours('10:00', '22:00'),
                 'contract_status' => ContractStatus::Active,
                 'notes' => null,
             ],
@@ -55,7 +56,7 @@ class OutletSeeder extends Seeder
                 'contact_name' => 'R. Priya',
                 'contact_phone' => '014-638 2947',
                 'contact_email' => '1stavenue@example.com',
-                'operating_hours' => '10:00-22:00',
+                'operating_hours' => OutletFactory::buildStructuredHours('10:00', '22:00'),
                 'contract_status' => ContractStatus::Active,
                 'notes' => null,
             ],
@@ -67,7 +68,7 @@ class OutletSeeder extends Seeder
                 'contact_name' => 'Chen Wei Ling',
                 'contact_phone' => '016-754 3182',
                 'contact_email' => 'chagee.gurney@example.com',
-                'operating_hours' => '10:00-22:00',
+                'operating_hours' => OutletFactory::buildStructuredHours('10:00', '22:00'),
                 'contract_status' => ContractStatus::Active,
                 'notes' => 'First CHAGEE flagship in Penang. High traffic, 3 bins allocated.',
             ],
@@ -79,7 +80,7 @@ class OutletSeeder extends Seeder
                 'contact_name' => 'Nurul Aisyah binti Ahmad',
                 'contact_phone' => '017-295 4718',
                 'contact_email' => 'tealive.prangin@example.com',
-                'operating_hours' => '10:00-22:00',
+                'operating_hours' => OutletFactory::buildStructuredHours('10:00', '22:00'),
                 'contract_status' => ContractStatus::Active,
                 'notes' => null,
             ],
@@ -91,7 +92,7 @@ class OutletSeeder extends Seeder
                 'contact_name' => 'Wong Siew Mei',
                 'contact_phone' => '012-467 9305',
                 'contact_email' => 'tealive.bayanbaru@example.com',
-                'operating_hours' => '08:00-22:00',
+                'operating_hours' => OutletFactory::buildStructuredHours('08:00', '22:00'),
                 'contract_status' => ContractStatus::Active,
                 'notes' => null,
             ],
@@ -103,7 +104,7 @@ class OutletSeeder extends Seeder
                 'contact_name' => 'Kavitha a/p Subramaniam',
                 'contact_phone' => '018-371 6429',
                 'contact_email' => 'tealive.gurney@example.com',
-                'operating_hours' => '10:00-22:00',
+                'operating_hours' => OutletFactory::buildStructuredHours('10:00', '22:00'),
                 'contract_status' => ContractStatus::Pending,
                 'notes' => 'New franchise outlet. Contract pending final approval from HQ.',
             ],
@@ -115,7 +116,7 @@ class OutletSeeder extends Seeder
                 'contact_name' => 'Ahmad Zulkifli bin Osman',
                 'contact_phone' => '019-582 3041',
                 'contact_email' => 'oldtown.gurney@example.com',
-                'operating_hours' => '08:00-22:00',
+                'operating_hours' => OutletFactory::buildStructuredHours('08:00', '22:00'),
                 'contract_status' => ContractStatus::Active,
                 'notes' => null,
             ],
