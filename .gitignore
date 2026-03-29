@@ -19,3 +19,5 @@ Thumbs.db
 *.swp
 *.swo
 *~
+mock_bin/models/*.pt
+backend/database/seed_data.sql
