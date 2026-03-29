@@ -25,9 +25,9 @@ Homestead.yaml
 Thumbs.db
 
 # Claude teaching files (Z_ prefix sorts to bottom)
-Z_Claude_*
-Z_Claude.*
-Z_*
+# Z_Claude_*
+# Z_Claude.*
+# Z_*
 
 # Archive (moved non-Laravel clutter here)
 /_archive
