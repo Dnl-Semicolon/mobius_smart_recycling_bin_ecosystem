@@ -52,12 +52,12 @@
         <div class="hero-orb w-[400px] h-[400px] bg-emerald-500/10 -top-32 -right-20" style="animation-delay: 0s;"></div>
         <div class="hero-orb w-[300px] h-[300px] bg-teal-400/8 -bottom-20 -left-24" style="animation-delay: -7s;"></div>
 
-        <div class="w-full max-w-sm relative z-10">
+        <div class="w-full max-w-md relative z-10">
             {{-- Logo --}}
             <div class="text-center mb-8 hero-animate">
                 <img src="{{ asset('images/mobius-icon.png') }}" alt="Mobius" class="w-16 h-16 object-contain mx-auto mb-3">
-                <img src="{{ asset('images/mobius-wordmark.png') }}" alt="Mobius" class="h-7 object-contain mx-auto mb-1">
-                <p class="text-sm text-gray-500 mt-1">Create your account</p>
+                <img src="{{ asset('images/mobius-wordmark.png') }}" alt="Mobius" class="h-7 object-contain mx-auto">
+                <h1 class="text-xl font-semibold text-gray-900 mt-3">Create your account</h1>
             </div>
 
             {{-- Register Card --}}

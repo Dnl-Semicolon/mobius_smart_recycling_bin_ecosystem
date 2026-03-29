@@ -56,8 +56,8 @@
             {{-- Logo --}}
             <div class="text-center mb-8 hero-animate">
                 <img src="{{ asset('images/mobius-icon.png') }}" alt="Mobius" class="w-16 h-16 object-contain mx-auto mb-3">
-                <img src="{{ asset('images/mobius-wordmark.png') }}" alt="Mobius" class="h-7 object-contain mx-auto mb-1">
-                <p class="text-sm text-gray-500 mt-1">Smart Recycling Ecosystem</p>
+                <img src="{{ asset('images/mobius-wordmark.png') }}" alt="Mobius" class="h-7 object-contain mx-auto">
+                <h1 class="text-xl font-semibold text-gray-900 mt-3">Sign in to Mobius</h1>
             </div>
 
             {{-- Login Card --}}

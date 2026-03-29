@@ -62,13 +62,13 @@
         {{-- Static hint when empty --}}
         <p x-show="password.length === 0" class="text-xs text-gray-400">Must include uppercase, lowercase, number, and symbol.</p>
 
-        {{-- Criteria checklist --}}
-        <div x-show="password.length > 0" x-cloak class="space-y-1">
+        {{-- Criteria checklist (compact 2-col grid) --}}
+        <div x-show="password.length > 0" x-cloak class="grid grid-cols-2 gap-x-3 gap-y-0.5">
             <template x-for="item in criteria" :key="item.label">
-                <div class="flex items-center gap-1.5">
-                    <svg x-show="item.passed" class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                    <svg x-show="!item.passed" x-cloak class="w-3.5 h-3.5 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    <span class="text-xs transition-colors" :class="item.passed ? 'text-emerald-600' : 'text-gray-400'" x-text="item.label"></span>
+                <div class="flex items-center gap-1">
+                    <svg x-show="item.passed" class="w-3 h-3 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                    <svg x-show="!item.passed" x-cloak class="w-3 h-3 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <span class="text-[11px] leading-tight transition-colors" :class="item.passed ? 'text-emerald-600' : 'text-gray-400'" x-text="item.label"></span>
                 </div>
             </template>
         </div>
