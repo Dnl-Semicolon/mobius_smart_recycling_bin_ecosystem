@@ -1,17 +1,67 @@
 <x-layouts.app title="Login — Mobius">
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div class="w-full max-w-sm">
+    {{-- Toast Notifications --}}
+    <div
+        x-data="{
+            toasts: [],
+            add(type, message) {
+                var id = Date.now();
+                this.toasts.push({ id, type, message });
+                setTimeout(() => this.remove(id), 4000);
+            },
+            remove(id) {
+                this.toasts = this.toasts.filter(t => t.id !== id);
+            }
+        }"
+        x-init="
+            @if (session('success')) add('success', @js(session('success'))); @endif
+            @if (session('error')) add('error', @js(session('error'))); @endif
+        "
+        class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"
+        data-testid="toast-container"
+    >
+        <template x-for="toast in toasts" :key="toast.id">
+            <div
+                x-show="true"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 translate-x-4"
+                x-transition:enter-end="opacity-100 translate-x-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 translate-x-0"
+                x-transition:leave-end="opacity-0 translate-x-4"
+                class="pointer-events-auto flex items-center gap-2.5 rounded-lg border px-4 py-3 text-sm font-medium shadow-lg shadow-black/8 backdrop-blur-sm min-w-[280px] max-w-[420px]"
+                :class="toast.type === 'success'
+                    ? 'bg-white/95 border-emerald-200 text-emerald-700'
+                    : 'bg-white/95 border-red-200 text-red-700'"
+            >
+                <template x-if="toast.type === 'success'">
+                    <svg class="w-5 h-5 shrink-0 text-emerald-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+                </template>
+                <template x-if="toast.type === 'error'">
+                    <svg class="w-5 h-5 shrink-0 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
+                </template>
+                <span x-text="toast.message" class="flex-1"></span>
+                <button @click="remove(toast.id)" class="shrink-0 rounded p-0.5 hover:bg-black/5 transition-colors cursor-pointer">
+                    <svg class="w-4 h-4 opacity-40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" /></svg>
+                </button>
+            </div>
+        </template>
+    </div>
+
+    <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 relative overflow-hidden">
+        {{-- Atmospheric background orbs --}}
+        <div class="hero-orb w-[400px] h-[400px] bg-emerald-500/10 -top-32 -right-20" style="animation-delay: 0s;"></div>
+        <div class="hero-orb w-[300px] h-[300px] bg-teal-400/8 -bottom-20 -left-24" style="animation-delay: -7s;"></div>
+
+        <div class="w-full max-w-sm relative z-10">
             {{-- Logo --}}
-            <div class="text-center mb-8">
-                <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <x-heroicon-s-arrow-path class="w-8 h-8 text-white" />
-                </div>
-                <h1 class="text-2xl font-bold text-gray-900">Mobius</h1>
+            <div class="text-center mb-8 hero-animate">
+                <img src="{{ asset('images/mobius-icon.png') }}" alt="Mobius" class="w-16 h-16 object-contain mx-auto mb-3">
+                <img src="{{ asset('images/mobius-wordmark.png') }}" alt="Mobius" class="h-7 object-contain mx-auto mb-1">
                 <p class="text-sm text-gray-500 mt-1">Smart Recycling Ecosystem</p>
             </div>
 
             {{-- Login Card --}}
-            <x-card class="p-6">
+            <x-card class="p-6 hero-animate hero-animate-delay-1">
                 <form method="POST" action="{{ route('login') }}" class="space-y-4">
                     @csrf
 
