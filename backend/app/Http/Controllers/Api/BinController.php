@@ -11,6 +11,8 @@ use App\Models\Bin;
 use App\Models\BinAssignment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class BinController extends Controller
 {
@@ -86,6 +88,24 @@ class BinController extends Controller
         return BinResource::make($bin)
             ->additional(['message' => 'Bin assigned to outlet successfully.'])
             ->response();
+    }
+
+    /**
+     * Public endpoint to generate a QR code SVG for a bin's serial number.
+     */
+    public function qrCode(Bin $bin): Response
+    {
+        $size = min(max(request()->integer('size', 300), 100), 1000);
+
+        $svg = QrCode::format('svg')
+            ->size($size)
+            ->errorCorrection('M')
+            ->generate($bin->serial_number);
+
+        return response($svg, 200, [
+            'Content-Type' => 'image/svg+xml',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
     }
 
     /**

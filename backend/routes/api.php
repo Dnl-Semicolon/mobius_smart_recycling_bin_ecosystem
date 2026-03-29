@@ -35,6 +35,7 @@ Route::prefix('v1')->name('api.')->group(function (): void {
     Route::post('detection-events/{detectionEvent}/feedback', [DetectionEventController::class, 'feedback'])->name('detection-events.feedback');
     Route::get('public/stats', [PublicStatsController::class, 'index'])->name('public.stats');
     Route::get('bins/resolve/{serial}', [BinController::class, 'resolve'])->name('bins.resolve');
+    Route::get('bins/{bin}/qr', [BinController::class, 'qrCode'])->name('bins.qr');
     Route::post('bins/{bin}/heartbeat', [BinController::class, 'heartbeat'])->name('bins.heartbeat');
 
     /*
