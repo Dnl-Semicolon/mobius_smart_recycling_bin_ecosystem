@@ -11,6 +11,7 @@ struct ScanView: View {
     @State private var binSession: BinSession?
     @State private var isStartingSession = false
     @State private var sessionError: String?
+    @State private var navigateToWaiting = false
 
     var body: some View {
         Group {
@@ -27,6 +28,11 @@ struct ScanView: View {
         }
         .navigationTitle("Scan")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(isPresented: $navigateToWaiting) {
+            if let session = binSession {
+                WaitingForDetectionView(binSession: session)
+            }
+        }
         .sheet(isPresented: $showManualEntry) {
             ManualCodeEntrySheet(code: $manualCode, onSubmit: { code in
                 Task { await startBinSession(serial: code) }
@@ -190,6 +196,7 @@ struct ScanView: View {
                 HapticManager.notification(.success)
                 binSession = session
                 scannerSession?.stop()
+                navigateToWaiting = true
             } else {
                 HapticManager.notification(.error)
                 sessionError = customerService.error ?? "Bin not found"

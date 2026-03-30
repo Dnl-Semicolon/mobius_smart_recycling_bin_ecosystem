@@ -45,7 +45,7 @@ export function HealthIndicators({ onHealthChange }: Props) {
       <Dot status={health.laravel} label="Laravel API" />
       <Dot
         status={health.ai}
-        label={health.detector ? `AI: ${health.detector}` : "AI Service"}
+        label="AI"
       />
     </div>
   );

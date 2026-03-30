@@ -99,6 +99,31 @@ final class CustomerService {
         }
     }
 
+    // MARK: - Poll for Detection
+
+    /// Poll history for a new detection that occurred after `since`.
+    /// Returns the detected item, or nil if nothing found within ~60s.
+    func pollForDetection(since: Date) async -> RecyclingHistoryItem? {
+        let maxAttempts = 20
+        let interval: UInt64 = 3_000_000_000 // 3 seconds
+
+        for _ in 0..<maxAttempts {
+            try? await Task.sleep(nanoseconds: interval)
+
+            do {
+                let response: PaginatedResponse<RecyclingHistoryItem> = try await api.get("/customer/history?page=1")
+                if let latest = response.data.first,
+                   let detectedAt = latest.detectedAt,
+                   detectedAt > since {
+                    return latest
+                }
+            } catch {
+                // Keep polling on error
+            }
+        }
+        return nil
+    }
+
     // MARK: - Detection Feedback
 
     func submitFeedback(detectionId: Int, accurate: Bool) async {

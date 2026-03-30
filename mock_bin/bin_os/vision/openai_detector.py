@@ -22,7 +22,7 @@ Classify the item into exactly ONE of these types:
 - liquid_waste (visible liquid being poured, spilled drink)
 - unknown (not a recyclable beverage item, or image is too unclear)
 
-If the item is a cup (paper_cup or plastic_cup), also identify the brand from visible logos, text, or design patterns. Use the brand's lowercase slug (e.g. "starbucks", "mixue", "tealive", "zus-coffee", "chagee", "mcdonalds"). If the brand is not recognizable, use "".
+If the item is a cup (paper_cup or plastic_cup), also identify the brand from visible logos, text, or design patterns. Valid brands: starbucks, zus-coffee, mixue, chagee, lucky-cup. If the brand is not recognizable, use "".
 
 Respond with ONLY a JSON object, no markdown, no explanation:
 {"waste_type": "plastic_cup", "confidence": 85, "brand": "starbucks"}
