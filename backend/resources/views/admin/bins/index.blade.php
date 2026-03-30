@@ -132,7 +132,7 @@
                         :selected="request('status')"
                     />
                 </div>
-                <div class="min-w-[160px]">
+                <div class="min-w-[280px]">
                     <x-dropdown.select
                         name="outlet"
                         placeholder="All Outlets"
