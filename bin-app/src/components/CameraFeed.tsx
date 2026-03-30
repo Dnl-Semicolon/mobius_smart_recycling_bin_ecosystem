@@ -45,7 +45,11 @@ export const CameraFeed = forwardRef<CameraFeedHandle>(function CameraFeed(_, re
   }));
 
   if (error) {
-    return <div style={{ padding: 20, color: "red", border: "1px solid red" }}>{error}</div>;
+    return (
+      <div className="flex-1 flex items-center justify-center p-5 text-red-500 border border-red-500 m-4">
+        {error}
+      </div>
+    );
   }
 
   return (
@@ -54,7 +58,7 @@ export const CameraFeed = forwardRef<CameraFeedHandle>(function CameraFeed(_, re
       autoPlay
       playsInline
       muted
-      style={{ width: "100%", maxHeight: 480, background: "#000", display: "block" }}
+      className="flex-1 w-full object-contain bg-black block"
     />
   );
 });

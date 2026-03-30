@@ -74,7 +74,8 @@ A **Brand Directory** (catalog of known F&B brands) with a searchable registrati
 
 - Table of all brands in the catalog
 - Columns: name, logo, website, status (Claimed/Available), claimed by
-- Add/edit brand entries
+- Add new brand entries, edit existing ones (name, logo, website, color, description)
+- This is how user CRUDs logos/colors for seeded brands
 
 ### Admin: "Applications > Brands" (modified)
 

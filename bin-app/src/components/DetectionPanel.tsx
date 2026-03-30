@@ -14,29 +14,21 @@ export function DetectionPanel({ result, userId, detecting, onDetect, error }: P
       <button
         onClick={onDetect}
         disabled={detecting}
-        style={{
-          width: "100%",
-          padding: "16px 32px",
-          fontSize: 18,
-          fontWeight: "bold",
-          cursor: detecting ? "wait" : "pointer",
-          background: detecting ? "#ccc" : "#000",
-          color: "#fff",
-          border: "none",
-          marginBottom: 16,
-        }}
+        className={`w-full py-4 px-8 text-lg font-bold text-white border-none mb-4 ${
+          detecting ? "bg-gray-400 cursor-wait" : "bg-black cursor-pointer hover:bg-gray-800"
+        }`}
       >
         {detecting ? "Detecting..." : "DETECT"}
       </button>
 
       {error && (
-        <div style={{ padding: 12, background: "#fee", border: "1px solid red", marginBottom: 12 }}>
+        <div className="p-3 bg-red-50 border border-red-500 text-red-700 mb-3 text-sm">
           {error}
         </div>
       )}
 
       {result && (
-        <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "monospace" }}>
+        <table className="w-full font-mono text-sm border-collapse">
           <tbody>
             <Row label="Waste Type" value={result.waste_type} />
             <Row label="Confidence" value={`${result.confidence}%`} />
@@ -52,9 +44,9 @@ export function DetectionPanel({ result, userId, detecting, onDetect, error }: P
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <tr style={{ borderBottom: "1px solid #ddd" }}>
-      <td style={{ padding: "8px 12px", fontWeight: "bold", color: "#666" }}>{label}</td>
-      <td style={{ padding: "8px 12px" }}>{value}</td>
+    <tr className="border-b border-gray-200">
+      <td className="py-2 px-3 font-bold text-gray-500">{label}</td>
+      <td className="py-2 px-3">{value}</td>
     </tr>
   );
 }

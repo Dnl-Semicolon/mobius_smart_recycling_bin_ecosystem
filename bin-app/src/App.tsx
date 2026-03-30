@@ -20,7 +20,6 @@ function App() {
   const [userId, setUserId] = useState<number | null>(null);
   const [error, setError] = useState("");
 
-  // Resolve bin serial → bin_id on mount
   useEffect(() => {
     resolveBin(BIN_SERIAL)
       .then((res) => {
@@ -46,7 +45,6 @@ function App() {
     setUserId(null);
 
     try {
-      // 1. Capture frame from camera
       const blob = await cameraRef.current?.captureFrame();
       if (!blob) {
         setError("Failed to capture frame");
@@ -54,17 +52,13 @@ function App() {
       }
       setStatus("Classifying...");
 
-      // 2. Send to AI service for classification
       const classResult = await classifyImage(blob);
       setResult(classResult);
       setStatus("Reporting to backend...");
 
-      // 3. Report detection to Laravel
       const detection = await reportDetection(binId, classResult);
       setUserId(detection.data.user_id);
 
-      // Points are awarded server-side. The bin app shows user attribution;
-      // the user checks exact points in their iOS app.
       setStatus(`Detection #${detection.data.id} recorded`);
       setStatusError(false);
     } catch (err) {
@@ -77,16 +71,22 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <div className="camera-section">
+    <div className="grid grid-cols-[1fr_384px] h-screen bg-white text-black">
+      <div className="flex flex-col bg-black">
         <CameraFeed ref={cameraRef} />
-        <div className={`status-bar ${statusError ? "error" : ""}`}>{status}</div>
+        <div
+          className={`px-4 py-2 font-mono text-xs border-t border-gray-700 ${
+            statusError ? "text-red-500 bg-gray-900" : "text-green-400 bg-gray-900"
+          }`}
+        >
+          {status}
+        </div>
       </div>
 
-      <div className="sidebar">
-        <h1>MOBIUS BIN</h1>
+      <div className="flex flex-col gap-6 p-6 border-l-2 border-black overflow-y-auto">
+        <h1 className="text-xl font-bold tracking-tight">MOBIUS BIN</h1>
         <QRDisplay serial={BIN_SERIAL} />
-        <hr />
+        <hr className="border-gray-200" />
         <DetectionPanel
           result={result}
           userId={userId}
