@@ -5,12 +5,18 @@ import Foundation
 final class APIClient: Sendable {
     // MARK: - Configuration
 
-    /// Base URL for the Laravel backend. Change this for production.
-    #if DEBUG
-    static let baseURL = "http://172.20.10.3:8000/api/v1"
-    #else
-    static let baseURL = "https://api.mobius.my/api/v1"
-    #endif
+    /// Base URL for the Laravel backend.
+    /// In debug, can be overridden via UserDefaults key "api_base_url".
+    static var baseURL: String {
+        #if DEBUG
+        if let override = UserDefaults.standard.string(forKey: "api_base_url"), !override.isEmpty {
+            return override
+        }
+        return "http://172.20.10.3:8000/api/v1"
+        #else
+        return "https://api.mobius.my/api/v1"
+        #endif
+    }
 
     private let decoder: JSONDecoder = {
         let d = JSONDecoder()
