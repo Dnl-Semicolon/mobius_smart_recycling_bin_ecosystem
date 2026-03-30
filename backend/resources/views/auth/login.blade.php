@@ -118,15 +118,18 @@
                         @enderror
                     </div>
 
-                    <label class="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            name="remember"
-                            class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-200"
-                            @checked(old('remember'))
-                        >
-                        <span class="text-sm text-gray-600">Remember me</span>
-                    </label>
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                name="remember"
+                                class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-200"
+                                @checked(old('remember'))
+                            >
+                            <span class="text-sm text-gray-600">Remember me</span>
+                        </label>
+                        <a href="{{ route('password.request') }}" class="text-xs text-emerald-600 hover:text-emerald-700 font-medium">Forgot password?</a>
+                    </div>
 
                     <x-button type="submit" class="w-full justify-center cursor-pointer py-3 px-6 transition-all duration-150 active:scale-[0.98] shadow-sm hover:shadow-md">
                         <x-heroicon-o-arrow-right-on-rectangle class="w-4 h-4" />
