@@ -38,3 +38,22 @@ export async function reportDetection(
   if (!res.ok) throw new Error(`Report failed: ${res.status}`);
   return res.json();
 }
+
+export async function checkLaravelHealth(): Promise<boolean> {
+  try {
+    const res = await fetch(`${LARAVEL_URL}/public/stats`, { signal: AbortSignal.timeout(5000) });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function checkAiHealth(): Promise<AiHealthResponse | null> {
+  try {
+    const res = await fetch(`${AI_URL}/health`, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}

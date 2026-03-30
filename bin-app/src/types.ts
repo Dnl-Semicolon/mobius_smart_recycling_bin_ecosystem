@@ -25,6 +25,11 @@ export interface BinResolveResponse {
   };
 }
 
+export interface AiHealthResponse {
+  status: string;
+  detector: string;
+}
+
 export interface HistoryItem {
   waste_type: string;
   confidence: number;

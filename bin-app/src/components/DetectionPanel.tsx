@@ -5,6 +5,7 @@ interface Props {
   userId: number | null;
   detecting: boolean;
   onDetect: () => void;
+  disabled: boolean;
   error: string;
   autoMode: boolean;
   onToggleAuto: () => void;
@@ -16,6 +17,7 @@ export function DetectionPanel({
   userId,
   detecting,
   onDetect,
+  disabled,
   error,
   autoMode,
   onToggleAuto,
@@ -26,9 +28,9 @@ export function DetectionPanel({
       <div className="flex gap-2 mb-4">
         <button
           onClick={onDetect}
-          disabled={detecting}
+          disabled={detecting || disabled}
           className={`flex-1 py-4 px-6 text-lg font-bold text-white border-none ${
-            detecting ? "bg-gray-400 cursor-wait" : "bg-black cursor-pointer hover:bg-gray-800"
+            detecting || disabled ? "bg-gray-400 cursor-not-allowed" : "bg-black cursor-pointer hover:bg-gray-800"
           }`}
         >
           {detecting ? "Detecting..." : "DETECT"}

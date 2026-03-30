@@ -3,6 +3,7 @@ import { CameraFeed, type CameraFeedHandle } from "./components/CameraFeed";
 import { QRDisplay } from "./components/QRDisplay";
 import { DetectionPanel } from "./components/DetectionPanel";
 import { DetectionHistory } from "./components/DetectionHistory";
+import { HealthIndicators } from "./components/HealthIndicators";
 import { resolveBin, classifyImage, reportDetection } from "./services/api";
 import type { ClassifyResult, HistoryItem } from "./types";
 
@@ -23,6 +24,7 @@ function App() {
   const [error, setError] = useState("");
 
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [servicesHealthy, setServicesHealthy] = useState(true);
   const [autoMode, setAutoMode] = useState(false);
   const [countdown, setCountdown] = useState(AUTO_INTERVAL);
   const detectingRef = useRef(false);
@@ -127,7 +129,10 @@ function App() {
       </div>
 
       <div className="flex flex-col gap-6 p-6 border-l-2 border-black overflow-y-auto">
-        <h1 className="text-xl font-bold tracking-tight">MOBIUS BIN</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold tracking-tight">MOBIUS BIN</h1>
+          <HealthIndicators onHealthChange={setServicesHealthy} />
+        </div>
         <QRDisplay serial={BIN_SERIAL} />
         <hr className="border-gray-200" />
         <DetectionPanel
@@ -135,7 +140,8 @@ function App() {
           userId={userId}
           detecting={detecting}
           onDetect={handleDetect}
-          error={error}
+          disabled={!servicesHealthy}
+          error={!servicesHealthy ? "Service unavailable" : error}
           autoMode={autoMode}
           onToggleAuto={() => setAutoMode((prev) => !prev)}
           countdown={countdown}
