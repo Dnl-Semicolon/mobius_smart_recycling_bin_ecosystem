@@ -81,6 +81,11 @@ class Brand extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
+    public function applications(): HasMany
+    {
+        return $this->hasMany(BrandApplication::class);
+    }
+
     public function scopePending(Builder $query): void
     {
         $query->where('status', ApplicationStatus::Pending);

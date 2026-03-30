@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ApplicationStatus;
 use App\Enums\UserRole;
 use App\Models\Brand;
+use App\Models\BrandApplication;
 use App\Models\CollectorAgency;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -104,6 +105,146 @@ class ApplicationService
         ]);
 
         return $brand;
+    }
+
+    public function registerBrandClaim(array $data): BrandApplication
+    {
+        return DB::transaction(function () use ($data) {
+            $brand = Brand::findOrFail($data['brand_id']);
+
+            $user = User::create([
+                'name' => $data['contact_person'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'roles' => ['public_user'],
+            ]);
+
+            $application = BrandApplication::create([
+                'brand_id' => $brand->id,
+                'user_id' => $user->id,
+                'status' => ApplicationStatus::Pending,
+                'brand_name' => $brand->name,
+                'contact_person' => $data['contact_person'],
+                'contact_email' => $data['email'],
+                'contact_phone' => $data['phone'] ?? null,
+            ]);
+
+            $this->notifications->notifyWelcome($user);
+
+            Log::info('Brand claim submitted', [
+                'application_id' => $application->id,
+                'brand_id' => $brand->id,
+                'email' => $data['email'],
+            ]);
+
+            return $application;
+        });
+    }
+
+    public function registerNewBrand(array $data): BrandApplication
+    {
+        return DB::transaction(function () use ($data) {
+            $user = User::create([
+                'name' => $data['contact_person'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'roles' => ['public_user'],
+            ]);
+
+            $application = BrandApplication::create([
+                'brand_id' => null,
+                'user_id' => $user->id,
+                'status' => ApplicationStatus::Pending,
+                'brand_name' => $data['brand_name'],
+                'description' => $data['description'] ?? null,
+                'website_url' => $data['website_url'] ?? null,
+                'logo_path' => $data['logo_path'] ?? null,
+                'contact_person' => $data['contact_person'],
+                'contact_email' => $data['email'],
+                'contact_phone' => $data['phone'] ?? null,
+            ]);
+
+            $this->notifications->notifyWelcome($user);
+
+            Log::info('New brand request submitted', [
+                'application_id' => $application->id,
+                'brand_name' => $data['brand_name'],
+                'email' => $data['email'],
+            ]);
+
+            return $application;
+        });
+    }
+
+    public function approveBrandApplication(BrandApplication $application, User $admin, array $config): BrandApplication
+    {
+        return DB::transaction(function () use ($application, $admin, $config) {
+            if ($application->isClaimingExisting()) {
+                $application->brand->update([
+                    'user_id' => $application->user_id,
+                    'points_multiplier' => $config['points_multiplier'],
+                    'rewards_budget' => $config['rewards_budget'],
+                ]);
+            } else {
+                $brand = Brand::create([
+                    'name' => $application->brand_name,
+                    'description' => $application->description,
+                    'website_url' => $application->website_url,
+                    'logo_path' => $application->logo_path,
+                    'status' => ApplicationStatus::Approved,
+                    'active' => true,
+                    'points_multiplier' => $config['points_multiplier'],
+                    'rewards_budget' => $config['rewards_budget'],
+                    'user_id' => $application->user_id,
+                ]);
+
+                $application->brand_id = $brand->id;
+            }
+
+            $application->update([
+                'status' => ApplicationStatus::Approved,
+                'reviewed_by' => $admin->id,
+                'reviewed_at' => now(),
+            ]);
+
+            $application->user->addRole(UserRole::StoreOwner);
+
+            $this->notifications->notifySystem(
+                $application->user,
+                'Brand Application Approved',
+                "Your application for \"{$application->brand_name}\" has been approved! You can now manage your brand."
+            );
+
+            Log::info('Brand application approved', [
+                'application_id' => $application->id,
+                'approved_by' => $admin->id,
+            ]);
+
+            return $application;
+        });
+    }
+
+    public function rejectBrandApplication(BrandApplication $application, User $admin, string $reason): BrandApplication
+    {
+        $application->update([
+            'status' => ApplicationStatus::Rejected,
+            'rejection_reason' => $reason,
+            'reviewed_by' => $admin->id,
+            'reviewed_at' => now(),
+        ]);
+
+        $this->notifications->notifySystem(
+            $application->user,
+            'Brand Application Update',
+            "Your application for \"{$application->brand_name}\" was not approved. Reason: {$reason}"
+        );
+
+        Log::info('Brand application rejected', [
+            'application_id' => $application->id,
+            'rejected_by' => $admin->id,
+        ]);
+
+        return $application;
     }
 
     public function registerAgency(array $data): CollectorAgency

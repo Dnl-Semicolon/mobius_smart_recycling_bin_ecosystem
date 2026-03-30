@@ -4,7 +4,7 @@ import { QRDisplay } from "./components/QRDisplay";
 import { DetectionPanel } from "./components/DetectionPanel";
 import { resolveBin, classifyImage, reportDetection } from "./services/api";
 import type { ClassifyResult } from "./types";
-import "./App.css";
+
 
 const BIN_SERIAL = import.meta.env.VITE_BIN_SERIAL || "MBR-2026-001";
 

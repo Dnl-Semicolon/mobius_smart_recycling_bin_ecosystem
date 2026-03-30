@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ApproveAgencyRequest;
-use App\Http\Requests\ApproveBrandRequest;
+use App\Http\Requests\ApproveBrandApplicationRequest;
 use App\Http\Requests\RejectApplicationRequest;
-use App\Models\Brand;
+use App\Models\BrandApplication;
 use App\Models\CollectorAgency;
 use App\Services\ApplicationService;
 use Illuminate\Http\RedirectResponse;
@@ -21,48 +21,48 @@ class ApplicationController extends Controller
     {
         $status = $request->query('status', 'pending');
 
-        $brands = Brand::query()
+        $applications = BrandApplication::query()
             ->when($status !== 'all', fn ($q) => $q->where('status', $status))
             ->when($status === 'all', fn ($q) => $q->whereIn('status', ['pending', 'approved', 'rejected']))
-            ->with('adminUser')
+            ->with(['brand', 'user'])
             ->latest()
             ->paginate(20);
 
         return view('admin.applications.brands.index', [
-            'brands' => $brands,
+            'applications' => $applications,
             'currentStatus' => $status,
             'counts' => [
-                'pending' => Brand::pending()->count(),
-                'approved' => Brand::approved()->count(),
-                'rejected' => Brand::rejected()->count(),
+                'pending' => BrandApplication::pending()->count(),
+                'approved' => BrandApplication::approved()->count(),
+                'rejected' => BrandApplication::rejected()->count(),
             ],
         ]);
     }
 
-    public function showBrandApplication(Brand $brand): View
+    public function showBrandApplication(BrandApplication $brandApplication): View
     {
-        $brand->load('adminUser', 'reviewer');
+        $brandApplication->load(['brand', 'user', 'reviewer']);
 
-        return view('admin.applications.brands.show', compact('brand'));
+        return view('admin.applications.brands.show', ['application' => $brandApplication]);
     }
 
-    public function approveBrand(ApproveBrandRequest $request, Brand $brand): RedirectResponse
+    public function approveBrand(ApproveBrandApplicationRequest $request, BrandApplication $brandApplication): RedirectResponse
     {
-        $this->service->approveBrand($brand, $request->user(), [
+        $this->service->approveBrandApplication($brandApplication, $request->user(), [
             'points_multiplier' => $request->validated('points_multiplier'),
             'rewards_budget' => $request->validated('rewards_budget'),
         ]);
 
         return redirect()->route('admin.applications.brands.index')
-            ->with('success', "Brand \"{$brand->name}\" has been approved.");
+            ->with('success', "Application for \"{$brandApplication->brand_name}\" has been approved.");
     }
 
-    public function rejectBrand(RejectApplicationRequest $request, Brand $brand): RedirectResponse
+    public function rejectBrand(RejectApplicationRequest $request, BrandApplication $brandApplication): RedirectResponse
     {
-        $this->service->rejectBrand($brand, $request->user(), $request->validated('rejection_reason'));
+        $this->service->rejectBrandApplication($brandApplication, $request->user(), $request->validated('rejection_reason'));
 
         return redirect()->route('admin.applications.brands.index')
-            ->with('success', "Brand \"{$brand->name}\" has been rejected.");
+            ->with('success', "Application for \"{$brandApplication->brand_name}\" has been rejected.");
     }
 
     public function agencyApplications(Request $request): View

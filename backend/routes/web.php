@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\Admin\BinController;
+use App\Http\Controllers\Admin\BrandDirectoryController;
 use App\Http\Controllers\Admin\BrandMonitoringController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DetectionEventController;
@@ -78,6 +79,7 @@ Route::prefix('register')->name('registration.')->group(function () {
     Route::post('brand', [BrandRegistrationController::class, 'store'])->name('brand.store');
     Route::get('agency', [AgencyRegistrationController::class, 'create'])->name('agency.create');
     Route::post('agency', [AgencyRegistrationController::class, 'store'])->name('agency.store');
+    Route::get('brand/search', [BrandRegistrationController::class, 'search'])->name('brand.search');
     Route::get('success', fn () => view('registration.success'))->name('success');
 });
 
@@ -170,12 +172,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::get('brands', [BrandMonitoringController::class, 'index'])->name('brands.index');
     Route::get('brands/{brand}', [BrandMonitoringController::class, 'show'])->name('brands.show');
 
+    // Brand directory (catalog management)
+    Route::get('brand-directory', [BrandDirectoryController::class, 'index'])->name('brand-directory.index');
+    Route::get('brand-directory/create', [BrandDirectoryController::class, 'create'])->name('brand-directory.create');
+    Route::post('brand-directory', [BrandDirectoryController::class, 'store'])->name('brand-directory.store');
+    Route::get('brand-directory/{brand}/edit', [BrandDirectoryController::class, 'edit'])->name('brand-directory.edit');
+    Route::put('brand-directory/{brand}', [BrandDirectoryController::class, 'update'])->name('brand-directory.update');
+
     // Applications (brand + agency registrations)
     Route::prefix('applications')->name('applications.')->group(function () {
         Route::get('brands', [ApplicationController::class, 'brandApplications'])->name('brands.index');
-        Route::get('brands/{brand}', [ApplicationController::class, 'showBrandApplication'])->name('brands.show');
-        Route::post('brands/{brand}/approve', [ApplicationController::class, 'approveBrand'])->name('brands.approve');
-        Route::post('brands/{brand}/reject', [ApplicationController::class, 'rejectBrand'])->name('brands.reject');
+        Route::get('brands/{brand_application}', [ApplicationController::class, 'showBrandApplication'])->name('brands.show');
+        Route::post('brands/{brand_application}/approve', [ApplicationController::class, 'approveBrand'])->name('brands.approve');
+        Route::post('brands/{brand_application}/reject', [ApplicationController::class, 'rejectBrand'])->name('brands.reject');
         Route::get('agencies', [ApplicationController::class, 'agencyApplications'])->name('agencies.index');
         Route::get('agencies/{collector_agency}', [ApplicationController::class, 'showAgencyApplication'])->name('agencies.show');
         Route::post('agencies/{collector_agency}/approve', [ApplicationController::class, 'approveAgency'])->name('agencies.approve');

@@ -26,27 +26,37 @@
         </a>
     </div>
 
-    @if ($brands->isEmpty())
+    @if ($applications->isEmpty())
         <x-card variant="subtle" class="text-center py-16">
             <x-heroicon-o-building-storefront class="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p class="text-gray-400">No {{ $currentStatus }} brand applications</p>
         </x-card>
     @else
         <div class="space-y-3">
-            @foreach ($brands as $brand)
-                <a href="{{ route('admin.applications.brands.show', $brand) }}" class="block">
+            @foreach ($applications as $app)
+                <a href="{{ route('admin.applications.brands.show', $app) }}" class="block">
                     <x-card class="p-4 hover:bg-gray-50 transition-colors">
                         <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                                @if ($brand->logo_path)
-                                    <img src="{{ Storage::url($brand->logo_path) }}" class="w-8 h-8 object-contain rounded" alt="">
-                                @else
+                            @if ($app->brand && $app->brand->primary_color)
+                                <span class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shadow-sm shrink-0"
+                                      style="background: {{ $app->brand->primary_color }}">
+                                    {{ strtoupper(substr($app->brand_name, 0, 2)) }}
+                                </span>
+                            @else
+                                <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                                     <x-heroicon-o-building-storefront class="w-5 h-5 text-gray-400" />
-                                @endif
-                            </div>
+                                </div>
+                            @endif
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-gray-900 truncate">{{ $brand->name }}</p>
-                                <p class="text-xs text-gray-500 truncate">{{ $brand->contact_email }} &middot; {{ $brand->contact_person }}</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="text-sm font-semibold text-gray-900 truncate">{{ $app->brand_name }}</p>
+                                    @if ($app->brand_id)
+                                        <span class="inline-flex items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 border border-blue-100">Claiming</span>
+                                    @else
+                                        <span class="inline-flex items-center rounded-full bg-violet-50 px-1.5 py-0.5 text-[10px] font-medium text-violet-600 border border-violet-100">New Brand</span>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-gray-500 truncate">{{ $app->contact_email }} &middot; {{ $app->contact_person }}</p>
                             </div>
                             <div class="shrink-0">
                                 @php
@@ -56,11 +66,11 @@
                                         'rejected' => 'bg-red-50 text-red-700 border-red-200',
                                     ];
                                 @endphp
-                                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium {{ $statusColors[$brand->status->value] ?? '' }}">
-                                    {{ $brand->status->label() }}
+                                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium {{ $statusColors[$app->status->value] ?? '' }}">
+                                    {{ $app->status->label() }}
                                 </span>
                             </div>
-                            <span class="text-xs text-gray-400 shrink-0">{{ $brand->created_at->diffForHumans() }}</span>
+                            <span class="text-xs text-gray-400 shrink-0">{{ $app->created_at->diffForHumans() }}</span>
                         </div>
                     </x-card>
                 </a>
@@ -68,7 +78,7 @@
         </div>
 
         <div class="mt-6">
-            {{ $brands->withQueryString()->links() }}
+            {{ $applications->withQueryString()->links() }}
         </div>
     @endif
 </x-layouts.admin>
