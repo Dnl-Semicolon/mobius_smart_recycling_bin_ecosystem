@@ -251,10 +251,9 @@
         </div>
     </div>
 
-    @push('scripts')
     <script>
-        function brandRegistration() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('brandRegistration', () => ({
                 flow: 'claim',
                 searchQuery: '',
                 brands: [],
@@ -296,8 +295,7 @@
                     this.flow = 'claim';
                     this.$nextTick(() => this.$refs.searchInput.focus());
                 }
-            }
-        }
+            }));
+        });
     </script>
-    @endpush
 </x-layouts.app>
