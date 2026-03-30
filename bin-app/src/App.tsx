@@ -63,7 +63,7 @@ function App() {
       setResult(classResult);
       setStatus("Reporting to backend...");
 
-      const detection = await reportDetection(binId, classResult);
+      const detection = await reportDetection(binId, classResult, blob);
       setUserId(detection.data.user_id);
 
       setHistory((prev) =>

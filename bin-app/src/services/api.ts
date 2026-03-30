@@ -23,17 +23,23 @@ export async function classifyImage(imageBlob: Blob): Promise<ClassifyResult> {
 
 export async function reportDetection(
   binId: number,
-  result: ClassifyResult
+  result: ClassifyResult,
+  imageBlob?: Blob
 ): Promise<DetectionResponse> {
+  const formData = new FormData();
+  formData.append("bin_id", String(binId));
+  formData.append("waste_type", result.waste_type);
+  formData.append("confidence", String(result.confidence));
+  if (result.brand) {
+    formData.append("detected_brand", result.brand);
+  }
+  if (imageBlob) {
+    formData.append("image", imageBlob, "detection.jpg");
+  }
+
   const res = await fetch(`${LARAVEL_URL}/detect`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      bin_id: binId,
-      waste_type: result.waste_type,
-      confidence: result.confidence,
-      detected_brand: result.brand || undefined,
-    }),
+    body: formData,
   });
   if (!res.ok) throw new Error(`Report failed: ${res.status}`);
   return res.json();
