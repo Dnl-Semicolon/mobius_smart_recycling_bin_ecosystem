@@ -10,15 +10,27 @@ use Illuminate\View\View;
 
 class BrandDirectoryController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $perPage = in_array($request->input('per_page'), [18, 30, 60]) ? (int) $request->input('per_page') : 18;
+        $status = $request->input('status');
+
         $brands = Brand::query()
             ->withCount('outlets')
             ->with('adminUser')
+            ->when($request->input('search'), fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
+            ->when($status === 'available', fn ($q) => $q->whereNull('user_id'))
+            ->when($status === 'claimed', fn ($q) => $q->whereNotNull('user_id'))
             ->orderBy('name')
-            ->paginate(30);
+            ->paginate($perPage);
 
-        return view('admin.brand-directory.index', compact('brands'));
+        $statusCounts = [
+            'all' => Brand::count(),
+            'available' => Brand::whereNull('user_id')->count(),
+            'claimed' => Brand::whereNotNull('user_id')->count(),
+        ];
+
+        return view('admin.brand-directory.index', compact('brands', 'statusCounts'));
     }
 
     public function create(): View
