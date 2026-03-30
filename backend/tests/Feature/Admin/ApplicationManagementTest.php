@@ -3,6 +3,7 @@
 use App\Enums\ApplicationStatus;
 use App\Enums\UserRole;
 use App\Models\Brand;
+use App\Models\BrandApplication;
 use App\Models\CollectorAgency;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,7 +20,14 @@ it('requires admin role to view brand applications', function () {
 
 it('lists pending brand applications', function () {
     $admin = User::factory()->admin()->create();
-    $brand = Brand::factory()->pending()->create(['name' => 'PendingBrand']);
+    $applicant = User::factory()->create();
+    $application = BrandApplication::create([
+        'user_id' => $applicant->id,
+        'status' => 'pending',
+        'brand_name' => 'PendingBrand',
+        'contact_person' => 'Test',
+        'contact_email' => $applicant->email,
+    ]);
 
     $this->actingAs($admin)
         ->get(route('admin.applications.brands.index'))
@@ -30,26 +38,35 @@ it('lists pending brand applications', function () {
 it('shows brand application details', function () {
     $admin = User::factory()->admin()->create();
     $applicant = User::factory()->create();
-    $brand = Brand::factory()->pending()->create([
-        'name' => 'DetailBrand',
+    $application = BrandApplication::create([
         'user_id' => $applicant->id,
+        'status' => 'pending',
+        'brand_name' => 'DetailBrand',
+        'contact_person' => 'Test',
+        'contact_email' => $applicant->email,
     ]);
 
     $this->actingAs($admin)
-        ->get(route('admin.applications.brands.show', $brand))
+        ->get(route('admin.applications.brands.show', $application))
         ->assertOk()
         ->assertSee('DetailBrand');
 });
 
-it('approves a brand application', function () {
+it('approves a brand application (claim existing)', function () {
     $admin = User::factory()->admin()->create();
     $applicant = User::factory()->publicUser()->create();
-    $brand = Brand::factory()->pending()->create([
+    $brand = Brand::factory()->create(['user_id' => null, 'status' => 'approved']);
+    $application = BrandApplication::create([
+        'brand_id' => $brand->id,
         'user_id' => $applicant->id,
+        'status' => 'pending',
+        'brand_name' => $brand->name,
+        'contact_person' => 'Test',
+        'contact_email' => $applicant->email,
     ]);
 
     $this->actingAs($admin)
-        ->post(route('admin.applications.brands.approve', $brand), [
+        ->post(route('admin.applications.brands.approve', $application), [
             'points_multiplier' => 1.50,
             'rewards_budget' => 10000,
         ])
@@ -57,47 +74,66 @@ it('approves a brand application', function () {
 
     $brand->refresh();
     $applicant->refresh();
+    $application->refresh();
 
-    expect($brand->status)->toBe(ApplicationStatus::Approved)
-        ->and($brand->active)->toBeTrue()
+    expect($application->status)->toBe(ApplicationStatus::Approved)
+        ->and($brand->user_id)->toBe($applicant->id)
         ->and($brand->points_multiplier)->toBe('1.50')
-        ->and($brand->reviewed_by)->toBe($admin->id)
+        ->and($application->reviewed_by)->toBe($admin->id)
         ->and($applicant->hasRole(UserRole::StoreOwner))->toBeTrue();
 });
 
 it('rejects a brand application', function () {
     $admin = User::factory()->admin()->create();
     $applicant = User::factory()->publicUser()->create();
-    $brand = Brand::factory()->pending()->create([
+    $application = BrandApplication::create([
         'user_id' => $applicant->id,
+        'status' => 'pending',
+        'brand_name' => 'RejectBrand',
+        'contact_person' => 'Test',
+        'contact_email' => $applicant->email,
     ]);
 
     $this->actingAs($admin)
-        ->post(route('admin.applications.brands.reject', $brand), [
+        ->post(route('admin.applications.brands.reject', $application), [
             'rejection_reason' => 'Insufficient documentation',
         ])
         ->assertRedirect(route('admin.applications.brands.index'));
 
-    $brand->refresh();
-    expect($brand->status)->toBe(ApplicationStatus::Rejected)
-        ->and($brand->rejection_reason)->toBe('Insufficient documentation');
+    $application->refresh();
+    expect($application->status)->toBe(ApplicationStatus::Rejected)
+        ->and($application->rejection_reason)->toBe('Insufficient documentation');
 });
 
 it('validates approve brand requires multiplier and budget', function () {
     $admin = User::factory()->admin()->create();
-    $brand = Brand::factory()->pending()->create();
+    $applicant = User::factory()->create();
+    $application = BrandApplication::create([
+        'user_id' => $applicant->id,
+        'status' => 'pending',
+        'brand_name' => 'ValidateBrand',
+        'contact_person' => 'Test',
+        'contact_email' => $applicant->email,
+    ]);
 
     $this->actingAs($admin)
-        ->post(route('admin.applications.brands.approve', $brand), [])
+        ->post(route('admin.applications.brands.approve', $application), [])
         ->assertSessionHasErrors(['points_multiplier', 'rewards_budget']);
 });
 
 it('validates reject requires reason', function () {
     $admin = User::factory()->admin()->create();
-    $brand = Brand::factory()->pending()->create();
+    $applicant = User::factory()->create();
+    $application = BrandApplication::create([
+        'user_id' => $applicant->id,
+        'status' => 'pending',
+        'brand_name' => 'RejectValidate',
+        'contact_person' => 'Test',
+        'contact_email' => $applicant->email,
+    ]);
 
     $this->actingAs($admin)
-        ->post(route('admin.applications.brands.reject', $brand), [])
+        ->post(route('admin.applications.brands.reject', $application), [])
         ->assertSessionHasErrors(['rejection_reason']);
 });
 

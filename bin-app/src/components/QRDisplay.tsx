@@ -1,4 +1,5 @@
-import QRCode from "react-qr-code";
+// @ts-expect-error CJS module with incorrect default-export type declarations
+import { QRCode } from "react-qr-code";
 
 interface Props {
   serial: string;
