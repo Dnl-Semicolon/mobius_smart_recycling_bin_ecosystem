@@ -19,7 +19,7 @@
     // Resolve the display label for the currently selected value
     $selectedLabel = null;
     foreach ($options as $optValue => $optLabel) {
-        $actualValue = is_numeric($optValue) ? $optLabel : $optValue;
+        $actualValue = $optValue;
         if ((string) $selectedValue === (string) $actualValue) {
             $selectedLabel = $optLabel;
             break;
@@ -96,7 +96,7 @@
             <div data-dropdown-options class="max-h-64 overflow-y-auto overscroll-contain py-1">
                 @foreach ($options as $optValue => $optLabel)
                     @php
-                        $actualValue = is_numeric($optValue) ? $optLabel : $optValue;
+                        $actualValue = $optValue;
                         $isSelected = (string) $selectedValue === (string) $actualValue;
                     @endphp
                     <button
