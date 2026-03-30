@@ -24,3 +24,12 @@ export interface BinResolveResponse {
     name: string;
   };
 }
+
+export interface HistoryItem {
+  waste_type: string;
+  confidence: number;
+  brand: string;
+  userId: number | null;
+  timestamp: Date;
+  detectionId: number;
+}

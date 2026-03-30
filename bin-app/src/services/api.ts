@@ -1,4 +1,4 @@
-import type { ClassifyResult, DetectionResponse, BinResolveResponse } from "../types";
+import type { ClassifyResult, DetectionResponse, BinResolveResponse, AiHealthResponse } from "../types";
 
 const LARAVEL_URL = import.meta.env.VITE_LARAVEL_URL;
 const AI_URL = import.meta.env.VITE_AI_URL;

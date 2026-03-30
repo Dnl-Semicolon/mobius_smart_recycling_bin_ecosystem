@@ -6,20 +6,50 @@ interface Props {
   detecting: boolean;
   onDetect: () => void;
   error: string;
+  autoMode: boolean;
+  onToggleAuto: () => void;
+  countdown: number;
 }
 
-export function DetectionPanel({ result, userId, detecting, onDetect, error }: Props) {
+export function DetectionPanel({
+  result,
+  userId,
+  detecting,
+  onDetect,
+  error,
+  autoMode,
+  onToggleAuto,
+  countdown,
+}: Props) {
   return (
     <div>
-      <button
-        onClick={onDetect}
-        disabled={detecting}
-        className={`w-full py-4 px-8 text-lg font-bold text-white border-none mb-4 ${
-          detecting ? "bg-gray-400 cursor-wait" : "bg-black cursor-pointer hover:bg-gray-800"
-        }`}
-      >
-        {detecting ? "Detecting..." : "DETECT"}
-      </button>
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={onDetect}
+          disabled={detecting}
+          className={`flex-1 py-4 px-6 text-lg font-bold text-white border-none ${
+            detecting ? "bg-gray-400 cursor-wait" : "bg-black cursor-pointer hover:bg-gray-800"
+          }`}
+        >
+          {detecting ? "Detecting..." : "DETECT"}
+        </button>
+        <button
+          onClick={onToggleAuto}
+          className={`px-4 py-4 text-sm font-bold border-2 ${
+            autoMode
+              ? "bg-green-600 text-white border-green-600"
+              : "bg-white text-black border-black hover:bg-gray-100"
+          }`}
+        >
+          {autoMode ? "AUTO" : "MANUAL"}
+        </button>
+      </div>
+
+      {autoMode && !detecting && (
+        <p className="text-xs text-gray-500 mb-3 font-mono">
+          Next scan in {countdown}s
+        </p>
+      )}
 
       {error && (
         <div className="p-3 bg-red-50 border border-red-500 text-red-700 mb-3 text-sm">

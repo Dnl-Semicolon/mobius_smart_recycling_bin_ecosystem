@@ -1,12 +1,14 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { CameraFeed, type CameraFeedHandle } from "./components/CameraFeed";
 import { QRDisplay } from "./components/QRDisplay";
 import { DetectionPanel } from "./components/DetectionPanel";
+import { DetectionHistory } from "./components/DetectionHistory";
 import { resolveBin, classifyImage, reportDetection } from "./services/api";
-import type { ClassifyResult } from "./types";
-
+import type { ClassifyResult, HistoryItem } from "./types";
 
 const BIN_SERIAL = import.meta.env.VITE_BIN_SERIAL || "MBR-2026-001";
+const AUTO_INTERVAL = 5;
+const RESULT_PAUSE = 3;
 
 function App() {
   const cameraRef = useRef<CameraFeedHandle>(null);
@@ -19,6 +21,11 @@ function App() {
   const [result, setResult] = useState<ClassifyResult | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
   const [error, setError] = useState("");
+
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [autoMode, setAutoMode] = useState(false);
+  const [countdown, setCountdown] = useState(AUTO_INTERVAL);
+  const detectingRef = useRef(false);
 
   useEffect(() => {
     resolveBin(BIN_SERIAL)
@@ -33,12 +40,10 @@ function App() {
       });
   }, []);
 
-  async function handleDetect() {
-    if (!binId) {
-      setError("Bin not resolved yet");
-      return;
-    }
+  const handleDetect = useCallback(async () => {
+    if (!binId || detectingRef.current) return;
 
+    detectingRef.current = true;
     setDetecting(true);
     setError("");
     setResult(null);
@@ -59,6 +64,20 @@ function App() {
       const detection = await reportDetection(binId, classResult);
       setUserId(detection.data.user_id);
 
+      setHistory((prev) =>
+        [
+          {
+            waste_type: classResult.waste_type,
+            confidence: classResult.confidence,
+            brand: classResult.brand,
+            userId: detection.data.user_id,
+            timestamp: new Date(),
+            detectionId: detection.data.id,
+          },
+          ...prev,
+        ].slice(0, 5)
+      );
+
       setStatus(`Detection #${detection.data.id} recorded`);
       setStatusError(false);
     } catch (err) {
@@ -66,9 +85,33 @@ function App() {
       setStatus("Error — see details");
       setStatusError(true);
     } finally {
+      detectingRef.current = false;
       setDetecting(false);
     }
-  }
+  }, [binId]);
+
+  // Auto-detection timer
+  useEffect(() => {
+    if (!autoMode || !binId) return;
+
+    setCountdown(AUTO_INTERVAL);
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          if (!detectingRef.current) {
+            handleDetect().then(() => {
+              // Pause to show result before next countdown
+              setTimeout(() => setCountdown(AUTO_INTERVAL), RESULT_PAUSE * 1000);
+            });
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [autoMode, binId, handleDetect]);
 
   return (
     <div className="grid grid-cols-[1fr_384px] h-screen bg-white text-black">
@@ -93,7 +136,11 @@ function App() {
           detecting={detecting}
           onDetect={handleDetect}
           error={error}
+          autoMode={autoMode}
+          onToggleAuto={() => setAutoMode((prev) => !prev)}
+          countdown={countdown}
         />
+        <DetectionHistory history={history} />
       </div>
     </div>
   );
