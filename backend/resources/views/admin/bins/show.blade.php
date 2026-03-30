@@ -443,16 +443,15 @@
                     @else
                         <form action="{{ route('admin.bins.assign', $bin) }}" method="POST">
                             @csrf
-                            <select
-                                name="outlet_id"
-                                required
-                                class="w-full rounded-xl border-gray-200 text-sm focus:border-emerald-400 focus:ring focus:ring-emerald-200 focus:ring-opacity-50 mb-2"
-                            >
-                                <option value="">Select outlet...</option>
-                                @foreach ($outlets as $outlet)
-                                    <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
-                                @endforeach
-                            </select>
+                            <div class="mb-2">
+                                <x-dropdown.select
+                                    name="outlet_id"
+                                    placeholder="Select outlet..."
+                                    :options="$outlets->pluck('name', 'id')->toArray()"
+                                    :searchable="true"
+                                    searchPlaceholder="Search outlets..."
+                                />
+                            </div>
                             <x-button type="submit" class="w-full justify-center">
                                 <x-heroicon-o-link class="w-4 h-4" />
                                 Assign
