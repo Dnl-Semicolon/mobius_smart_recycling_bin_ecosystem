@@ -60,12 +60,14 @@
 		E0760CF08D6FAA8D9145DFC5 /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5E68DDF7DA2217CFC7DE5D /* NotificationsView.swift */; };
 		E1574D6872827177C1706022 /* RewardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D7C0C80EEDB017EBA46F96 /* RewardsView.swift */; };
 		E6094057191FA72270D59634 /* UserRole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AAE6F402F3126F9E302B0C /* UserRole.swift */; };
+		E90DFB1CAA66A3033054F379 /* WaitingForDetectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01509DB9F6B157FB8CF3C9F6 /* WaitingForDetectionView.swift */; };
 		EA3F6CC20847B49DE0026AED /* StoreOwnerDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E185DEC10DA5F19F1FC07F9 /* StoreOwnerDashboardView.swift */; };
 		EDDB60FCE225DB75A507D288 /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F22BF0EC7AE08EC44DCD54D /* ScanView.swift */; };
 		F4F49290C9F6360E31CAA068 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D9FEF94AFD0D3431EC987E /* LocationManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		01509DB9F6B157FB8CF3C9F6 /* WaitingForDetectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitingForDetectionView.swift; sourceTree = "<group>"; };
 		0267D156FC7C12B668C13CE1 /* CustomerHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerHomeView.swift; sourceTree = "<group>"; };
 		052236E5AD1F73F4CF4A6916 /* Redemption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Redemption.swift; sourceTree = "<group>"; };
 		06AB1D62085E52B4D92EDC00 /* StoreOwnerAnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreOwnerAnalyticsView.swift; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 				28ECC04DE5FF44FF3A079476 /* MapView.swift */,
 				09D7C0C80EEDB017EBA46F96 /* RewardsView.swift */,
 				5F22BF0EC7AE08EC44DCD54D /* ScanView.swift */,
+				01509DB9F6B157FB8CF3C9F6 /* WaitingForDetectionView.swift */,
 			);
 			path = Customer;
 			sourceTree = "<group>";
@@ -442,6 +445,7 @@
 				EA3F6CC20847B49DE0026AED /* StoreOwnerDashboardView.swift in Sources */,
 				7DB990792715957820E72DA9 /* User.swift in Sources */,
 				E6094057191FA72270D59634 /* UserRole.swift in Sources */,
+				E90DFB1CAA66A3033054F379 /* WaitingForDetectionView.swift in Sources */,
 				746062D1E558A2891D38F7B1 /* WasteType.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

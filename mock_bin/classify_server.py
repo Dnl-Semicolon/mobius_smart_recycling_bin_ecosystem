@@ -11,6 +11,8 @@ Usage:
 """
 
 import argparse
+import os
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -76,7 +78,25 @@ def create_app(detector: BaseDetector) -> FastAPI:
     return app
 
 
+def load_env_file():
+    """Load OPENAI_API_KEY from backend/.env if not already in environment."""
+    if os.environ.get("OPENAI_API_KEY"):
+        return
+    env_path = Path(__file__).parent.parent / "backend" / ".env"
+    if not env_path.exists():
+        return
+    for line in env_path.read_text().splitlines():
+        line = line.strip()
+        if line.startswith("OPENAI_API_KEY=") and not line.startswith("#"):
+            key, _, value = line.partition("=")
+            os.environ[key] = value
+            print(f"[env] Loaded OPENAI_API_KEY from {env_path}")
+            return
+
+
 def main():
+    load_env_file()
+
     parser = argparse.ArgumentParser(description="Mobius AI Classify Server")
     parser.add_argument("--detector", default="mock", choices=["mock", "yolo", "openai", "hybrid"])
     parser.add_argument("--model-path", default=None, help="Path to YOLO .pt model file")
