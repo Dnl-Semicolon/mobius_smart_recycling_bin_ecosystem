@@ -2,324 +2,842 @@
 
 namespace Database\Seeders;
 
-use App\Enums\ContractStatus;
-use App\Models\Bin;
-use App\Models\BinAssignment;
-use App\Models\Brand;
-use App\Models\Outlet;
-use App\Models\Reward;
-use App\Models\User;
-use App\Models\Zone;
-use App\Services\RouteOptimizationService;
-use Database\Factories\OutletFactory;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     public function run(): void
     {
-        /*
-        |----------------------------------------------------------------------
-        | Users (all passwords are "password")
-        |----------------------------------------------------------------------
-        */
-        // User::factory()->admin()->create([
-        //     'name' => 'Admin',
-        //     'email' => 'admin@mobius.test',
-        // ]);
+        // =============================================
+        // ORGANIZATIONS
+        // =============================================
 
-        // $collector = User::factory()->collector()->create([
-        //     'name' => 'Collector',
-        //     'email' => 'collector@mobius.test',
-        // ]);
+        // Org 1 — Starbucks Malaysia
+        DB::table('organizations')->insert([
+            'name' => 'Starbucks Malaysia Sdn Bhd',
+            'type' => 'beverage_company',
+            'description' => 'Licensed operator of Starbucks in Malaysia',
+            'logo_path' => 'organizations/starbucks-my.png',
+            'website' => 'https://www.starbucks.com.my',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
-        // $testUser = User::factory()->publicUser()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Org 2 — Mixue Malaysia
+        DB::table('organizations')->insert([
+            'name' => 'Mixue Malaysia Sdn Bhd',
+            'type' => 'beverage_company',
+            'description' => 'Licensed operator of Mixue in Malaysia',
+            'logo_path' => 'organizations/mixue-my.png',
+            'website' => 'https://www.mixue.com',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
-        // // $daniel = User::factory()->create([
-        // //     'name' => 'Daniel Tan',
-        // //     'email' => 'daniel@mobius.test',
-        // //     'roles' => ['public_user', 'store_owner', 'collector'],
-        // // ]);
+        // =============================================
+        // PLANS
+        // =============================================
 
-        // $storeOwner = User::factory()->create([
-        //     'name' => 'Sarah Lim',
-        //     'email' => 'storeowner@mobius.test',
-        //     'roles' => ['store_owner'],
-        // ]);
+        // Plan 1 — Basic
+        DB::table('plans')->insert([
+            'name' => 'Basic',
+            'description' => 'For small businesses getting started with smart recycling',
+            'price_monthly' => 299.00,
+            'price_yearly' => 2990.00,
+            'features' => json_encode([
+                'bin_limit' => 5,
+                'analytics' => 'basic',
+                'support' => 'email',
+            ]),
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
-        /*
-        |----------------------------------------------------------------------
-        | Brands
-        |----------------------------------------------------------------------
-        */
-        $starbucks = Brand::create([
+        // Plan 2 — Pro
+        DB::table('plans')->insert([
+            'name' => 'Pro',
+            'description' => 'For growing brands with multiple outlets',
+            'price_monthly' => 599.00,
+            'price_yearly' => 5990.00,
+            'features' => json_encode([
+                'bin_limit' => 20,
+                'analytics' => 'advanced',
+                'support' => 'priority',
+                'brand_detection' => true,
+            ]),
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Plan 3 — Enterprise
+        DB::table('plans')->insert([
+            'name' => 'Enterprise',
+            'description' => 'For large organizations with nationwide deployments',
+            'price_monthly' => 999.00,
+            'price_yearly' => 9990.00,
+            'features' => json_encode([
+                'bin_limit' => 100,
+                'analytics' => 'full',
+                'support' => 'dedicated',
+                'brand_detection' => true,
+                'api_access' => true,
+            ]),
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // =============================================
+        // USERS
+        // =============================================
+
+        // User 1 — Admin (no org)
+        DB::table('users')->insert([
+            'organization_id' => null,
+            'name' => 'Daniel Tan',
+            'email' => 'admin@mobius.my',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'phone' => '0121234567',
+            'phone_verified_at' => now(),
+            'profile_photo_path' => 'profiles/daniel.jpg',
+            'roles' => json_encode(['admin']),
+            'points_balance' => 0,
+            'current_streak' => 0,
+            'longest_streak' => 0,
+            'last_recycled_at' => now(),
+            'remember_token' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // User 2 — Brand Owner, Starbucks Malaysia
+        DB::table('users')->insert([
+            'organization_id' => 1,
+            'name' => 'Sarah Lee',
+            'email' => 'sarah@starbucks.com.my',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'phone' => '0171112222',
+            'phone_verified_at' => now(),
+            'profile_photo_path' => 'profiles/sarah.jpg',
+            'roles' => json_encode(['brand_owner']),
+            'points_balance' => 0,
+            'current_streak' => 0,
+            'longest_streak' => 0,
+            'last_recycled_at' => now(),
+            'remember_token' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // User 3 — Store Owner, Starbucks Gurney
+        DB::table('users')->insert([
+            'organization_id' => 1,
+            'name' => 'Jenny Wong',
+            'email' => 'jenny@starbucks.com.my',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'phone' => '0171113333',
+            'phone_verified_at' => now(),
+            'profile_photo_path' => 'profiles/jenny.jpg',
+            'roles' => json_encode(['store_owner']),
+            'points_balance' => 0,
+            'current_streak' => 0,
+            'longest_streak' => 0,
+            'last_recycled_at' => now(),
+            'remember_token' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // User 4 — Store Owner, Starbucks Queensbay
+        DB::table('users')->insert([
+            'organization_id' => 1,
+            'name' => 'Lim Wei Ming',
+            'email' => 'weiming@starbucks.com.my',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'phone' => '0171114444',
+            'phone_verified_at' => now(),
+            'profile_photo_path' => 'profiles/weiming.jpg',
+            'roles' => json_encode(['store_owner']),
+            'points_balance' => 0,
+            'current_streak' => 0,
+            'longest_streak' => 0,
+            'last_recycled_at' => now(),
+            'remember_token' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // User 5 — Brand Owner, Mixue Malaysia
+        DB::table('users')->insert([
+            'organization_id' => 2,
+            'name' => 'Ahmad Rizal',
+            'email' => 'rizal@mixue.com.my',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'phone' => '0183334444',
+            'phone_verified_at' => now(),
+            'profile_photo_path' => 'profiles/ahmad.jpg',
+            'roles' => json_encode(['brand_owner']),
+            'points_balance' => 0,
+            'current_streak' => 0,
+            'longest_streak' => 0,
+            'last_recycled_at' => now(),
+            'remember_token' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // User 6 — Store Owner, Mixue Komtar
+        DB::table('users')->insert([
+            'organization_id' => 2,
+            'name' => 'Nurul Aisyah',
+            'email' => 'nurul@mixue.com.my',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'phone' => '0183335555',
+            'phone_verified_at' => now(),
+            'profile_photo_path' => 'profiles/nurul.jpg',
+            'roles' => json_encode(['store_owner']),
+            'points_balance' => 0,
+            'current_streak' => 0,
+            'longest_streak' => 0,
+            'last_recycled_at' => now(),
+            'remember_token' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // User 7 — Collector (no org for now)
+        DB::table('users')->insert([
+            'organization_id' => null,
+            'name' => 'Kumar Rajan',
+            'email' => 'kumar@mobius.my',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'phone' => '0195556666',
+            'phone_verified_at' => now(),
+            'profile_photo_path' => 'profiles/kumar.jpg',
+            'roles' => json_encode(['collector']),
+            'points_balance' => 0,
+            'current_streak' => 0,
+            'longest_streak' => 0,
+            'last_recycled_at' => now(),
+            'remember_token' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // User 8 — Public User (recycler)
+        DB::table('users')->insert([
+            'organization_id' => null,
+            'name' => 'Mei Ling',
+            'email' => 'meiling@gmail.com',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'phone' => '0167778888',
+            'phone_verified_at' => now(),
+            'profile_photo_path' => 'profiles/meiling.jpg',
+            'roles' => json_encode(['public_user']),
+            'points_balance' => 0,
+            'current_streak' => 0,
+            'longest_streak' => 0,
+            'last_recycled_at' => now(),
+            'remember_token' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // =============================================
+        // SUBSCRIPTIONS
+        // =============================================
+
+        // Starbucks Malaysia → Pro plan
+        DB::table('subscriptions')->insert([
+            'organization_id' => 1,
+            'plan_id' => 2,
+            'status' => 'active',
+            'starts_at' => now()->startOfYear(),
+            'ends_at' => now()->endOfYear(),
+            'renews_at' => now()->endOfYear()->subMonth(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Mixue Malaysia → Basic plan
+        DB::table('subscriptions')->insert([
+            'organization_id' => 2,
+            'plan_id' => 1,
+            'status' => 'active',
+            'starts_at' => now()->startOfYear(),
+            'ends_at' => now()->endOfYear(),
+            'renews_at' => now()->endOfYear()->subMonth(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // =============================================
+        // PAYMENTS
+        // =============================================
+
+        // Starbucks Malaysia — Pro plan payment
+        DB::table('payments')->insert([
+            'organization_id' => 1,
+            'subscription_id' => 1,
+            'amount' => 5990.00,
+            'currency' => 'MYR',
+            'method' => 'bank_transfer',
+            'status' => 'completed',
+            'reference_number' => 'PAY-2026-0001',
+            'paid_at' => now()->startOfYear(),
+            'created_at' => now()->startOfYear(),
+            'updated_at' => now()->startOfYear(),
+        ]);
+
+        // Mixue Malaysia — Basic plan payment
+        DB::table('payments')->insert([
+            'organization_id' => 2,
+            'subscription_id' => 2,
+            'amount' => 2990.00,
+            'currency' => 'MYR',
+            'method' => 'card',
+            'status' => 'completed',
+            'reference_number' => 'PAY-2026-0002',
+            'paid_at' => now()->startOfYear(),
+            'created_at' => now()->startOfYear(),
+            'updated_at' => now()->startOfYear(),
+        ]);
+
+        // =============================================
+        // REGISTRATION REQUESTS
+        // =============================================
+
+        // Approved request that became Starbucks Malaysia org
+        DB::table('registration_requests')->insert([
+            'company_name' => 'Starbucks Malaysia Sdn Bhd',
+            'contact_name' => 'Sarah Lee',
+            'contact_email' => 'sarah@starbucks.com.my',
+            'contact_phone' => '0171112222',
+            'type' => 'beverage_company',
+            'description' => 'We would like to deploy smart recycling bins at our outlets across Penang.',
+            'status' => 'approved',
+            'admin_notes' => 'Verified company registration. Approved for Pro plan.',
+            'reviewed_by' => 1,
+            'reviewed_at' => now()->subMonth(),
+            'created_at' => now()->subMonths(2),
+            'updated_at' => now()->subMonth(),
+        ]);
+
+        // Approved request that became Mixue Malaysia org
+        DB::table('registration_requests')->insert([
+            'company_name' => 'Mixue Malaysia Sdn Bhd',
+            'contact_name' => 'Ahmad Rizal',
+            'contact_email' => 'rizal@mixue.com.my',
+            'contact_phone' => '0183334444',
+            'type' => 'beverage_company',
+            'description' => 'Interested in the smart recycling program for our Penang outlets.',
+            'status' => 'approved',
+            'admin_notes' => 'Verified. Starting with Basic plan.',
+            'reviewed_by' => 1,
+            'reviewed_at' => now()->subWeeks(3),
+            'created_at' => now()->subMonths(1),
+            'updated_at' => now()->subWeeks(3),
+        ]);
+
+        // =============================================
+        // BRANDS
+        // =============================================
+
+        // Brand 1 — Starbucks (under Starbucks Malaysia org)
+        DB::table('brands')->insert([
+            'organization_id' => 1,
             'name' => 'Starbucks',
             'slug' => 'starbucks',
-            'primary_color' => '#00704A',
-            'description' => 'Global coffeehouse chain committed to ethical sourcing and environmental stewardship.',
-            'points_multiplier' => 1.50,
-            'rewards_budget' => 50000,
-            'active' => true,
+            'logo_path' => 'brands/starbucks.png',
+            'description' => 'Premium coffee chain',
+            'website' => 'https://www.starbucks.com.my',
+            'point_multiplier' => 1.50,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        $chagee = Brand::create([
-            'name' => 'CHAGEE',
-            'slug' => 'chagee',
-            'primary_color' => '#C41E3A',
-            'description' => 'Premium Chinese tea chain blending traditional tea culture with modern lifestyle.',
-            'points_multiplier' => 1.40,
-            'rewards_budget' => 35000,
-            'active' => true,
-        ]);
-
-        $tealive = Brand::create([
-            'name' => 'Tealive',
-            'slug' => 'tealive',
-            'primary_color' => '#E91E63',
-            'description' => 'Malaysia\'s largest lifestyle tea brand with 800+ outlets.',
-            'points_multiplier' => 1.50,
-            'rewards_budget' => 40000,
-            'active' => true,
-        ]);
-
-        $zus = Brand::create([
-            'name' => 'ZUS Coffee',
-            'slug' => 'zus-coffee',
-            'primary_color' => '#1A1A1A',
-            'description' => 'Specialty coffee made accessible. 500+ outlets across Malaysia.',
-            'points_multiplier' => 1.40,
-            'rewards_budget' => 30000,
-            'active' => true,
-        ]);
-
-        $mixue = Brand::create([
+        // Brand 2 — Mixue (under Mixue Malaysia org)
+        DB::table('brands')->insert([
+            'organization_id' => 2,
             'name' => 'Mixue',
             'slug' => 'mixue',
-            'primary_color' => '#E8352E',
-            'description' => 'Chinese ice cream and tea chain. Affordable drinks, massive scale.',
-            'points_multiplier' => 1.30,
-            'rewards_budget' => 25000,
-            'active' => true,
+            'logo_path' => 'brands/mixue.png',
+            'description' => 'Ice cream and tea chain',
+            'website' => 'https://www.mixue.com',
+            'point_multiplier' => 1.30,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        $tigerSugar = Brand::create([
-            'name' => 'Tiger Sugar',
-            'slug' => 'tiger-sugar',
-            'primary_color' => '#F5A623',
-            'description' => 'Taiwanese brown sugar boba tea chain.',
-            'points_multiplier' => 1.30,
-            'rewards_budget' => 20000,
-            'active' => true,
+        // =============================================
+        // INVITATIONS
+        // =============================================
+
+        // Sarah (brand owner) invited Jenny (store owner) — accepted
+        DB::table('invitations')->insert([
+            'organization_id' => 1,
+            'invited_by' => 2,
+            'email' => 'jenny@starbucks.com.my',
+            'name' => 'Jenny Wong',
+            'role' => 'store_owner',
+            'status' => 'accepted',
+            'admin_notes' => 'Approved. Gurney Plaza branch manager.',
+            'approved_by' => 1,
+            'approved_at' => now()->subWeeks(2),
+            'accepted_at' => now()->subWeeks(2)->addDay(),
+            'created_at' => now()->subWeeks(3),
+            'updated_at' => now()->subWeeks(2)->addDay(),
         ]);
 
-        $gongcha = Brand::create([
-            'name' => 'Gong Cha',
-            'slug' => 'gong-cha',
-            'primary_color' => '#8B4513',
-            'description' => 'Premium tea brand from Taiwan specializing in artisan teas.',
-            'points_multiplier' => 1.30,
-            'rewards_budget' => 15000,
-            'active' => true,
+        // Sarah invited Wei Ming — accepted
+        DB::table('invitations')->insert([
+            'organization_id' => 1,
+            'invited_by' => 2,
+            'email' => 'weiming@starbucks.com.my',
+            'name' => 'Lim Wei Ming',
+            'role' => 'store_owner',
+            'status' => 'accepted',
+            'admin_notes' => 'Approved. Queensbay Mall branch manager.',
+            'approved_by' => 1,
+            'approved_at' => now()->subWeeks(2),
+            'accepted_at' => now()->subWeeks(2)->addDay(),
+            'created_at' => now()->subWeeks(3),
+            'updated_at' => now()->subWeeks(2)->addDay(),
         ]);
 
-        /*
-        |----------------------------------------------------------------------
-        | Outlets — seed photos from database/seeders/images/outlets/
-        |----------------------------------------------------------------------
-        */
-        $seedImages = database_path('seeders/images/outlets');
-        Storage::disk('public')->makeDirectory('outlets');
+        // Ahmad invited Nurul — accepted
+        DB::table('invitations')->insert([
+            'organization_id' => 2,
+            'invited_by' => 5,
+            'email' => 'nurul@mixue.com.my',
+            'name' => 'Nurul Aisyah',
+            'role' => 'store_owner',
+            'status' => 'accepted',
+            'admin_notes' => 'Approved. Komtar branch manager.',
+            'approved_by' => 1,
+            'approved_at' => now()->subWeeks(1),
+            'accepted_at' => now()->subWeeks(1)->addDay(),
+            'created_at' => now()->subWeeks(2),
+            'updated_at' => now()->subWeeks(1)->addDay(),
+        ]);
 
-        $sbuxGurney = Outlet::create([
-            'name' => 'Starbucks Reserve Gurney Plaza',
-            'brand_id' => $starbucks->id,
+        // =============================================
+        // OUTLETS
+        // =============================================
+
+        // Outlet 1 — Starbucks Gurney (Jenny manages)
+        DB::table('outlets')->insert([
+            'user_id' => 3,
+            'brand_id' => 1,
+            'name' => 'Gurney Plaza',
             'address' => 'Gurney Plaza, Persiaran Gurney, 10250 George Town, Penang',
-            'latitude' => 5.43700000,
-            'longitude' => 100.31000000,
-            'contact_name' => 'Lim Bee Hoon',
-            'contact_phone' => '012-483 7291',
-            'operating_hours' => OutletFactory::buildStructuredHours('10:00', '22:00'),
-            'contract_status' => ContractStatus::Active,
-            'photo_path' => $this->seedPhoto($seedImages, 'starbucks-gurney.jpg'),
-            'notes' => 'High traffic mall location. Mock bin MBR-2026-001 is here.',
+            'latitude' => 5.4370,
+            'longitude' => 100.3100,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        $chageeGurney = Outlet::create([
-            'name' => 'CHAGEE Gurney Plaza Flagship',
-            'brand_id' => $chagee->id,
-            'address' => '170-G-42, Gurney Plaza, Persiaran Gurney, 10250 George Town, Pulau Pinang, Malaysia',
-            'latitude' => 5.43624180,
-            'longitude' => 100.30930440,
-            'contact_name' => 'Chen Wei Ling',
-            'contact_phone' => '010-825 4674',
-            'operating_hours' => OutletFactory::buildStructuredHours('10:00', '22:00'),
-            'contract_status' => ContractStatus::Active,
-            'photo_path' => $this->seedPhoto($seedImages, 'chagee-gurney.jpg'),
+        // Outlet 2 — Starbucks Queensbay (Wei Ming manages)
+        DB::table('outlets')->insert([
+            'user_id' => 4,
+            'brand_id' => 1,
+            'name' => 'Queensbay Mall',
+            'address' => 'Queensbay Mall, 100 Persiaran Bayan Indah, 11900 Bayan Lepas, Penang',
+            'latitude' => 5.3328,
+            'longitude' => 100.3067,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        $tealiveKomtar = Outlet::create([
-            'name' => 'Tealive Komtar',
-            'brand_id' => $tealive->id,
-            'address' => 'Komtar Walk, Jalan Penang, 10000 George Town, Penang',
-            'latitude' => 5.41470000,
-            'longitude' => 100.33080000,
-            'contact_name' => 'Tan Mei Ying',
-            'contact_phone' => '017-492 8833',
-            'operating_hours' => OutletFactory::buildStructuredHours('09:00', '21:00'),
-            'contract_status' => ContractStatus::Active,
+        // Outlet 3 — Mixue Komtar (Nurul manages)
+        DB::table('outlets')->insert([
+            'user_id' => 6,
+            'brand_id' => 2,
+            'name' => 'Komtar',
+            'address' => 'Komtar, Jalan Penang, 10000 George Town, Penang',
+            'latitude' => 5.4141,
+            'longitude' => 100.3288,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        $zusBayanLepas = Outlet::create([
-            'name' => 'ZUS Coffee Queensbay',
-            'brand_id' => $zus->id,
-            'address' => 'Queensbay Mall, 11900 Bayan Lepas, Penang',
-            'latitude' => 5.33280000,
-            'longitude' => 100.30640000,
-            'contact_name' => 'Amir Razak',
-            'contact_phone' => '019-384 2019',
-            'operating_hours' => OutletFactory::buildStructuredHours('08:00', '22:00'),
-            'contract_status' => ContractStatus::Active,
+        // =============================================
+        // BINS
+        // =============================================
+
+        // Bin 1 — Starbucks Gurney
+        DB::table('bins')->insert([
+            'outlet_id' => 1,
+            'serial_number' => 'MBS-SB-001',
+            'api_token' => bin2hex(random_bytes(32)),
+            'status' => 'active',
+            'fill_level' => 0,
+            'weight_grams' => 0,
+            'capacity_liters' => 20.00,
+            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
+            'latitude' => 5.4370,
+            'longitude' => 100.3100,
+            'paired_at' => now()->subWeek(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        $mixueTanjungTokong = Outlet::create([
-            'name' => 'Mixue Tanjung Tokong',
-            'brand_id' => $mixue->id,
-            'address' => 'Jalan Tanjung Tokong, 10470 Tanjung Tokong, Penang',
-            'latitude' => 5.44500000,
-            'longitude' => 100.30200000,
-            'contact_name' => 'Lee Xin Yi',
-            'contact_phone' => '011-283 9102',
-            'operating_hours' => OutletFactory::buildStructuredHours('10:00', '22:00'),
-            'contract_status' => ContractStatus::Active,
+        // Bin 2 — Starbucks Gurney
+        DB::table('bins')->insert([
+            'outlet_id' => 1,
+            'serial_number' => 'MBS-SB-002',
+            'api_token' => bin2hex(random_bytes(32)),
+            'status' => 'active',
+            'fill_level' => 0,
+            'weight_grams' => 0,
+            'capacity_liters' => 20.00,
+            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
+            'latitude' => 5.4371,
+            'longitude' => 100.3101,
+            'paired_at' => now()->subWeek(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        $zusTanjungBungah = Outlet::create([
-            'name' => 'ZUS Coffee - Tree Square Tanjung Bungah',
-            'brand_id' => $zus->id,
-            'address' => '88-G-A05, Jalan Sungai Kelian, 11200 Tanjung Bungah, Pulau Pinang, Malaysia',
-            'latitude' => 5.46406970,
-            'longitude' => 100.28404670,
-            'contact_name' => 'Ahmad Razif bin Hassan',
-            'contact_phone' => '012-456 7890',
-            'contact_email' => 'razif.hassan@zuscoffee.com',
-            'operating_hours' => OutletFactory::buildStructuredHours('08:00', '22:00'),
-            'contract_status' => ContractStatus::Active,
-            'photo_path' => $this->seedPhoto($seedImages, 'zus-tanjung-bungah.jpg'),
-            'notes' => 'Located at Tree Square commercial area, ground floor unit facing main road. Near Tanjung Bungah floating mosque. Parking available at Tree Square basement. High foot traffic area with residential condos nearby.',
+        // Bin 3 — Starbucks Queensbay
+        DB::table('bins')->insert([
+            'outlet_id' => 2,
+            'serial_number' => 'MBS-SB-003',
+            'api_token' => bin2hex(random_bytes(32)),
+            'status' => 'active',
+            'fill_level' => 0,
+            'weight_grams' => 0,
+            'capacity_liters' => 20.00,
+            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
+            'latitude' => 5.3328,
+            'longitude' => 100.3067,
+            'paired_at' => now()->subWeek(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        /*
-        |----------------------------------------------------------------------
-        | Bins — pre-filled for route optimization demo (≥80% triggers eligibility)
-        |----------------------------------------------------------------------
-        */
-        $bin1 = Bin::create(['serial_number' => 'MBR-2026-001', 'fill_level' => 95, 'status' => 'active']);
-        $bin2 = Bin::create(['serial_number' => 'MBR-2026-002', 'fill_level' => 88, 'status' => 'active']);
-        $bin3 = Bin::create(['serial_number' => 'MBR-2026-003', 'fill_level' => 92, 'status' => 'active']);
-        $bin4 = Bin::create(['serial_number' => 'MBR-2026-004', 'fill_level' => 85, 'status' => 'active']);
-        $bin5 = Bin::create(['serial_number' => 'MBR-2026-005', 'fill_level' => 85, 'status' => 'active']);
-        $bin6 = Bin::create(['serial_number' => 'MBR-2026-006', 'fill_level' => 90, 'status' => 'active']);
+        // Bin 4 — Mixue Komtar
+        DB::table('bins')->insert([
+            'outlet_id' => 3,
+            'serial_number' => 'MBS-MX-001',
+            'api_token' => bin2hex(random_bytes(32)),
+            'status' => 'active',
+            'fill_level' => 0,
+            'weight_grams' => 0,
+            'capacity_liters' => 20.00,
+            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
+            'latitude' => 5.4141,
+            'longitude' => 100.3288,
+            'paired_at' => now()->subWeek(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
-        // Assign bins to outlets
-        BinAssignment::create(['bin_id' => $bin1->id, 'outlet_id' => $sbuxGurney->id, 'assigned_at' => now()]);        // Starbucks — mock bin
-        BinAssignment::create(['bin_id' => $bin2->id, 'outlet_id' => $mixueTanjungTokong->id, 'assigned_at' => now()]); // Mixue
-        BinAssignment::create(['bin_id' => $bin3->id, 'outlet_id' => $chageeGurney->id, 'assigned_at' => now()]);      // CHAGEE
-        BinAssignment::create(['bin_id' => $bin4->id, 'outlet_id' => $tealiveKomtar->id, 'assigned_at' => now()]);     // Tealive
-        BinAssignment::create(['bin_id' => $bin5->id, 'outlet_id' => $zusBayanLepas->id, 'assigned_at' => now()]);     // ZUS Queensbay
-        BinAssignment::create(['bin_id' => $bin6->id, 'outlet_id' => $zusTanjungBungah->id, 'assigned_at' => now()]);  // ZUS Tanjung Bungah
+        // =============================================
+        // PICKUP REQUESTS
+        // =============================================
 
-        /*
-        |----------------------------------------------------------------------
-        | Store owner → outlet links
-        |----------------------------------------------------------------------
-        */
-        $sbuxGurney->managers()->attach($storeOwner->id, ['role' => 'manager']);
-        $chageeGurney->managers()->attach($daniel->id, ['role' => 'manager']);
+        // Automatic: bin 2 (Starbucks Gurney) hit 75% fill
+        DB::table('pickup_requests')->insert([
+            'bin_id' => 2,
+            'request_type' => 'automatic',
+            'requested_by' => null,
+            'reason' => 'Fill level reached 75% threshold',
+            'status' => 'completed',
+            'assigned_to' => 7,
+            'assigned_at' => now()->subDays(2),
+            'completed_at' => now()->subDays(2)->addMinutes(52),
+            'created_at' => now()->subDays(2)->subHour(),
+            'updated_at' => now()->subDays(2)->addMinutes(52),
+        ]);
 
-        /*
-        |----------------------------------------------------------------------
-        | Rewards
-        |----------------------------------------------------------------------
-        */
-        // Starbucks
-        Reward::create(['brand_id' => $starbucks->id, 'name' => 'Free Tall Drink', 'description' => 'Any handcrafted Tall beverage on us.', 'points_cost' => 200, 'stock' => 50, 'sort_order' => 1]);
-        Reward::create(['brand_id' => $starbucks->id, 'name' => 'RM5 Off Next Visit', 'description' => 'RM5 discount on your next purchase.', 'points_cost' => 100, 'stock' => 100, 'sort_order' => 2]);
-        Reward::create(['brand_id' => $starbucks->id, 'name' => 'Starbucks Tote Bag', 'description' => 'Limited edition reusable tote bag.', 'points_cost' => 500, 'stock' => 20, 'sort_order' => 3]);
+        // Emergency: store owner reports contamination at Mixue Komtar
+        DB::table('pickup_requests')->insert([
+            'bin_id' => 4,
+            'request_type' => 'emergency',
+            'requested_by' => 6,
+            'reason' => 'Liquid contamination — cups not rinsed, bin smells',
+            'status' => 'pending',
+            'assigned_to' => null,
+            'assigned_at' => null,
+            'completed_at' => null,
+            'created_at' => now()->subHour(),
+            'updated_at' => now()->subHour(),
+        ]);
 
-        // CHAGEE
-        Reward::create(['brand_id' => $chagee->id, 'name' => 'Free Latte', 'description' => 'Any CHAGEE signature latte beverage.', 'points_cost' => 150, 'stock' => 40, 'sort_order' => 1]);
-        Reward::create(['brand_id' => $chagee->id, 'name' => 'Size Upgrade', 'description' => 'Free upgrade to Large on any drink.', 'points_cost' => 60, 'stock' => null, 'sort_order' => 2]);
+        // =============================================
+        // COLLECTION ROUTES
+        // =============================================
 
-        // Tealive
-        Reward::create(['brand_id' => $tealive->id, 'name' => 'Free Classic Tea', 'description' => 'Any classic milk tea series beverage.', 'points_cost' => 120, 'stock' => 80, 'sort_order' => 1]);
-        Reward::create(['brand_id' => $tealive->id, 'name' => 'Buy 1 Free 1 Voucher', 'description' => 'Valid for any drink of equal or lesser value.', 'points_cost' => 250, 'stock' => 30, 'sort_order' => 2]);
-        Reward::create(['brand_id' => $tealive->id, 'name' => 'Tealive Tumbler', 'description' => 'Reusable Tealive-branded tumbler.', 'points_cost' => 600, 'stock' => 15, 'sort_order' => 3]);
+        // Completed route — Kumar collected bins, optimized by Google Directions
+        DB::table('collection_routes')->insert([
+            'collector_id' => 7,
+            'status' => 'completed',
+            'depot_latitude' => 5.4141,
+            'depot_longitude' => 100.3288,
+            'depot_name' => 'Komtar Depot',
+            'total_distance_km' => 30.80,
+            'total_duration_min' => 52,
+            'route_polyline' => 'sample_encoded_polyline_from_google_directions_api',
+            'google_response' => json_encode(['note' => 'Full Google Directions API response stored here']),
+            'started_at' => now()->subDays(2),
+            'completed_at' => now()->subDays(2)->addMinutes(52),
+            'created_at' => now()->subDays(2),
+            'updated_at' => now()->subDays(2)->addMinutes(52),
+        ]);
 
-        // ZUS Coffee
-        Reward::create(['brand_id' => $zus->id, 'name' => 'Free Americano', 'description' => 'Hot or iced, your choice.', 'points_cost' => 100, 'stock' => 60, 'sort_order' => 1]);
-        Reward::create(['brand_id' => $zus->id, 'name' => 'RM3 Off Any Latte', 'description' => 'Applies to any latte variant.', 'points_cost' => 80, 'stock' => null, 'sort_order' => 2]);
+        // =============================================
+        // ROUTE STOPS
+        // =============================================
 
-        // Mixue
-        Reward::create(['brand_id' => $mixue->id, 'name' => 'Free Sundae', 'description' => 'Any Mixue signature ice cream sundae.', 'points_cost' => 80, 'stock' => 100, 'sort_order' => 1]);
-        Reward::create(['brand_id' => $mixue->id, 'name' => 'RM2 Off Any Drink', 'description' => 'Valid for any drink on the menu.', 'points_cost' => 50, 'stock' => null, 'sort_order' => 2]);
+        // Stop 1: Starbucks Gurney bin 2 (Google optimized this first)
+        DB::table('route_stops')->insert([
+            'collection_route_id' => 1,
+            'bin_id' => 2,
+            'pickup_request_id' => 1,
+            'stop_order' => 1,
+            'address' => '168A, Persiaran Gurney, 10350 George Town, Pulau Pinang',
+            'distance_km' => 4.00,
+            'duration_min' => 9,
+            'status' => 'completed',
+            'eta' => now()->subDays(2)->addMinutes(9),
+            'completed_at' => now()->subDays(2)->addMinutes(11),
+            'completed_latitude' => 5.4371,
+            'completed_longitude' => 100.3101,
+            'proof_image_path' => 'proofs/route1-stop1.jpg',
+            'skip_reason' => '',
+            'created_at' => now()->subDays(2),
+            'updated_at' => now()->subDays(2)->addMinutes(11),
+        ]);
 
-        // Tiger Sugar
-        Reward::create(['brand_id' => $tigerSugar->id, 'name' => 'Free Brown Sugar Boba', 'description' => 'Signature brown sugar boba milk tea.', 'points_cost' => 150, 'stock' => 40, 'sort_order' => 1]);
+        // =============================================
+        // BIN SESSIONS
+        // =============================================
 
-        // Gong Cha
-        Reward::create(['brand_id' => $gongcha->id, 'name' => 'Free Milk Tea', 'description' => 'Any signature milk tea with pearls.', 'points_cost' => 130, 'stock' => 40, 'sort_order' => 1]);
+        // Session 1 — Mei Ling at Starbucks Gurney bin 1 (gold standard: separated + rinsed)
+        DB::table('bin_sessions')->insert([
+            'bin_id' => 1,
+            'user_id' => 8,
+            'status' => 'completed',
+            'cup_rinsed' => true,
+            'started_at' => now()->subHours(3),
+            'ended_at' => now()->subHours(3)->addMinutes(5),
+            'created_at' => now()->subHours(3),
+            'updated_at' => now()->subHours(3)->addMinutes(5),
+        ]);
 
-        // Mobius platform rewards (no brand)
-        Reward::create(['brand_id' => null, 'name' => 'RM5 GrabFood Voucher', 'description' => 'Valid for any GrabFood order.', 'points_cost' => 300, 'stock' => 25, 'sort_order' => 1]);
-        Reward::create(['brand_id' => null, 'name' => 'RM10 Shopee Voucher', 'description' => 'Minimum spend RM30.', 'points_cost' => 500, 'stock' => 10, 'sort_order' => 2]);
-        Reward::create(['brand_id' => null, 'name' => 'Mobius Eco Badge', 'description' => 'Digital badge for your profile.', 'points_cost' => 50, 'stock' => null, 'sort_order' => 3]);
+        // Session 2 — Mei Ling at Mixue Komtar bin (no rinse, general intake)
+        DB::table('bin_sessions')->insert([
+            'bin_id' => 4,
+            'user_id' => 8,
+            'status' => 'completed',
+            'cup_rinsed' => false,
+            'started_at' => now()->subHours(1),
+            'ended_at' => now()->subHours(1)->addMinutes(4),
+            'created_at' => now()->subHours(1),
+            'updated_at' => now()->subHours(1)->addMinutes(4),
+        ]);
 
-        /*
-        |----------------------------------------------------------------------
-        | Zones (route optimization)
-        |----------------------------------------------------------------------
-        */
-        $this->call(ZoneSeeder::class);
+        // =============================================
+        // DETECTION EVENTS
+        // =============================================
 
-        /*
-        |----------------------------------------------------------------------
-        | Collection Routes — auto-generate via VROOM (Docker must be running)
-        | Falls back to nearest-neighbor if VROOM is unavailable.
-        |----------------------------------------------------------------------
-        */
-        $routeService = new RouteOptimizationService;
-        $routeCount = 0;
-        foreach (Zone::where('is_active', true)->get() as $zone) {
-            $route = $routeService->generateRoute($zone);
-            if ($route) {
-                $routeCount++;
-            }
-        }
-        $this->command?->info("  → {$routeCount} collection route(s) generated.");
-    }
+        // Session 1: Starbucks cup — properly separated via cup slot
+        DB::table('detection_events')->insert([
+            'bin_session_id' => 1,
+            'waste_type' => 'paper_cup',
+            'input_method' => 'cup_slot',
+            'detected_brand_id' => 1,
+            'confidence' => 92,
+            'image_path' => 'detections/session1-cup.jpg',
+            'ai_output' => json_encode([
+                'model' => 'yolov8-mobius',
+                'classes' => ['paper_cup' => 0.92],
+                'brand' => ['starbucks' => 0.88],
+                'bounding_box' => [120, 80, 340, 420],
+            ]),
+            'created_at' => now()->subHours(3)->addMinute(),
+            'updated_at' => now()->subHours(3)->addMinute(),
+        ]);
 
-    /**
-     * Copy a seed image to storage and return the relative path.
-     */
-    private function seedPhoto(string $sourceDir, string $filename): ?string
-    {
-        $source = $sourceDir.'/'.$filename;
+        // Session 1: lid — separated via lid slot
+        DB::table('detection_events')->insert([
+            'bin_session_id' => 1,
+            'waste_type' => 'lid',
+            'input_method' => 'lid_slot',
+            'detected_brand_id' => 1,
+            'confidence' => 87,
+            'image_path' => 'detections/session1-lid.jpg',
+            'ai_output' => json_encode([
+                'model' => 'yolov8-mobius',
+                'classes' => ['lid' => 0.87],
+                'brand' => [],
+                'bounding_box' => [150, 100, 300, 280],
+                'brand_inherited_from' => 'session_cup',
+            ]),
+            'created_at' => now()->subHours(3)->addMinutes(2),
+            'updated_at' => now()->subHours(3)->addMinutes(2),
+        ]);
 
-        if (! File::exists($source)) {
-            return null;
-        }
+        // Session 1: straw — separated via straw slot
+        DB::table('detection_events')->insert([
+            'bin_session_id' => 1,
+            'waste_type' => 'straw',
+            'input_method' => 'straw_slot',
+            'detected_brand_id' => 1,
+            'confidence' => 95,
+            'image_path' => 'detections/session1-straw.jpg',
+            'ai_output' => json_encode([
+                'model' => 'yolov8-mobius',
+                'classes' => ['straw' => 0.95],
+                'brand' => [],
+                'bounding_box' => [200, 50, 240, 450],
+                'brand_inherited_from' => 'session_cup',
+            ]),
+            'created_at' => now()->subHours(3)->addMinutes(3),
+            'updated_at' => now()->subHours(3)->addMinutes(3),
+        ]);
 
-        $dest = 'outlets/'.uniqid('outlet_').'.jpg';
-        Storage::disk('public')->put($dest, File::get($source));
+        // Session 2: Mixue cup — threw everything in general intake
+        DB::table('detection_events')->insert([
+            'bin_session_id' => 2,
+            'waste_type' => 'plastic_cup',
+            'input_method' => 'general_intake',
+            'detected_brand_id' => 2,
+            'confidence' => 89,
+            'image_path' => 'detections/session2-cup.jpg',
+            'ai_output' => json_encode([
+                'model' => 'yolov8-mobius',
+                'classes' => ['plastic_cup' => 0.89],
+                'brand' => ['mixue' => 0.85],
+                'bounding_box' => [100, 60, 360, 440],
+            ]),
+            'created_at' => now()->subHours(1)->addMinute(),
+            'updated_at' => now()->subHours(1)->addMinute(),
+        ]);
 
-        return $dest;
+        // =============================================
+        // RECYCLING TRANSACTIONS
+        // =============================================
+
+        // Session 1: cup(15)+lid(5)+straw(3)=23 × 2.0 behavior(separated+rinsed) × 1.5 brand = 69
+        DB::table('recycling_transactions')->insert([
+            'user_id' => 8,
+            'bin_session_id' => 1,
+            'type' => 'earned',
+            'points' => 69,
+            'description' => 'Gold standard: 3 items separated + rinsed at Starbucks Gurney — behavior 2.0x, brand 1.5x',
+            'created_at' => now()->subHours(3)->addMinutes(5),
+            'updated_at' => now()->subHours(3)->addMinutes(5),
+        ]);
+
+        // Session 2: cup only(12) × 1.0 behavior(general intake, no rinse) × 1.3 brand = 15
+        DB::table('recycling_transactions')->insert([
+            'user_id' => 8,
+            'bin_session_id' => 2,
+            'type' => 'earned',
+            'points' => 15,
+            'description' => 'General intake: 1 item unseparated at Mixue Komtar — behavior 1.0x, brand 1.3x',
+            'created_at' => now()->subHours(1)->addMinutes(4),
+            'updated_at' => now()->subHours(1)->addMinutes(4),
+        ]);
+
+        // =============================================
+        // VOUCHER TEMPLATES
+        // =============================================
+
+        // Starbucks voucher: RM5 off
+        DB::table('voucher_templates')->insert([
+            'brand_id' => 1,
+            'name' => 'RM5 Off Any Drink',
+            'description' => 'Get RM5 off any handcrafted beverage at Starbucks',
+            'type' => 'discount',
+            'value' => 5.00,
+            'points_required' => 100,
+            'valid_from' => now()->startOfMonth(),
+            'valid_until' => now()->endOfMonth()->addMonths(2),
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Mixue voucher: free ice cream
+        DB::table('voucher_templates')->insert([
+            'brand_id' => 2,
+            'name' => 'Free Ice Cream Cone',
+            'description' => 'Redeem a free vanilla ice cream cone at any Mixue outlet',
+            'type' => 'free_item',
+            'value' => 3.00,
+            'points_required' => 50,
+            'valid_from' => now()->startOfMonth(),
+            'valid_until' => now()->endOfMonth()->addMonth(),
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // =============================================
+        // VOUCHER ALLOCATIONS
+        // =============================================
+
+        // Starbucks Gurney gets 50 RM5 vouchers
+        DB::table('voucher_allocations')->insert([
+            'voucher_template_id' => 1,
+            'outlet_id' => 1,
+            'quota' => 50,
+            'claimed_count' => 0,
+            'valid_from' => now()->startOfMonth(),
+            'valid_until' => now()->endOfMonth()->addMonths(2),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Starbucks Queensbay gets 30 RM5 vouchers
+        DB::table('voucher_allocations')->insert([
+            'voucher_template_id' => 1,
+            'outlet_id' => 2,
+            'quota' => 30,
+            'claimed_count' => 0,
+            'valid_from' => now()->startOfMonth(),
+            'valid_until' => now()->endOfMonth()->addMonths(2),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Mixue Komtar gets 40 ice cream vouchers
+        DB::table('voucher_allocations')->insert([
+            'voucher_template_id' => 2,
+            'outlet_id' => 3,
+            'quota' => 40,
+            'claimed_count' => 0,
+            'valid_from' => now()->startOfMonth(),
+            'valid_until' => now()->endOfMonth()->addMonth(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // =============================================
+        // VOUCHER CLAIMS
+        // =============================================
+        // (None yet — Mei Ling has 49 points, hasn't hit 50 for Mixue or 100 for Starbucks)
     }
 }

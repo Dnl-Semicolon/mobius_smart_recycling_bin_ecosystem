@@ -13,16 +13,16 @@ class RecyclingTransaction extends Model
 
     protected $fillable = [
         'user_id',
-        'detection_event_id',
-        'points_earned',
+        'bin_session_id',
         'type',
+        'points',
         'description',
     ];
 
     protected function casts(): array
     {
         return [
-            'points_earned' => 'integer',
+            'points' => 'integer',
         ];
     }
 
@@ -31,8 +31,8 @@ class RecyclingTransaction extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function detectionEvent(): BelongsTo
+    public function binSession(): BelongsTo
     {
-        return $this->belongsTo(DetectionEvent::class);
+        return $this->belongsTo(BinSession::class);
     }
 }

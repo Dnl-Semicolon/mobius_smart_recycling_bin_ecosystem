@@ -5,30 +5,28 @@ namespace App\Models;
 use App\Enums\UserRole;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use Billable, HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * @var list<string>
      */
     protected $fillable = [
+        'organization_id',
         'name',
-        'username',
         'email',
-        'phone',
-        'bio',
-        'avatar_path',
         'password',
+        'phone',
+        'phone_verified_at',
+        'profile_photo_path',
         'roles',
         'points_balance',
         'current_streak',
@@ -51,6 +49,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
             'password' => 'hashed',
             'roles' => 'array',
             'last_recycled_at' => 'datetime',
@@ -60,21 +59,19 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    public function zones(): BelongsToMany
+    public function organization(): BelongsTo
     {
-        return $this->belongsToMany(Zone::class, 'zone_collector')
-            ->withPivot('is_primary')
-            ->withTimestamps();
+        return $this->belongsTo(Organization::class);
     }
 
-    public function collectionRoutes(): HasMany
+    public function outlets(): HasMany
     {
-        return $this->hasMany(CollectionRoute::class, 'collector_id');
+        return $this->hasMany(Outlet::class);
     }
 
-    public function detectionEvents(): HasMany
+    public function binSessions(): HasMany
     {
-        return $this->hasMany(DetectionEvent::class);
+        return $this->hasMany(BinSession::class);
     }
 
     public function recyclingTransactions(): HasMany
@@ -82,38 +79,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(RecyclingTransaction::class);
     }
 
-    public function appNotifications(): HasMany
+    public function voucherClaims(): HasMany
     {
-        return $this->hasMany(AppNotification::class);
+        return $this->hasMany(VoucherClaim::class);
     }
 
-    public function outlets(): BelongsToMany
+    public function collectionRoutes(): HasMany
     {
-        return $this->belongsToMany(Outlet::class, 'outlet_user')
-            ->withPivot('role')
-            ->withTimestamps();
-    }
-
-    public function redemptions(): HasMany
-    {
-        return $this->hasMany(Redemption::class);
-    }
-
-    public function reports(): HasMany
-    {
-        return $this->hasMany(Report::class);
-    }
-
-    public function managedAgency(): HasOne
-    {
-        return $this->hasOne(CollectorAgency::class, 'user_id');
-    }
-
-    public function collectorAgencies(): BelongsToMany
-    {
-        return $this->belongsToMany(CollectorAgency::class, 'agency_collector')
-            ->withPivot('status', 'invited_at', 'joined_at')
-            ->withTimestamps();
+        return $this->hasMany(CollectionRoute::class, 'collector_id');
     }
 
     /**
@@ -140,9 +113,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasRole(UserRole::Admin);
     }
 
-    public function isCollector(): bool
+    public function isBrandOwner(): bool
     {
-        return $this->hasRole(UserRole::Collector);
+        return $this->hasRole(UserRole::BrandOwner);
     }
 
     public function isStoreOwner(): bool
@@ -150,9 +123,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasRole(UserRole::StoreOwner);
     }
 
-    public function isAgencyAdmin(): bool
+    public function isCollector(): bool
     {
-        return $this->hasRole(UserRole::AgencyAdmin);
+        return $this->hasRole(UserRole::Collector);
     }
 
     public function addRole(UserRole $role): void

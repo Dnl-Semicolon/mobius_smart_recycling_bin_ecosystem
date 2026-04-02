@@ -3,80 +3,53 @@
 namespace App\Models;
 
 use App\Enums\BinStatus;
-use App\Enums\PickupStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bin extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $fillable = [
+        'outlet_id',
         'serial_number',
-        'fill_level',
-        'compartments',
+        'api_token',
         'status',
-        'last_seen_at',
-        'ip_address',
+        'fill_level',
+        'weight_grams',
+        'capacity_liters',
+        'sensor_levels',
+        'latitude',
+        'longitude',
+        'paired_at',
+        'last_pickup_at',
     ];
-
-    protected $attributes = [
-        'fill_level' => 0,
-        'status' => 'active',
-    ];
-
-    protected static function booted(): void
-    {
-        static::creating(function (Bin $bin): void {
-            if (empty($bin->serial_number)) {
-                $bin->serial_number = static::generateSerialNumber();
-            }
-        });
-    }
-
-    public static function generateSerialNumber(): string
-    {
-        $year = date('Y');
-        $prefix = "MBR-{$year}-";
-
-        $maxSerial = static::withTrashed()
-            ->where('serial_number', 'like', "{$prefix}%")
-            ->max('serial_number');
-
-        $nextNumber = $maxSerial
-            ? (int) substr($maxSerial, -3) + 1
-            : 1;
-
-        return $prefix.str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
-    }
 
     protected function casts(): array
     {
         return [
-            'fill_level' => 'integer',
-            'compartments' => 'array',
             'status' => BinStatus::class,
-            'last_seen_at' => 'datetime',
+            'fill_level' => 'integer',
+            'weight_grams' => 'integer',
+            'capacity_liters' => 'decimal:2',
+            'sensor_levels' => 'array',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
+            'paired_at' => 'datetime',
+            'last_pickup_at' => 'datetime',
         ];
     }
 
-    public function assignments(): HasMany
+    public function outlet(): BelongsTo
     {
-        return $this->hasMany(BinAssignment::class);
+        return $this->belongsTo(Outlet::class);
     }
 
-    public function currentAssignment(): HasOne
+    public function binSessions(): HasMany
     {
-        return $this->hasOne(BinAssignment::class)->whereNull('unassigned_at');
-    }
-
-    public function detectionEvents(): HasMany
-    {
-        return $this->hasMany(DetectionEvent::class);
+        return $this->hasMany(BinSession::class);
     }
 
     public function pickupRequests(): HasMany
@@ -84,15 +57,13 @@ class Bin extends Model
         return $this->hasMany(PickupRequest::class);
     }
 
-    public function activePickupRequest(): HasOne
+    public function routeStops(): HasMany
     {
-        return $this->hasOne(PickupRequest::class)
-            ->whereIn('status', [PickupStatus::Pending, PickupStatus::Claimed])
-            ->latest();
+        return $this->hasMany(RouteStop::class);
     }
 
     public function isReadyForPickup(): bool
     {
-        return $this->fill_level >= 80;
+        return $this->fill_level >= 75;
     }
 }

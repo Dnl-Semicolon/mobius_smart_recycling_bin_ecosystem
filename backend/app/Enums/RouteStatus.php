@@ -6,9 +6,9 @@ enum RouteStatus: string
 {
     case Pending = 'pending';
     case Accepted = 'accepted';
-    case Active = 'active';
+    case InProgress = 'in_progress';
     case Completed = 'completed';
-    case Cancelled = 'cancelled';
+    case Rejected = 'rejected';
 
     public function label(): string
     {
