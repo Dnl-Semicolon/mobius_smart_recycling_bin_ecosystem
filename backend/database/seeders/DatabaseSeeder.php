@@ -28,32 +28,32 @@ class DatabaseSeeder extends Seeder
         | Users (all passwords are "password")
         |----------------------------------------------------------------------
         */
-        User::factory()->admin()->create([
-            'name' => 'Admin',
-            'email' => 'admin@mobius.test',
-        ]);
+        // User::factory()->admin()->create([
+        //     'name' => 'Admin',
+        //     'email' => 'admin@mobius.test',
+        // ]);
 
-        $collector = User::factory()->collector()->create([
-            'name' => 'Collector',
-            'email' => 'collector@mobius.test',
-        ]);
+        // $collector = User::factory()->collector()->create([
+        //     'name' => 'Collector',
+        //     'email' => 'collector@mobius.test',
+        // ]);
 
-        $testUser = User::factory()->publicUser()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // $testUser = User::factory()->publicUser()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
 
-        $daniel = User::factory()->create([
-            'name' => 'Daniel Tan',
-            'email' => 'daniel@mobius.test',
-            'roles' => ['public_user', 'store_owner', 'collector'],
-        ]);
+        // // $daniel = User::factory()->create([
+        // //     'name' => 'Daniel Tan',
+        // //     'email' => 'daniel@mobius.test',
+        // //     'roles' => ['public_user', 'store_owner', 'collector'],
+        // // ]);
 
-        $storeOwner = User::factory()->create([
-            'name' => 'Sarah Lim',
-            'email' => 'storeowner@mobius.test',
-            'roles' => ['store_owner'],
-        ]);
+        // $storeOwner = User::factory()->create([
+        //     'name' => 'Sarah Lim',
+        //     'email' => 'storeowner@mobius.test',
+        //     'roles' => ['store_owner'],
+        // ]);
 
         /*
         |----------------------------------------------------------------------
