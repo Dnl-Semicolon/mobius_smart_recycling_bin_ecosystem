@@ -56,15 +56,7 @@
         <x-admin.sidebar-item route="admin.brands.index" label="Brands">
             <x-slot:icon><x-heroicon-o-building-storefront class="w-5 h-5" /></x-slot:icon>
         </x-admin.sidebar-item>
-        <x-admin.sidebar-item route="admin.brand-directory.index" label="Brand Directory">
-            <x-slot:icon><x-heroicon-o-rectangle-stack class="w-5 h-5" /></x-slot:icon>
-        </x-admin.sidebar-item>
-        <x-admin.sidebar-item route="admin.reports.index" label="Reports">
-            <x-slot:icon><x-heroicon-o-flag class="w-5 h-5" /></x-slot:icon>
-            @if (Schema::hasTable('reports') && ($openReportCount = \App\Models\Report::where('status', 'open')->count()) > 0)
-                <x-slot:badge>{{ $openReportCount }}</x-slot:badge>
-            @endif
-        </x-admin.sidebar-item>
+        {{-- Brand Directory and Reports removed — not in new schema --}}
         <x-admin.sidebar-item route="admin.applications.brands.index" label="Applications">
             <x-slot:icon><x-heroicon-o-clipboard-document-check class="w-5 h-5" /></x-slot:icon>
             @php

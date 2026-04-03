@@ -72,18 +72,29 @@ class ProfileController extends Controller
             'phone' => ['required', 'string', 'max:20'],
         ]);
 
-        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-
-        $request->session()->put('otp_code', $code);
-        $request->session()->put('otp_phone', $request->input('phone'));
-        $request->session()->put('otp_expires_at', now()->addMinutes(10)->timestamp);
-
         $user = $request->user();
-        if ($user->phone !== $request->input('phone')) {
-            $user->update(['phone' => $request->input('phone')]);
+        $phone = $request->input('phone');
+
+        if ($user->phone !== $phone) {
+            $user->update(['phone' => $phone, 'phone_verified_at' => null]);
         }
 
-        return redirect()->back()->with('otp_code', $code)->with('success', "Your OTP code is: {$code}");
+        // Send real SMS via Twilio Verify
+        try {
+            $twilio = new \Twilio\Rest\Client(
+                config('services.twilio.sid'),
+                config('services.twilio.token'),
+            );
+
+            $twilio->verify->v2
+                ->services(config('services.twilio.verify_sid'))
+                ->verifications
+                ->create($phone, 'sms');
+
+            return redirect()->back()->with('success', 'OTP sent to '.$phone.'. Check your phone.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to send OTP: '.$e->getMessage());
+        }
     }
 
     public function verifyOtp(Request $request): RedirectResponse
@@ -92,26 +103,36 @@ class ProfileController extends Controller
             'otp' => ['required', 'string', 'size:6'],
         ]);
 
-        $sessionCode = $request->session()->get('otp_code');
-        $expiresAt = $request->session()->get('otp_expires_at');
+        $user = $request->user();
+        $phone = $user->phone;
 
-        if (! $sessionCode || ! $expiresAt) {
-            return redirect()->back()->with('error', 'No OTP was sent. Please request a new one.');
+        if (! $phone) {
+            return redirect()->back()->with('error', 'No phone number on file. Send OTP first.');
         }
 
-        if (now()->timestamp > $expiresAt) {
-            $request->session()->forget(['otp_code', 'otp_phone', 'otp_expires_at']);
+        try {
+            $twilio = new \Twilio\Rest\Client(
+                config('services.twilio.sid'),
+                config('services.twilio.token'),
+            );
 
-            return redirect()->back()->with('error', 'OTP has expired. Please request a new one.');
-        }
+            $check = $twilio->verify->v2
+                ->services(config('services.twilio.verify_sid'))
+                ->verificationChecks
+                ->create([
+                    'to' => $phone,
+                    'code' => $request->input('otp'),
+                ]);
 
-        if ($request->input('otp') !== $sessionCode) {
+            if ($check->status === 'approved') {
+                $user->update(['phone_verified_at' => now()]);
+
+                return redirect()->back()->with('success', 'Phone number verified successfully!');
+            }
+
             return redirect()->back()->with('error', 'Invalid OTP code. Please try again.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Verification failed: '.$e->getMessage());
         }
-
-        $request->user()->update(['phone_verified_at' => now()]);
-        $request->session()->forget(['otp_code', 'otp_phone', 'otp_expires_at']);
-
-        return redirect()->back()->with('success', 'Phone number verified successfully!');
     }
 }

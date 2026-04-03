@@ -43,6 +43,12 @@ return [
         'api_key' => env('OPENAI_API_KEY'),
     ],
 
+    'twilio' => [
+        'sid' => env('TWILIO_SID'),
+        'token' => env('TWILIO_TOKEN'),
+        'verify_sid' => env('TWILIO_VERIFY_SID'),
+    ],
+
     'google' => [
         'directions_api_key' => env('GOOGLE_DIRECTIONS_API_KEY'),
         'maps_api_key' => env('GOOGLE_MAPS_API_KEY'),

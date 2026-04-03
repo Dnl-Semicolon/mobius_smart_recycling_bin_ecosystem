@@ -4,7 +4,6 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\Admin\BinController;
 use App\Http\Controllers\Admin\BinSessionController;
-use App\Http\Controllers\Admin\BrandDirectoryController;
 use App\Http\Controllers\Admin\BrandMonitoringController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DetectionEventController;
@@ -13,7 +12,6 @@ use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\PaymentManagementController;
 use App\Http\Controllers\Admin\PickupRequestController;
 use App\Http\Controllers\Admin\PlacesProxyController;
-use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SubscriptionManagementController;
 use App\Http\Controllers\Admin\UserController;
 // use App\Http\Controllers\Admin\Z_ACodex_TempWorkbenchController;
@@ -204,12 +202,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::get('brands', [BrandMonitoringController::class, 'index'])->name('brands.index');
     Route::get('brands/{brand}', [BrandMonitoringController::class, 'show'])->name('brands.show');
 
-    // Brand directory (catalog management)
-    Route::get('brand-directory', [BrandDirectoryController::class, 'index'])->name('brand-directory.index');
-    Route::get('brand-directory/create', [BrandDirectoryController::class, 'create'])->name('brand-directory.create');
-    Route::post('brand-directory', [BrandDirectoryController::class, 'store'])->name('brand-directory.store');
-    Route::get('brand-directory/{brand}/edit', [BrandDirectoryController::class, 'edit'])->name('brand-directory.edit');
-    Route::put('brand-directory/{brand}', [BrandDirectoryController::class, 'update'])->name('brand-directory.update');
+    // Brand directory — DEFERRED (not in new schema)
 
     // Applications (brand + agency registrations)
     Route::prefix('applications')->name('applications.')->group(function () {
@@ -223,10 +216,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
         Route::post('agencies/{collector_agency}/reject', [ApplicationController::class, 'rejectAgency'])->name('agencies.reject');
     });
 
-    // Reports
-    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('reports/{report}', [ReportController::class, 'show'])->name('reports.show');
-    Route::post('reports/{report}/resolve', [ReportController::class, 'resolve'])->name('reports.resolve');
+    // Reports — DEFERRED (not in new schema)
 
     // Subscriptions
     Route::get('subscriptions', [SubscriptionManagementController::class, 'index'])->name('subscriptions.index');
