@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\PickupRequestController;
 use App\Http\Controllers\Admin\PlacesProxyController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\Z_ACodex_TempWorkbenchController;
+// use App\Http\Controllers\Admin\Z_ACodex_TempWorkbenchController;
 use App\Http\Controllers\Agency;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -127,7 +127,7 @@ Route::get('/', function () {
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('z-acodex-temp-workbench', [Z_ACodex_TempWorkbenchController::class, 'index'])->name('z-acodex-temp-workbench');
+    // Route::get('z-acodex-temp-workbench', [Z_ACodex_TempWorkbenchController::class, 'index'])->name('z-acodex-temp-workbench');
 
     // Outlets
     Route::get('outlets', [OutletController::class, 'index'])->name('outlets.index');

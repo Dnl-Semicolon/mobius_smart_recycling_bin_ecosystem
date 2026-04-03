@@ -14,7 +14,8 @@ class OutletController extends Controller
     public function index(): JsonResponse
     {
         $outlets = Outlet::query()
-            ->withCount(['currentBinAssignments as current_bins_count'])
+            ->with(['brand', 'user'])
+            ->withCount('bins')
             ->latest()
             ->paginate();
 
@@ -35,8 +36,8 @@ class OutletController extends Controller
 
     public function show(Outlet $outlet): JsonResponse
     {
-        $outlet->loadCount(['currentBinAssignments as current_bins_count']);
-        $outlet->load(['bins']);
+        $outlet->load(['brand', 'user', 'bins']);
+        $outlet->loadCount('bins');
 
         return OutletResource::make($outlet)
             ->additional(['message' => 'Outlet retrieved successfully.'])

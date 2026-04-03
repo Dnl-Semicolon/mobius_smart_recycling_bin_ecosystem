@@ -32,4 +32,19 @@ return [
             'premium' => env('STRIPE_PRICE_PREMIUM'),
         ],
     ],
+
+    'roboflow' => [
+        'api_key' => env('ROBOFLOW_API_KEY'),
+        'model_id' => env('ROBOFLOW_MODEL_ID', 'mobius-v2/1'),
+        'api_url' => env('ROBOFLOW_API_URL', 'https://serverless.roboflow.com'),
+    ],
+
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+    ],
+
+    'google' => [
+        'directions_api_key' => env('GOOGLE_DIRECTIONS_API_KEY'),
+        'maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
 ];

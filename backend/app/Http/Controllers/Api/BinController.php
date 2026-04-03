@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AssignBinRequest;
 use App\Http\Requests\StoreBinRequest;
 use App\Http\Requests\UpdateBinRequest;
 use App\Http\Resources\BinResource;
 use App\Models\Bin;
-use App\Models\BinAssignment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,7 +17,7 @@ class BinController extends Controller
     public function index(): JsonResponse
     {
         $bins = Bin::query()
-            ->with(['currentAssignment.outlet'])
+            ->with(['outlet.brand'])
             ->latest()
             ->paginate();
 
@@ -40,15 +38,28 @@ class BinController extends Controller
 
     public function show(Bin $bin): JsonResponse
     {
-        $bin->load([
-            'currentAssignment.outlet',
-            'assignments' => fn ($q) => $q->with('outlet')->latest('assigned_at'),
-            'detectionEvents' => fn ($q) => $q->latest('detected_at')->limit(10),
-        ]);
+        $bin->load(['outlet.brand']);
 
-        return BinResource::make($bin)
-            ->additional(['message' => 'Bin retrieved successfully.'])
-            ->response();
+        return response()->json([
+            'data' => [
+                'id' => $bin->id,
+                'serial_number' => $bin->serial_number,
+                'status' => $bin->status?->value,
+                'fill_level' => $bin->fill_level,
+                'weight_grams' => $bin->weight_grams,
+                'capacity_liters' => $bin->capacity_liters,
+                'sensor_levels' => $bin->sensor_levels,
+                'latitude' => $bin->latitude,
+                'longitude' => $bin->longitude,
+                'paired_at' => $bin->paired_at?->toIso8601String(),
+                'last_pickup_at' => $bin->last_pickup_at?->toIso8601String(),
+                'outlet' => $bin->outlet,
+                'is_ready_for_pickup' => $bin->isReadyForPickup(),
+                'created_at' => $bin->created_at?->toIso8601String(),
+                'updated_at' => $bin->updated_at?->toIso8601String(),
+            ],
+            'message' => 'Bin retrieved successfully.',
+        ]);
     }
 
     public function update(UpdateBinRequest $request, Bin $bin): JsonResponse
@@ -70,24 +81,35 @@ class BinController extends Controller
         ]);
     }
 
-    public function assign(AssignBinRequest $request, Bin $bin): JsonResponse
+    /**
+     * Pair a bin with an outlet, generating an API token for bin authentication.
+     */
+    public function pair(Request $request, Bin $bin): JsonResponse
     {
-        // End any current assignment first
-        $bin->currentAssignment?->update(['unassigned_at' => now()]);
-
-        // Create new assignment
-        BinAssignment::create([
-            'bin_id' => $bin->id,
-            'outlet_id' => $request->validated('outlet_id'),
-            'assigned_at' => now(),
-            'unassigned_at' => null,
+        $validated = $request->validate([
+            'outlet_id' => ['required', 'integer', 'exists:outlets,id'],
         ]);
 
-        $bin->load('currentAssignment.outlet');
+        $bin->update([
+            'outlet_id' => $validated['outlet_id'],
+            'api_token' => bin2hex(random_bytes(32)),
+            'status' => 'active',
+            'paired_at' => now(),
+        ]);
 
-        return BinResource::make($bin)
-            ->additional(['message' => 'Bin assigned to outlet successfully.'])
-            ->response();
+        $bin->load('outlet.brand');
+
+        return response()->json([
+            'data' => [
+                'id' => $bin->id,
+                'serial_number' => $bin->serial_number,
+                'api_token' => $bin->api_token,
+                'status' => $bin->status?->value,
+                'paired_at' => $bin->paired_at?->toIso8601String(),
+                'outlet' => $bin->outlet,
+            ],
+            'message' => 'Bin paired with outlet successfully.',
+        ]);
     }
 
     /**
@@ -126,7 +148,6 @@ class BinController extends Controller
             'data' => [
                 'id' => $bin->id,
                 'serial_number' => $bin->serial_number,
-                'name' => $bin->name,
             ],
             'message' => 'Bin resolved.',
         ]);
@@ -139,40 +160,36 @@ class BinController extends Controller
     {
         $validated = $request->validate([
             'fill_level' => ['required', 'integer', 'min:0', 'max:100'],
-            'compartments' => ['nullable', 'array'],
-            'ip_address' => ['nullable', 'string', 'max:45'],
+            'weight_grams' => ['sometimes', 'integer', 'min:0'],
+            'sensor_levels' => ['sometimes', 'array'],
+            'sensor_levels.level_25' => ['sometimes', 'boolean'],
+            'sensor_levels.level_50' => ['sometimes', 'boolean'],
+            'sensor_levels.level_75' => ['sometimes', 'boolean'],
+            'sensor_levels.level_100' => ['sometimes', 'boolean'],
         ]);
 
-        $bin->update([
+        $updateData = [
             'fill_level' => $validated['fill_level'],
-            'compartments' => $validated['compartments'] ?? $bin->compartments,
-            'ip_address' => $validated['ip_address'] ?? $request->ip(),
-            'last_seen_at' => now(),
-        ]);
+        ];
+
+        if (isset($validated['weight_grams'])) {
+            $updateData['weight_grams'] = $validated['weight_grams'];
+        }
+
+        if (isset($validated['sensor_levels'])) {
+            $updateData['sensor_levels'] = $validated['sensor_levels'];
+        }
+
+        $bin->update($updateData);
 
         return response()->json([
             'data' => [
                 'id' => $bin->id,
                 'fill_level' => $bin->fill_level,
-                'last_seen_at' => $bin->last_seen_at->toIso8601String(),
+                'weight_grams' => $bin->weight_grams,
+                'sensor_levels' => $bin->sensor_levels,
             ],
             'message' => 'Heartbeat received.',
         ]);
-    }
-
-    public function unassign(Bin $bin): JsonResponse
-    {
-        if (! $bin->currentAssignment) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Bin is not currently assigned to any outlet.',
-            ], 422);
-        }
-
-        $bin->currentAssignment->update(['unassigned_at' => now()]);
-
-        return BinResource::make($bin->fresh())
-            ->additional(['message' => 'Bin unassigned from outlet successfully.'])
-            ->response();
     }
 }

@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bin;
+use App\Models\BinSession;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class CustomerController extends Controller
 {
@@ -22,8 +22,7 @@ class CustomerController extends Controller
             'points_balance' => $user->points_balance,
             'current_streak' => $user->current_streak,
             'longest_streak' => $user->longest_streak,
-            'total_detections' => $user->detectionEvents()->count(),
-            'co2_saved_grams' => $user->detectionEvents()->count() * 25,
+            'last_recycled_at' => $user->last_recycled_at?->toIso8601String(),
         ]);
     }
 
@@ -32,32 +31,13 @@ class CustomerController extends Controller
      */
     public function history(Request $request): JsonResponse
     {
-        $detections = $request->user()
-            ->detectionEvents()
-            ->with(['bin:id,serial_number', 'detectedBrand:id,name,slug', 'bin.currentAssignment.outlet.brand:id,name'])
-            ->latest('detected_at')
-            ->paginate(15)
-            ->through(function ($event) {
-                $binBrand = $event->bin?->currentAssignment?->outlet?->brand;
-                $brandMatch = null;
-                if ($event->waste_type?->isCup() && $event->detectedBrand) {
-                    $brandMatch = ($binBrand && $binBrand->id === $event->detected_brand_id) ? 'match' : 'competitor';
-                }
+        $transactions = $request->user()
+            ->recyclingTransactions()
+            ->with('binSession')
+            ->latest()
+            ->paginate(15);
 
-                return [
-                    'id' => $event->id,
-                    'waste_type' => $event->waste_type?->value,
-                    'waste_type_label' => $event->waste_type?->label(),
-                    'confidence' => $event->confidence,
-                    'bin_serial' => $event->bin?->serial_number,
-                    'detected_brand_name' => $event->detectedBrand?->name,
-                    'brand_match' => $brandMatch,
-                    'detected_at' => $event->detected_at?->toIso8601String(),
-                    'points_earned' => $this->pointsForWasteType($event->waste_type),
-                ];
-            });
-
-        return response()->json($detections);
+        return response()->json($transactions);
     }
 
     /**
@@ -83,7 +63,6 @@ class CustomerController extends Controller
 
     /**
      * Start a session at a bin. The user scanned the bin's QR code.
-     * For the next 60 seconds, any detection on this bin is attributed to this user.
      */
     public function scan(Request $request): JsonResponse
     {
@@ -101,35 +80,25 @@ class CustomerController extends Controller
         }
 
         $user = $request->user();
-        $ttlSeconds = 60;
 
-        Cache::put("bin_session:{$bin->id}", $user->id, now()->addSeconds($ttlSeconds));
+        $session = BinSession::create([
+            'bin_id' => $bin->id,
+            'user_id' => $user->id,
+            'status' => 'active',
+            'started_at' => now(),
+        ]);
 
-        $bin->load('currentAssignment.outlet');
-        $outlet = $bin->currentAssignment?->outlet;
+        $bin->load('outlet.brand');
 
         return response()->json([
             'data' => [
+                'session_id' => $session->id,
                 'bin_id' => $bin->id,
                 'bin_serial' => $bin->serial_number,
-                'outlet_name' => $outlet?->name,
-                'session_expires_in' => $ttlSeconds,
+                'outlet_name' => $bin->outlet?->name,
+                'brand_name' => $bin->outlet?->brand?->name,
             ],
             'message' => 'Session started. Deposit your item now!',
         ]);
-    }
-
-    private function pointsForWasteType(?\App\Enums\WasteType $wasteType): int
-    {
-        if (! $wasteType) {
-            return 0;
-        }
-
-        return match ($wasteType) {
-            \App\Enums\WasteType::PaperCup, \App\Enums\WasteType::PlasticCup => 10,
-            \App\Enums\WasteType::Lid => 5,
-            \App\Enums\WasteType::Straw, \App\Enums\WasteType::Napkin => 3,
-            \App\Enums\WasteType::LiquidWaste => 2,
-        };
     }
 }
