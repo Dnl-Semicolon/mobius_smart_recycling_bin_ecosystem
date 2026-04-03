@@ -40,12 +40,10 @@ class BrandRegistrationController extends Controller
         $query = $request->input('q', '');
 
         $brands = Brand::query()
-            ->whereNull('user_id')
-            ->where('status', 'approved')
-            ->where('active', true)
+            ->where('is_active', true)
             ->whereDoesntHave('applications', fn ($q) => $q->pending())
             ->when($query, fn ($q) => $q->where('name', 'like', "%{$query}%"))
-            ->select('id', 'name', 'slug', 'logo_path', 'primary_color', 'website_url', 'description')
+            ->select('id', 'name', 'slug', 'logo_path', 'website', 'description')
             ->orderBy('name')
             ->limit(20)
             ->get();

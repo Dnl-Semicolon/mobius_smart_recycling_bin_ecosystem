@@ -61,6 +61,11 @@ class Brand extends Model
         return $this->hasMany(DetectionEvent::class, 'detected_brand_id');
     }
 
+    public function applications(): HasMany
+    {
+        return $this->hasMany(BrandApplication::class);
+    }
+
     /**
      * Compat: admin views check $brand->status.
      */

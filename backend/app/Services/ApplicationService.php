@@ -23,6 +23,7 @@ class ApplicationService
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'roles' => ['public_user'],
+                'profile_photo_path' => '',
             ]);
 
             $brand = Brand::create([
@@ -117,6 +118,7 @@ class ApplicationService
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'roles' => ['public_user'],
+                'profile_photo_path' => '',
             ]);
 
             $application = BrandApplication::create([
@@ -149,6 +151,7 @@ class ApplicationService
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'roles' => ['public_user'],
+                'profile_photo_path' => '',
             ]);
 
             $application = BrandApplication::create([
@@ -255,6 +258,7 @@ class ApplicationService
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'roles' => ['public_user'],
+                'profile_photo_path' => '',
             ]);
 
             $agency = CollectorAgency::create([

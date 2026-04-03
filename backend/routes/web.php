@@ -227,6 +227,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('profile/avatar', [ProfileController::class, 'removeAvatar'])->name('profile.avatar.remove');
     Route::put('profile/password', [ProfileController::class, 'password'])->name('profile.password');
+    Route::post('profile/send-otp', [ProfileController::class, 'sendOtp'])->name('profile.send-otp');
+    Route::post('profile/verify-otp', [ProfileController::class, 'verifyOtp'])->name('profile.verify-otp');
 });
 
 /*
@@ -243,6 +245,8 @@ Route::prefix('collector')->name('collector.')->middleware(['auth', 'verified', 
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('profile/password', [ProfileController::class, 'password'])->name('profile.password');
+    Route::post('profile/send-otp', [ProfileController::class, 'sendOtp'])->name('profile.send-otp');
+    Route::post('profile/verify-otp', [ProfileController::class, 'verifyOtp'])->name('profile.verify-otp');
 });
 
 /*
@@ -272,6 +276,8 @@ Route::prefix('store')->name('store.')->middleware(['auth', 'verified', 'role:st
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('profile/avatar', [ProfileController::class, 'removeAvatar'])->name('profile.avatar.remove');
     Route::put('profile/password', [ProfileController::class, 'password'])->name('profile.password');
+    Route::post('profile/send-otp', [ProfileController::class, 'sendOtp'])->name('profile.send-otp');
+    Route::post('profile/verify-otp', [ProfileController::class, 'verifyOtp'])->name('profile.verify-otp');
 });
 
 /*
@@ -297,6 +303,8 @@ Route::prefix('agency')->name('agency.')->middleware(['auth', 'verified', 'role:
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('profile/password', [ProfileController::class, 'password'])->name('profile.password');
+    Route::post('profile/send-otp', [ProfileController::class, 'sendOtp'])->name('profile.send-otp');
+    Route::post('profile/verify-otp', [ProfileController::class, 'verifyOtp'])->name('profile.verify-otp');
 });
 
 Route::prefix('public')->name('public.')->middleware(['auth', 'verified', 'role:public_user'])->group(function () {

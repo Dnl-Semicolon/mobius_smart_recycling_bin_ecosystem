@@ -14,8 +14,8 @@ test('admin can see profile page', function () {
     $this->actingAs($admin)
         ->get(route('admin.profile.edit'))
         ->assertSuccessful()
-        ->assertSee('Profile Information')
-        ->assertSee('Change Password')
+        ->assertSee('Public profile')
+        ->assertSee('Change password')
         ->assertSee($admin->name);
 });
 

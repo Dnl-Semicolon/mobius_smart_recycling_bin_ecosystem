@@ -32,6 +32,7 @@ class RegisterController extends Controller
             'email' => $validated['email'],
             'password' => $validated['password'],  // Auto-hashed via the 'hashed' cast on the model
             'roles' => ['public_user'],
+            'profile_photo_path' => '',
         ]);
 
         event(new Registered($user));

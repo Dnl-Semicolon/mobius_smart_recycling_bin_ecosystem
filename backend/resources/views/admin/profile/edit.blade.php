@@ -281,6 +281,68 @@
                         <p class="mt-2 text-xs text-gray-500 pl-12">To change your email, update it in the profile section.</p>
                     </div>
 
+                    {{-- Phone Verification --}}
+                    <div class="rounded-xl border border-gray-200 bg-white p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                                    <x-heroicon-o-device-phone-mobile class="w-4.5 h-4.5 text-gray-500" />
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Phone number</p>
+                                    <p class="text-sm text-gray-600 mt-0.5">{{ $user->phone ?: 'Not set' }}</p>
+                                </div>
+                            </div>
+                            @if ($user->phone_verified_at)
+                                <span class="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 rounded-full px-2.5 py-1 border border-emerald-100 shrink-0">
+                                    <x-heroicon-s-check-circle class="w-3.5 h-3.5" />
+                                    Verified
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 text-xs font-medium text-amber-600 bg-amber-50 rounded-full px-2.5 py-1 border border-amber-100 shrink-0">
+                                    <x-heroicon-s-exclamation-circle class="w-3.5 h-3.5" />
+                                    Unverified
+                                </span>
+                            @endif
+                        </div>
+
+                        @unless ($user->phone_verified_at)
+                            <div class="mt-3 pl-12 space-y-3" x-data="{ showOtp: {{ session('otp_code') ? 'true' : 'false' }} }">
+                                {{-- Send OTP form --}}
+                                <form method="POST" action="{{ route('admin.profile.send-otp') }}" class="flex items-end gap-2">
+                                    @csrf
+                                    <div class="flex-1">
+                                        <input type="text" name="phone" value="{{ old('phone', $user->phone ?? '') }}" placeholder="012-345 6789" required
+                                            class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-colors">
+                                    </div>
+                                    <button type="submit" class="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition-colors">
+                                        Send OTP
+                                    </button>
+                                </form>
+
+                                @if (session('otp_code'))
+                                    <div class="rounded-lg bg-blue-50 border border-blue-200 px-3 py-2">
+                                        <p class="text-sm text-blue-700">Your OTP code: <span class="font-mono font-bold">{{ session('otp_code') }}</span></p>
+                                    </div>
+                                @endif
+
+                                {{-- Verify OTP form --}}
+                                <div x-show="showOtp" x-transition>
+                                    <form method="POST" action="{{ route('admin.profile.verify-otp') }}" class="flex items-end gap-2">
+                                        @csrf
+                                        <div class="flex-1">
+                                            <input type="text" name="otp" maxlength="6" placeholder="Enter 6-digit code" required
+                                                class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-colors font-mono tracking-widest text-center">
+                                        </div>
+                                        <button type="submit" class="shrink-0 rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors">
+                                            Verify
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endunless
+                    </div>
+
                     <div class="rounded-xl border border-gray-200 bg-white p-4">
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">

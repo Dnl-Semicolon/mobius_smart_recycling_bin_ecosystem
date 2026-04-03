@@ -124,7 +124,7 @@
                         class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border {{ $isActive ? $c['on'] : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 shadow-sm' }}"
                     >
                         <span class="w-2 h-2 rounded-full {{ $c['dot'] }} {{ $isActive ? $c['dotRing'] : '' }}"></span>
-                        {{ $s->label() }}
+                        {{ $s->label ?? ucfirst($s->value) }}
                         <span class="text-[11px] font-semibold rounded-full min-w-[20px] px-1.5 py-0.5 text-center leading-none {{ $isActive ? $c['badge'] : 'bg-gray-100 text-gray-400' }}">{{ $count }}</span>
                     </a>
                 @endforeach

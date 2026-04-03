@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -15,57 +16,28 @@ class BrandFactory extends Factory
         $name = fake()->company();
 
         return [
+            'organization_id' => Organization::factory(),
             'name' => $name,
             'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(100, 999),
+            'logo_path' => 'brands/placeholder.png',
             'description' => fake()->sentence(),
-            'primary_color' => fake()->hexColor(),
-            'points_multiplier' => 1.00,
-            'rewards_budget' => 0,
-            'active' => true,
+            'website' => fake()->url(),
+            'point_multiplier' => 1.00,
+            'is_active' => true,
         ];
     }
 
-    public function sponsored(float $multiplier = 1.50, int $budget = 10000): static
+    public function sponsored(float $multiplier = 1.50): static
     {
         return $this->state(fn () => [
-            'points_multiplier' => $multiplier,
-            'rewards_budget' => $budget,
+            'point_multiplier' => $multiplier,
         ]);
     }
 
     public function inactive(): static
     {
         return $this->state(fn () => [
-            'active' => false,
-        ]);
-    }
-
-    public function pending(): static
-    {
-        return $this->state(fn () => [
-            'status' => 'pending',
-            'active' => false,
-            'contact_person' => fake()->name(),
-            'contact_email' => fake()->safeEmail(),
-            'contact_phone' => fake()->phoneNumber(),
-            'website_url' => fake()->url(),
-        ]);
-    }
-
-    public function approved(): static
-    {
-        return $this->state(fn () => [
-            'status' => 'approved',
-            'active' => true,
-        ]);
-    }
-
-    public function rejected(): static
-    {
-        return $this->state(fn () => [
-            'status' => 'rejected',
-            'active' => false,
-            'rejection_reason' => fake()->sentence(),
+            'is_active' => false,
         ]);
     }
 }

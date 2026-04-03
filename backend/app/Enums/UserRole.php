@@ -9,6 +9,7 @@ enum UserRole: string
     case StoreOwner = 'store_owner';
     case Collector = 'collector';
     case PublicUser = 'public_user';
+    case AgencyAdmin = 'agency_admin';
 
     public function label(): string
     {
