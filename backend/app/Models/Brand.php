@@ -60,4 +60,36 @@ class Brand extends Model
     {
         return $this->hasMany(DetectionEvent::class, 'detected_brand_id');
     }
+
+    /**
+     * Compat: admin views check $brand->status.
+     */
+    public function getStatusAttribute(): string
+    {
+        return $this->is_active ? 'active' : 'inactive';
+    }
+
+    /**
+     * Compat: admin views reference $brand->rewards.
+     */
+    public function rewards(): HasMany
+    {
+        return $this->voucherTemplates();
+    }
+
+    /**
+     * Compat: admin views reference $brand->redemptions.
+     */
+    public function redemptions(): HasMany
+    {
+        return $this->hasMany(VoucherClaim::class);
+    }
+
+    /**
+     * Compat: admin views reference $brand->adminUser.
+     */
+    public function getAdminUserAttribute(): ?User
+    {
+        return $this->organization?->users()->first();
+    }
 }

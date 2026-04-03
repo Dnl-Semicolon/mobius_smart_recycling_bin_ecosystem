@@ -257,6 +257,66 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
+        // User 9 — Store Owner, CHAGEE Gurney
+        DB::table('users')->insert([
+            'organization_id' => 3,
+            'name' => 'Tan Mei Xin',
+            'email' => 'meixin@chagee.com.my',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'phone' => '0124567890',
+            'phone_verified_at' => now(),
+            'profile_photo_path' => '',
+            'roles' => json_encode(['store_owner']),
+            'points_balance' => 0,
+            'current_streak' => 0,
+            'longest_streak' => 0,
+            'last_recycled_at' => null,
+            'remember_token' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // User 10 — Store Owner, ZUS Gurney
+        DB::table('users')->insert([
+            'organization_id' => 4,
+            'name' => 'Lee Jia Wei',
+            'email' => 'jiawei@zuscoffee.com',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'phone' => '0125678901',
+            'phone_verified_at' => now(),
+            'profile_photo_path' => '',
+            'roles' => json_encode(['store_owner']),
+            'points_balance' => 0,
+            'current_streak' => 0,
+            'longest_streak' => 0,
+            'last_recycled_at' => null,
+            'remember_token' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // User 11 — Store Owner, Lucky Cup Gurney
+        DB::table('users')->insert([
+            'organization_id' => 5,
+            'name' => 'Wong Siew Ling',
+            'email' => 'siewling@luckycup.com',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'phone' => '0126789012',
+            'phone_verified_at' => now(),
+            'profile_photo_path' => '',
+            'roles' => json_encode(['store_owner']),
+            'points_balance' => 0,
+            'current_streak' => 0,
+            'longest_streak' => 0,
+            'last_recycled_at' => null,
+            'remember_token' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         // =============================================
         // SUBSCRIPTIONS
         // =============================================
@@ -385,6 +445,84 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
+        // Org 3 — CHAGEE
+        DB::table('organizations')->insert([
+            'name' => 'CHAGEE (International) Sdn Bhd',
+            'type' => 'beverage_company',
+            'description' => 'Premium Chinese tea chain',
+            'logo_path' => 'organizations/chagee.png',
+            'website' => 'https://www.chagee.com',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Org 4 — ZUS Coffee
+        DB::table('organizations')->insert([
+            'name' => 'ZUS Coffee Sdn Bhd',
+            'type' => 'beverage_company',
+            'description' => 'Malaysian specialty coffee chain',
+            'logo_path' => 'organizations/zus-coffee.png',
+            'website' => 'https://www.zuscoffee.com',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Org 5 — Lucky Cup
+        DB::table('organizations')->insert([
+            'name' => 'Lucky Cup Sdn Bhd',
+            'type' => 'beverage_company',
+            'description' => 'Popular bubble tea chain',
+            'logo_path' => 'organizations/lucky-cup.png',
+            'website' => 'https://www.luckycup.com',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Brand 3 — CHAGEE (slug matches OpenAI prompt: 'chagee')
+        DB::table('brands')->insert([
+            'organization_id' => 3,
+            'name' => 'CHAGEE',
+            'slug' => 'chagee',
+            'logo_path' => 'brands/chagee.png',
+            'description' => 'Premium Chinese tea',
+            'website' => 'https://www.chagee.com',
+            'point_multiplier' => 1.40,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Brand 4 — ZUS Coffee (slug matches OpenAI prompt: 'zus')
+        DB::table('brands')->insert([
+            'organization_id' => 4,
+            'name' => 'ZUS Coffee',
+            'slug' => 'zus',
+            'logo_path' => 'brands/zus.png',
+            'description' => 'Specialty coffee',
+            'website' => 'https://www.zuscoffee.com',
+            'point_multiplier' => 1.30,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Brand 5 — Lucky Cup (slug matches OpenAI prompt: 'luckycup')
+        DB::table('brands')->insert([
+            'organization_id' => 5,
+            'name' => 'Lucky Cup',
+            'slug' => 'luckycup',
+            'logo_path' => 'brands/luckycup.png',
+            'description' => 'Bubble tea chain',
+            'website' => 'https://www.luckycup.com',
+            'point_multiplier' => 1.30,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         // =============================================
         // INVITATIONS
         // =============================================
@@ -480,6 +618,45 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
+        // Outlet 4 — CHAGEE Gurney (Mei Xin manages)
+        DB::table('outlets')->insert([
+            'user_id' => 9,
+            'brand_id' => 3,
+            'name' => 'Gurney Plaza',
+            'address' => 'Gurney Plaza, Persiaran Gurney, 10250 George Town, Penang',
+            'latitude' => 5.4375,
+            'longitude' => 100.3105,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Outlet 5 — ZUS Coffee Gurney (Jia Wei manages)
+        DB::table('outlets')->insert([
+            'user_id' => 10,
+            'brand_id' => 4,
+            'name' => 'Gurney Plaza',
+            'address' => 'Gurney Plaza, Persiaran Gurney, 10250 George Town, Penang',
+            'latitude' => 5.4372,
+            'longitude' => 100.3098,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Outlet 6 — Lucky Cup Gurney (Siew Ling manages)
+        DB::table('outlets')->insert([
+            'user_id' => 11,
+            'brand_id' => 5,
+            'name' => 'Gurney Plaza',
+            'address' => 'Gurney Plaza, Persiaran Gurney, 10250 George Town, Penang',
+            'latitude' => 5.4368,
+            'longitude' => 100.3102,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         // =============================================
         // BINS
         // =============================================
@@ -547,6 +724,57 @@ class DatabaseSeeder extends Seeder
             'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
             'latitude' => 5.4141,
             'longitude' => 100.3288,
+            'paired_at' => now()->subWeek(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Bin 5 — CHAGEE Gurney
+        DB::table('bins')->insert([
+            'outlet_id' => 4,
+            'serial_number' => 'MBS-CG-001',
+            'api_token' => bin2hex(random_bytes(32)),
+            'status' => 'active',
+            'fill_level' => 0,
+            'weight_grams' => 0,
+            'capacity_liters' => 20.00,
+            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
+            'latitude' => 5.4375,
+            'longitude' => 100.3105,
+            'paired_at' => now()->subWeek(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Bin 6 — ZUS Coffee Gurney
+        DB::table('bins')->insert([
+            'outlet_id' => 5,
+            'serial_number' => 'MBS-ZC-001',
+            'api_token' => bin2hex(random_bytes(32)),
+            'status' => 'active',
+            'fill_level' => 0,
+            'weight_grams' => 0,
+            'capacity_liters' => 20.00,
+            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
+            'latitude' => 5.4372,
+            'longitude' => 100.3098,
+            'paired_at' => now()->subWeek(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Bin 7 — Lucky Cup Gurney
+        DB::table('bins')->insert([
+            'outlet_id' => 6,
+            'serial_number' => 'MBS-LC-001',
+            'api_token' => bin2hex(random_bytes(32)),
+            'status' => 'active',
+            'fill_level' => 0,
+            'weight_grams' => 0,
+            'capacity_liters' => 20.00,
+            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
+            'latitude' => 5.4368,
+            'longitude' => 100.3102,
             'paired_at' => now()->subWeek(),
             'created_at' => now(),
             'updated_at' => now(),

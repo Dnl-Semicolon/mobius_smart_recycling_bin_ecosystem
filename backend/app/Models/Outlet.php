@@ -57,4 +57,35 @@ class Outlet extends Model
     {
         return $this->bins();
     }
+
+    /**
+     * Compat: admin views reference $outlet->contract_status->value and ->label().
+     */
+    public function getContractStatusAttribute(): object
+    {
+        $value = $this->is_active ? 'active' : 'inactive';
+
+        return new class($value)
+        {
+            public string $value;
+
+            public function __construct(string $value)
+            {
+                $this->value = $value;
+            }
+
+            public function label(): string
+            {
+                return ucfirst($this->value);
+            }
+        };
+    }
+
+    /**
+     * Compat: admin views reference $outlet->managers.
+     */
+    public function managers(): HasMany
+    {
+        return $this->hasMany(User::class, 'id', 'user_id');
+    }
 }

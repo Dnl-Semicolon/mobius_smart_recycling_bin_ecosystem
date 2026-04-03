@@ -83,4 +83,37 @@ class Bin extends Model
             'unassigned_at' => null,
         ];
     }
+
+    /**
+     * Compat: admin views reference $bin->activePickupRequest.
+     */
+    public function activePickupRequest(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(PickupRequest::class)->where('status', 'pending');
+    }
+
+    /**
+     * Compat: admin views reference $bin->assignments (history).
+     * New schema has no assignment table — return empty.
+     */
+    public function getAssignmentsAttribute(): \Illuminate\Support\Collection
+    {
+        if (! $this->outlet_id) {
+            return collect();
+        }
+
+        return collect([(object) [
+            'outlet' => $this->outlet,
+            'assigned_at' => $this->paired_at ?? $this->created_at,
+            'unassigned_at' => null,
+        ]]);
+    }
+
+    /**
+     * Get detection events through bin sessions.
+     */
+    public function detectionEvents(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(DetectionEvent::class, BinSession::class);
+    }
 }
