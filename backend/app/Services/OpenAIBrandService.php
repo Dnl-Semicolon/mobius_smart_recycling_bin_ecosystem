@@ -15,12 +15,11 @@ Known brands:
 - ZUS COFFEE: Zeus figure illustration (Greek god with staff), "ZUS COFFEE" text, navy blue paper cups or clear plastic
 - CHAGEE: Two designs — (1) navy blue constellation/floral with "CHAGEE" diagonal text, (2) beige/nature with crane and green accents. Red CHAGEE stamp. Paper hot cups.
 - LUCKY CUP: Red paper cup with "LUCKY CUP" white text, 8-ball graphic. Plastic cup has red shield/crest with king illustration, Chinese characters.
-- MIXUE: Bright red and white branding, cartoon snowman mascot ("Snow King"), "MIXUE" or "蜜雪冰城" text, plastic cups with red logo.
 
-Respond with ONLY one word — the brand slug: starbucks, zus, chagee, luckycup, mixue, or unknown
+Respond with ONLY one word — the brand slug: starbucks, zus, chagee, luckycup, or unknown
 PROMPT;
 
-    private const VALID_SLUGS = ['starbucks', 'zus', 'chagee', 'luckycup', 'mixue', 'unknown'];
+    private const VALID_SLUGS = ['starbucks', 'zus', 'chagee', 'luckycup', 'unknown'];
 
     public function detectBrand(string $base64Image): ?string
     {
