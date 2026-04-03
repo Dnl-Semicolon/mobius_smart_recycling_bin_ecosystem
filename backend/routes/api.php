@@ -33,6 +33,8 @@ use Illuminate\Support\Facades\Route;
 | Bin Detection Pipeline (no auth — bin-initiated)
 |----------------------------------------------------------------------
 */
+Route::get('v1/bins/active', [DetectionPipelineController::class, 'listBins']);
+
 Route::prefix('v1/bin/{serial}')->group(function (): void {
     Route::post('sessions', [DetectionPipelineController::class, 'startSession']);
     Route::post('sessions/{session}/link-user', [DetectionPipelineController::class, 'linkUser']);

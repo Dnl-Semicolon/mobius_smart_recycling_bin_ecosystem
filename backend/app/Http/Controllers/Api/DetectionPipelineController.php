@@ -14,6 +14,23 @@ use Illuminate\Http\Request;
 
 class DetectionPipelineController extends Controller
 {
+    public function listBins(): JsonResponse
+    {
+        $bins = Bin::with('outlet.brand')
+            ->where('status', 'active')
+            ->get()
+            ->map(fn ($bin) => [
+                'serial_number' => $bin->serial_number,
+                'fill_level' => $bin->fill_level,
+                'weight_grams' => $bin->weight_grams,
+                'outlet' => $bin->outlet?->name,
+                'brand' => $bin->outlet?->brand?->name,
+                'address' => $bin->outlet?->address,
+            ]);
+
+        return response()->json(['bins' => $bins]);
+    }
+
     public function startSession(string $serial): JsonResponse
     {
         $bin = Bin::where('serial_number', $serial)->where('status', 'active')->first();
@@ -86,6 +103,8 @@ class DetectionPipelineController extends Controller
             return response()->json(['message' => 'No item detected'], 200);
         }
 
+        $bin->refresh();
+
         return response()->json([
             'detection' => [
                 'id' => $event->id,
@@ -94,6 +113,12 @@ class DetectionPipelineController extends Controller
                 'confidence' => $event->confidence,
                 'detected_brand' => $event->detectedBrand?->name,
                 'image_path' => $event->image_path,
+                'created_at' => $event->created_at->toISOString(),
+            ],
+            'bin' => [
+                'fill_level' => $bin->fill_level,
+                'weight_grams' => $bin->weight_grams,
+                'sensor_levels' => $bin->sensor_levels,
             ],
         ], 201);
     }
