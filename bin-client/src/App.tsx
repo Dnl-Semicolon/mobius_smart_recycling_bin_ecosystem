@@ -32,7 +32,7 @@ interface SessionSummary {
 }
 
 export default function App() {
-  const { videoRef, canvasRef, isReady, error, captureFrame } = useWebcam()
+  const { videoRef, canvasRef, isReady, error, captureFrame, startCamera, stopCamera } = useWebcam()
   const { scanForQR } = useQRScanner()
 
   const [state, setState] = useState<AppState>('select')
@@ -60,6 +60,18 @@ export default function App() {
       fetchBins()
     }
   }, [])
+
+  // Start camera when leaving selector (video element now exists in DOM)
+  useEffect(() => {
+    if (state !== 'select') {
+      startCamera()
+    }
+    return () => {
+      if (state === 'select') {
+        stopCamera()
+      }
+    }
+  }, [state, startCamera, stopCamera])
 
   const fetchBins = async () => {
     try {

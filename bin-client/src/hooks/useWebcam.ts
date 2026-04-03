@@ -1,32 +1,32 @@
-import { useRef, useEffect, useState, useCallback } from 'react'
+import { useRef, useState, useCallback } from 'react'
 
 export function useWebcam() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
   const [isReady, setIsReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    let stream: MediaStream | null = null
-
-    async function start() {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment', width: 640, height: 480 },
-        })
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-          videoRef.current.onloadedmetadata = () => setIsReady(true)
-        }
-      } catch {
-        setError('Camera access denied. Please allow camera permissions.')
+  const startCamera = useCallback(async () => {
+    if (streamRef.current) return // already running
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: 640, height: 480 },
+      })
+      streamRef.current = stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        videoRef.current.onloadedmetadata = () => setIsReady(true)
       }
+    } catch {
+      setError('Camera access denied. Please allow camera permissions.')
     }
+  }, [])
 
-    start()
-    return () => {
-      stream?.getTracks().forEach((t) => t.stop())
-    }
+  const stopCamera = useCallback(() => {
+    streamRef.current?.getTracks().forEach((t) => t.stop())
+    streamRef.current = null
+    setIsReady(false)
   }, [])
 
   const captureFrame = useCallback((): string | null => {
@@ -43,5 +43,5 @@ export function useWebcam() {
     return canvas.toDataURL('image/jpeg', 0.8).split(',')[1]
   }, [isReady])
 
-  return { videoRef, canvasRef, isReady, error, captureFrame }
+  return { videoRef, canvasRef, isReady, error, captureFrame, startCamera, stopCamera }
 }
