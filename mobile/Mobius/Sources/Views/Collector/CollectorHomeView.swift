@@ -141,6 +141,26 @@ struct CollectorHomeView: View {
         }
     }
 
+    @ViewBuilder
+    private func routeStatusSubtitle(_ route: CollectionRoute) -> some View {
+        switch route.status {
+        case .pending:
+            Text("\(route.depotName ?? "Unknown") · \(route.totalStops) stops")
+        case .accepted:
+            Text("\(route.depotName ?? "Unknown") · Tap to start")
+        case .inProgress:
+            if let next = route.nextStop {
+                Text("Next: \(next.outletName) · \(route.completedStopsCount)/\(route.totalStops) done")
+            } else {
+                Text("All stops visited")
+            }
+        case .completed:
+            Text("\(route.completedStopsCount) stops completed")
+        case .rejected:
+            Text("Route was cancelled")
+        }
+    }
+
     private func isRouteProminent(_ route: CollectionRoute) -> Bool {
         route.status == .inProgress || route.status == .pending
     }
@@ -159,34 +179,9 @@ struct CollectorHomeView: View {
                 Text(routeStatusTitle(route))
                     .font(.subheadline.bold())
 
-                Group {
-                    switch route.status {
-                    case .pending:
-                        Text("\(route.depotName ?? "Unknown") · \(route.totalStops) stops · \(route.totalDistanceKm.map { String(format: "%.1f km", $0) } ?? "--")")
-                    case .accepted:
-                        Text("\(route.depotName ?? "Unknown") · Tap to start navigation")
-                    case .inProgress:
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 5) {
-                                ForEach(route.stops) { stop in
-                                    Circle()
-                                        .fill(stop.isCompleted ? .green : stop.isSkipped ? .gray : stop.order == route.nextStop?.order ? .orange : Color(.tertiaryLabel))
-                                        .frame(width: 8, height: 8)
-                                }
-                            }
-                            if let next = route.nextStop {
-                                Text("Next: \(next.outletName)")
-                                    .lineLimit(1)
-                            }
-                        }
-                    case .completed:
-                        Text("\(route.completedStopsCount) stops completed")
-                    case .rejected:
-                        Text("Route was cancelled")
-                    }
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                routeStatusSubtitle(route)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Spacer(minLength: 0)

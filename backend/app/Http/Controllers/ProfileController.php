@@ -73,7 +73,13 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
-        $phone = $request->input('phone');
+        $rawPhone = $request->input('phone');
+
+        // Normalize to +60XXXXXXXXX (strip spaces, dashes)
+        $phone = preg_replace('/[^\d+]/', '', $rawPhone);
+        if (! str_starts_with($phone, '+')) {
+            $phone = '+60'.ltrim($phone, '0');
+        }
 
         if ($user->phone !== $phone) {
             $user->update(['phone' => $phone, 'phone_verified_at' => null]);

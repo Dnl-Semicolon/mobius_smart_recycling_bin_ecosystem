@@ -358,7 +358,7 @@ class DatabaseSeeder extends Seeder
         // =============================================
 
         // Starbucks Malaysia → Pro plan
-        DB::table('subscriptions')->insert([
+        DB::table('organization_subscriptions')->insert([
             'organization_id' => 1,
             'plan_id' => 2,
             'status' => 'active',
@@ -370,7 +370,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Mixue Malaysia → Basic plan
-        DB::table('subscriptions')->insert([
+        DB::table('organization_subscriptions')->insert([
             'organization_id' => 2,
             'plan_id' => 1,
             'status' => 'active',
@@ -661,16 +661,16 @@ class DatabaseSeeder extends Seeder
         // BINS
         // =============================================
 
-        // Bin 1 — Starbucks Gurney
+        // Bin 1 — Starbucks Gurney (80% full — pending pickup)
         DB::table('bins')->insert([
             'outlet_id' => 1,
             'serial_number' => 'MBS-SB-001',
             'api_token' => bin2hex(random_bytes(32)),
             'status' => 'active',
-            'fill_level' => 0,
-            'weight_grams' => 0,
+            'fill_level' => 80,
+            'weight_grams' => 800,
             'capacity_liters' => 20.00,
-            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
+            'sensor_levels' => json_encode(['level_25' => true, 'level_50' => true, 'level_75' => true, 'level_100' => false]),
             'latitude' => 5.4370,
             'longitude' => 100.3100,
             'paired_at' => now()->subWeek(),
@@ -695,16 +695,16 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        // Bin 3 — Starbucks Queensbay
+        // Bin 3 — Starbucks Queensbay (75% full — pending pickup)
         DB::table('bins')->insert([
             'outlet_id' => 2,
             'serial_number' => 'MBS-SB-003',
             'api_token' => bin2hex(random_bytes(32)),
             'status' => 'active',
-            'fill_level' => 0,
-            'weight_grams' => 0,
+            'fill_level' => 75,
+            'weight_grams' => 750,
             'capacity_liters' => 20.00,
-            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
+            'sensor_levels' => json_encode(['level_25' => true, 'level_50' => true, 'level_75' => true, 'level_100' => false]),
             'latitude' => 5.3328,
             'longitude' => 100.3067,
             'paired_at' => now()->subWeek(),
@@ -712,16 +712,16 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        // Bin 4 — Mixue Komtar
+        // Bin 4 — Mixue Komtar (90% full — emergency pickup pending)
         DB::table('bins')->insert([
             'outlet_id' => 3,
             'serial_number' => 'MBS-MX-001',
             'api_token' => bin2hex(random_bytes(32)),
             'status' => 'active',
-            'fill_level' => 0,
-            'weight_grams' => 0,
+            'fill_level' => 90,
+            'weight_grams' => 900,
             'capacity_liters' => 20.00,
-            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
+            'sensor_levels' => json_encode(['level_25' => true, 'level_50' => true, 'level_75' => true, 'level_100' => false]),
             'latitude' => 5.4141,
             'longitude' => 100.3288,
             'paired_at' => now()->subWeek(),
@@ -810,6 +810,34 @@ class DatabaseSeeder extends Seeder
             'completed_at' => null,
             'created_at' => now()->subHour(),
             'updated_at' => now()->subHour(),
+        ]);
+
+        // Pending: bin 1 (Starbucks Gurney) at 80% fill
+        DB::table('pickup_requests')->insert([
+            'bin_id' => 1,
+            'request_type' => 'automatic',
+            'requested_by' => null,
+            'reason' => 'Fill level reached 80% threshold',
+            'status' => 'pending',
+            'assigned_to' => null,
+            'assigned_at' => null,
+            'completed_at' => null,
+            'created_at' => now()->subMinutes(30),
+            'updated_at' => now()->subMinutes(30),
+        ]);
+
+        // Pending: bin 3 (Starbucks Queensbay) at 75% fill
+        DB::table('pickup_requests')->insert([
+            'bin_id' => 3,
+            'request_type' => 'automatic',
+            'requested_by' => null,
+            'reason' => 'Fill level reached 75% threshold',
+            'status' => 'pending',
+            'assigned_to' => null,
+            'assigned_at' => null,
+            'completed_at' => null,
+            'created_at' => now()->subMinutes(20),
+            'updated_at' => now()->subMinutes(20),
         ]);
 
         // =============================================

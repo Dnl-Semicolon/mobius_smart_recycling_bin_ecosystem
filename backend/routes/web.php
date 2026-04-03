@@ -108,6 +108,8 @@ Route::post('/register/company', function (\Illuminate\Http\Request $request) {
 Route::prefix('register')->name('registration.')->group(function () {
     Route::get('brand', [BrandRegistrationController::class, 'create'])->name('brand.create');
     Route::post('brand', [BrandRegistrationController::class, 'store'])->name('brand.store');
+    Route::get('verify-phone', [BrandRegistrationController::class, 'verifyPhone'])->name('verify-phone');
+    Route::post('confirm-phone', [BrandRegistrationController::class, 'confirmPhone'])->name('confirm-phone');
     Route::get('agency', [AgencyRegistrationController::class, 'create'])->name('agency.create');
     Route::post('agency', [AgencyRegistrationController::class, 'store'])->name('agency.store');
     Route::get('success', fn () => view('registration.success'))->name('success');

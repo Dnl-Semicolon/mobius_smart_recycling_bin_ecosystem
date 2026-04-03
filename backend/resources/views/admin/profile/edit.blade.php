@@ -306,41 +306,53 @@
                             @endif
                         </div>
 
-                        @unless ($user->phone_verified_at)
-                            <div class="mt-3 pl-12 space-y-3" x-data="{ showOtp: {{ session('otp_code') ? 'true' : 'false' }} }">
-                                {{-- Send OTP form --}}
-                                <form method="POST" action="{{ route('admin.profile.send-otp') }}" class="flex items-end gap-2">
+                        <div class="mt-3 pl-12 space-y-3" x-data="{ changing: {{ $user->phone_verified_at ? 'false' : 'true' }} }">
+                            @if ($user->phone_verified_at)
+                                <button type="button" @click="changing = !changing" class="text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors cursor-pointer">
+                                    <span x-text="changing ? 'Cancel' : 'Change number'"></span>
+                                </button>
+                            @endif
+
+                            <div x-show="changing" x-transition>
+                                {{-- Send OTP via Twilio --}}
+                                <form method="POST" action="{{ route('admin.profile.send-otp') }}" class="flex items-end gap-2 mb-3">
                                     @csrf
                                     <div class="flex-1">
-                                        <input type="text" name="phone" value="{{ old('phone', $user->phone ?? '') }}" placeholder="012-345 6789" required
-                                            class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-colors">
+                                        <label class="block text-xs text-gray-500 mb-1">{{ $user->phone_verified_at ? 'New phone number' : 'Send verification SMS to' }}</label>
+                                        <div class="relative">
+                                            <div class="pointer-events-none absolute left-0 top-0 bottom-0 flex items-center pl-3 gap-1.5 border-r border-gray-200 pr-2.5">
+                                                <img src="{{ asset('images/flag-malaysia.svg') }}" alt="MY" class="w-5 h-3.5 rounded-[2px] shadow-sm ring-1 ring-black/10 object-cover">
+                                                <span class="text-xs text-gray-400 font-medium">+60</span>
+                                            </div>
+                                            <input type="text" name="phone" value="{{ $user->phone ?? '' }}" placeholder="012-345 6789" required
+                                                class="w-full rounded-lg border border-gray-300 bg-gray-50/50 pl-[6.5rem] pr-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-colors">
+                                        </div>
                                     </div>
-                                    <button type="submit" class="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition-colors">
+                                    <button type="submit" class="shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition-colors">
                                         Send OTP
                                     </button>
                                 </form>
 
-                                @if (session('otp_code'))
-                                    <div class="rounded-lg bg-blue-50 border border-blue-200 px-3 py-2">
-                                        <p class="text-sm text-blue-700">Your OTP code: <span class="font-mono font-bold">{{ session('otp_code') }}</span></p>
+                                @if (session('success') && str_contains(session('success'), 'OTP sent'))
+                                    <div class="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
+                                        <p class="text-sm text-emerald-700">SMS sent to your phone. Enter the 6-digit code below.</p>
                                     </div>
                                 @endif
 
-                                {{-- Verify OTP form --}}
-                                <div x-show="showOtp" x-transition>
-                                    <form method="POST" action="{{ route('admin.profile.verify-otp') }}" class="flex items-end gap-2">
-                                        @csrf
-                                        <div class="flex-1">
-                                            <input type="text" name="otp" maxlength="6" placeholder="Enter 6-digit code" required
-                                                class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-colors font-mono tracking-widest text-center">
-                                        </div>
-                                        <button type="submit" class="shrink-0 rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors">
-                                            Verify
-                                        </button>
-                                    </form>
-                                </div>
+                                {{-- Verify OTP --}}
+                                <form method="POST" action="{{ route('admin.profile.verify-otp') }}" class="flex items-end gap-2">
+                                    @csrf
+                                    <div class="flex-1">
+                                        <label class="block text-xs text-gray-500 mb-1">Enter 6-digit code</label>
+                                        <input type="text" name="otp" maxlength="6" placeholder="000000" required
+                                            class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-colors font-mono tracking-widest text-center text-lg">
+                                    </div>
+                                    <button type="submit" class="shrink-0 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors">
+                                        Verify
+                                    </button>
+                                </form>
                             </div>
-                        @endunless
+                        </div>
                     </div>
 
                     <div class="rounded-xl border border-gray-200 bg-white p-4">
