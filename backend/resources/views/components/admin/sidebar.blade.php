@@ -43,7 +43,7 @@
         </x-admin.sidebar-item>
         <x-admin.sidebar-item route="admin.pickup-requests.index" label="Pickups">
             <x-slot:icon><x-heroicon-o-truck class="w-5 h-5" /></x-slot:icon>
-            @if (($pendingPickupCount = \App\Models\PickupRequest::pending()->count()) > 0)
+            @if (($pendingPickupCount = \App\Models\PickupRequest::where('status', 'pending')->count()) > 0)
                 <x-slot:badge>{{ $pendingPickupCount }}</x-slot:badge>
             @endif
         </x-admin.sidebar-item>
@@ -58,13 +58,22 @@
         </x-admin.sidebar-item>
         <x-admin.sidebar-item route="admin.reports.index" label="Reports">
             <x-slot:icon><x-heroicon-o-flag class="w-5 h-5" /></x-slot:icon>
-            @if (($openReportCount = \App\Models\Report::where('status', 'open')->count()) > 0)
+            @if (Schema::hasTable('reports') && ($openReportCount = \App\Models\Report::where('status', 'open')->count()) > 0)
                 <x-slot:badge>{{ $openReportCount }}</x-slot:badge>
             @endif
         </x-admin.sidebar-item>
         <x-admin.sidebar-item route="admin.applications.brands.index" label="Applications">
             <x-slot:icon><x-heroicon-o-clipboard-document-check class="w-5 h-5" /></x-slot:icon>
-            @if (($pendingAppCount = \App\Models\BrandApplication::pending()->count() + \App\Models\CollectorAgency::pending()->count()) > 0)
+            @php
+                $pendingAppCount = 0;
+                if (Schema::hasTable('brand_applications')) {
+                    $pendingAppCount += \App\Models\BrandApplication::where('status', 'pending')->count();
+                }
+                if (Schema::hasTable('collector_agencies')) {
+                    $pendingAppCount += \App\Models\CollectorAgency::where('status', 'pending')->count();
+                }
+            @endphp
+            @if ($pendingAppCount > 0)
                 <x-slot:badge>{{ $pendingAppCount }}</x-slot:badge>
             @endif
         </x-admin.sidebar-item>

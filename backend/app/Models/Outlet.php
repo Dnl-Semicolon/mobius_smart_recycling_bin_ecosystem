@@ -49,4 +49,12 @@ class Outlet extends Model
     {
         return $this->hasMany(VoucherAllocation::class);
     }
+
+    /**
+     * Compat: old views use currentBinAssignments to count bins at this outlet.
+     */
+    public function currentBinAssignments(): HasMany
+    {
+        return $this->bins();
+    }
 }

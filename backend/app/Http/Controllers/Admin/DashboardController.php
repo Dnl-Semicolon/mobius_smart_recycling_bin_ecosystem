@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\BinStatus;
-use App\Enums\ContractStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Bin;
 use App\Models\DetectionEvent;
@@ -18,37 +17,37 @@ class DashboardController extends Controller
         $stats = [
             'outlets' => [
                 'total' => Outlet::count(),
-                'active' => Outlet::where('contract_status', ContractStatus::Active)->count(),
-                'inactive' => Outlet::where('contract_status', ContractStatus::Inactive)->count(),
-                'pending' => Outlet::where('contract_status', ContractStatus::Pending)->count(),
+                'active' => Outlet::where('is_active', true)->count(),
+                'inactive' => Outlet::where('is_active', false)->count(),
+                'pending' => 0,
             ],
             'bins' => [
                 'total' => Bin::count(),
                 'active' => Bin::where('status', BinStatus::Active)->count(),
-                'inactive' => Bin::where('status', BinStatus::Inactive)->count(),
+                'inactive' => Bin::where('status', BinStatus::Offline)->count(),
                 'maintenance' => Bin::where('status', BinStatus::Maintenance)->count(),
                 'ready_for_pickup' => Bin::where('status', BinStatus::Active)
                     ->where('fill_level', '>=', 80)
                     ->count(),
-                'assigned' => Bin::whereHas('currentAssignment')->count(),
-                'unassigned' => Bin::whereDoesntHave('currentAssignment')->count(),
+                'assigned' => Bin::whereNotNull('outlet_id')->count(),
+                'unassigned' => Bin::whereNull('outlet_id')->count(),
             ],
             'detections' => [
                 'total' => DetectionEvent::count(),
-                'today' => DetectionEvent::whereDate('detected_at', today())->count(),
-                'this_week' => DetectionEvent::where('detected_at', '>=', now()->startOfWeek())->count(),
+                'today' => DetectionEvent::whereDate('created_at', today())->count(),
+                'this_week' => DetectionEvent::where('created_at', '>=', now()->startOfWeek())->count(),
             ],
         ];
 
         $binsNeedingPickup = Bin::where('status', BinStatus::Active)
             ->where('fill_level', '>=', 80)
-            ->with('currentAssignment.outlet')
+            ->with('outlet.brand')
             ->orderByDesc('fill_level')
             ->limit(5)
             ->get();
 
-        $recentDetections = DetectionEvent::with('bin')
-            ->orderByDesc('detected_at')
+        $recentDetections = DetectionEvent::with('binSession.bin.outlet')
+            ->latest()
             ->limit(10)
             ->get();
 

@@ -6,6 +6,7 @@ use App\Enums\WasteType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SimulateDetectionRequest;
 use App\Models\Bin;
+use App\Models\BinSession;
 use App\Models\DetectionEvent;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -15,11 +16,11 @@ class DetectionEventController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = DetectionEvent::query()->with(['bin.currentAssignment.outlet.brand', 'detectedBrand']);
+        $query = DetectionEvent::query()->with(['binSession.bin.outlet.brand', 'detectedBrand']);
 
-        // Filter by bin_id
+        // Filter by bin
         if ($request->filled('bin')) {
-            $query->where('bin_id', $request->input('bin'));
+            $query->whereHas('binSession', fn ($q) => $q->where('bin_id', $request->input('bin')));
         }
 
         // Filter by waste_type
@@ -34,14 +35,14 @@ class DetectionEventController extends Controller
 
         // Filter by date range
         if ($request->filled('from')) {
-            $query->whereDate('detected_at', '>=', $request->input('from'));
+            $query->whereDate('created_at', '>=', $request->input('from'));
         }
 
         if ($request->filled('to')) {
-            $query->whereDate('detected_at', '<=', $request->input('to'));
+            $query->whereDate('created_at', '<=', $request->input('to'));
         }
 
-        $events = $query->latest('detected_at')
+        $events = $query->latest()
             ->paginate(15)
             ->withQueryString();
 
@@ -53,27 +54,33 @@ class DetectionEventController extends Controller
 
     public function show(DetectionEvent $detectionEvent): View
     {
-        $detectionEvent->load(['bin.currentAssignment.outlet.brand', 'detectedBrand']);
+        $detectionEvent->load(['binSession.bin.outlet.brand', 'detectedBrand']);
 
         return view('admin.detection-events.show', compact('detectionEvent'));
     }
 
     /**
      * Simulate a detection event — for demo purposes.
-     * Creates a DetectionEvent which triggers the observer to bump bin fill_level.
      */
     public function simulate(SimulateDetectionRequest $request): RedirectResponse
     {
+        $bin = Bin::findOrFail($request->input('bin_id'));
         $confidence = $request->input('confidence') ?? rand(75, 99);
 
+        // Create or reuse an active session for this bin
+        $session = BinSession::firstOrCreate(
+            ['bin_id' => $bin->id, 'status' => 'active'],
+            ['started_at' => now(), 'cup_rinsed' => false],
+        );
+
         DetectionEvent::create([
-            'bin_id' => $request->input('bin_id'),
+            'bin_session_id' => $session->id,
             'waste_type' => $request->input('waste_type'),
             'confidence' => $confidence,
-            'detected_at' => now(),
+            'input_method' => 'general_intake',
+            'image_path' => '',
+            'ai_output' => ['source' => 'admin_simulation'],
         ]);
-
-        $bin = Bin::find($request->input('bin_id'));
 
         return redirect()->route('admin.detection-events.index')
             ->with('success', "Simulated detection: {$request->input('waste_type')} in {$bin->serial_number} (fill now {$bin->fresh()->fill_level}%)");

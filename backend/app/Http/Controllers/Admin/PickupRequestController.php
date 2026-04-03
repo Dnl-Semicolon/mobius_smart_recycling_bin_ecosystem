@@ -14,7 +14,7 @@ class PickupRequestController extends Controller
     public function index(Request $request): View
     {
         $pickupRequests = PickupRequest::query()
-            ->with(['bin.currentAssignment.outlet', 'claimedBy'])
+            ->with(['bin.outlet', 'claimedBy'])
             ->when($request->filled('status'), function ($query) use ($request) {
                 $query->where('status', $request->input('status'));
             })
@@ -32,7 +32,7 @@ class PickupRequestController extends Controller
 
     public function show(PickupRequest $pickupRequest): View
     {
-        $pickupRequest->load(['bin.currentAssignment.outlet', 'claimedBy']);
+        $pickupRequest->load(['bin.outlet', 'claimedBy']);
 
         return view('admin.pickup-requests.show', compact('pickupRequest'));
     }

@@ -39,4 +39,42 @@ class DetectionEvent extends Model
     {
         return $this->belongsTo(Brand::class, 'detected_brand_id');
     }
+
+    /**
+     * Compat accessor: old schema had detected_at, new uses created_at.
+     */
+    public function getDetectedAtAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->created_at;
+    }
+
+    /**
+     * Compat accessor: old views reference $detection->bin directly.
+     * New schema goes through binSession.
+     */
+    public function getBinAttribute(): ?Bin
+    {
+        return $this->binSession?->bin;
+    }
+
+    /**
+     * Weekly detection chart data.
+     */
+    public static function weeklyChart(?Bin $bin = null): array
+    {
+        $labels = [];
+        $data = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $labels[] = $date->format('D');
+            $query = static::whereDate('created_at', $date);
+            if ($bin) {
+                $query->whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id));
+            }
+            $data[] = $query->count();
+        }
+
+        return ['labels' => $labels, 'data' => $data];
+    }
 }

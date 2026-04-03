@@ -66,4 +66,21 @@ class Bin extends Model
     {
         return $this->fill_level >= 75;
     }
+
+    /**
+     * Compat accessor: old views reference $bin->currentAssignment->outlet.
+     * New schema has outlet_id directly on bins.
+     */
+    public function getCurrentAssignmentAttribute(): ?object
+    {
+        if (! $this->outlet_id) {
+            return null;
+        }
+
+        return (object) [
+            'outlet' => $this->outlet,
+            'assigned_at' => $this->paired_at ?? $this->created_at,
+            'unassigned_at' => null,
+        ];
+    }
 }

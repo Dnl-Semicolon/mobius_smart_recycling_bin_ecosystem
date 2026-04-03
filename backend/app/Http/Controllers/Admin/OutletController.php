@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\ContractStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOutletRequest;
 use App\Http\Requests\UpdateOutletRequest;
@@ -19,7 +18,7 @@ class OutletController extends Controller
     public function index(Request $request): View
     {
         $outlets = Outlet::query()
-            ->withCount(['currentBinAssignments as current_bins_count'])
+            ->withCount(['bins as current_bins_count'])
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->input('search');
                 $query->where(function ($q) use ($search) {
@@ -28,26 +27,32 @@ class OutletController extends Controller
                 });
             })
             ->when($request->filled('status'), function ($query) use ($request) {
-                $query->where('contract_status', $request->input('status'));
+                $isActive = $request->input('status') === 'active';
+                $query->where('is_active', $isActive);
             })
             ->latest()
             ->paginate(15)
             ->withQueryString();
 
-        $statuses = ContractStatus::cases();
+        $statuses = [
+            (object) ['value' => 'active', 'label' => 'Active'],
+            (object) ['value' => 'inactive', 'label' => 'Inactive'],
+        ];
 
-        $statusCounts = Outlet::query()
-            ->selectRaw('contract_status, count(*) as count')
-            ->groupBy('contract_status')
-            ->pluck('count', 'contract_status')
-            ->toArray();
+        $statusCounts = [
+            'active' => Outlet::where('is_active', true)->count(),
+            'inactive' => Outlet::where('is_active', false)->count(),
+        ];
 
         return view('admin.outlets.index', compact('outlets', 'statuses', 'statusCounts'));
     }
 
     public function create(): View
     {
-        $statuses = ContractStatus::cases();
+        $statuses = [
+            (object) ['value' => 'active', 'label' => 'Active'],
+            (object) ['value' => 'inactive', 'label' => 'Inactive'],
+        ];
 
         return view('admin.outlets.create', compact('statuses'));
     }
@@ -69,9 +74,9 @@ class OutletController extends Controller
 
     public function show(Outlet $outlet): View
     {
-        $outlet->loadCount(['currentBinAssignments as current_bins_count']);
+        $outlet->loadCount(['bins as current_bins_count']);
         $outlet->load(['brand', 'bins' => function ($query) {
-            $query->with('currentAssignment')->latest();
+            $query->latest();
         }]);
 
         return view('admin.outlets.show', compact('outlet'));
@@ -79,7 +84,10 @@ class OutletController extends Controller
 
     public function edit(Outlet $outlet): View
     {
-        $statuses = ContractStatus::cases();
+        $statuses = [
+            (object) ['value' => 'active', 'label' => 'Active'],
+            (object) ['value' => 'inactive', 'label' => 'Inactive'],
+        ];
 
         return view('admin.outlets.edit', compact('outlet', 'statuses'));
     }

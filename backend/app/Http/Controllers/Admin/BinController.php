@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\BinStatus;
-use App\Enums\ContractStatus;
 use App\Enums\PickupStatus;
 use App\Enums\WasteType;
 use App\Http\Controllers\Controller;
@@ -11,7 +10,6 @@ use App\Http\Requests\AssignBinRequest;
 use App\Http\Requests\StoreBinRequest;
 use App\Http\Requests\UpdateBinRequest;
 use App\Models\Bin;
-use App\Models\BinAssignment;
 use App\Models\DetectionEvent;
 use App\Models\Outlet;
 use Illuminate\Contracts\View\View;
@@ -24,9 +22,9 @@ class BinController extends Controller
     public function index(Request $request): View
     {
         $bins = Bin::query()
-            ->with(['currentAssignment.outlet'])
-            ->withCount('detectionEvents')
-            ->withMax('detectionEvents', 'detected_at')
+            ->with(['outlet.brand'])
+            ->withCount('binSessions')
+            ->withMax('binSessions', 'created_at')
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where('serial_number', 'like', '%'.$request->input('search').'%');
             })
@@ -34,9 +32,7 @@ class BinController extends Controller
                 $query->where('status', $request->input('status'));
             })
             ->when($request->filled('outlet'), function ($query) use ($request) {
-                $query->whereHas('currentAssignment', function ($q) use ($request) {
-                    $q->where('outlet_id', $request->input('outlet'));
-                });
+                $query->where('outlet_id', $request->input('outlet'));
             })
             ->when($request->boolean('ready_for_pickup'), function ($query) {
                 $query->where('status', BinStatus::Active)
@@ -73,8 +69,6 @@ class BinController extends Controller
             'id' => $bin->id,
             'fill_level' => $bin->fill_level,
             'status' => $bin->status->value,
-            'is_online' => $bin->last_seen_at && $bin->last_seen_at->diffInSeconds(now()) < 60,
-            'last_seen_human' => $bin->last_seen_at?->diffForHumans(),
         ]);
 
         return response()->json([
@@ -84,7 +78,6 @@ class BinController extends Controller
                 'active' => Bin::where('status', BinStatus::Active)->count(),
                 'needing_pickup' => Bin::where('status', BinStatus::Active)->where('fill_level', '>=', 80)->count(),
                 'avg_fill' => (int) Bin::where('status', BinStatus::Active)->avg('fill_level'),
-                'online' => $bins->where('is_online', true)->count(),
             ],
         ]);
     }
@@ -107,62 +100,61 @@ class BinController extends Controller
 
     public function show(Bin $bin): View
     {
-        $bin->load([
-            'currentAssignment.outlet',
-            'activePickupRequest.claimedBy',
-            'assignments' => fn ($q) => $q->with('outlet')->latest('assigned_at'),
-        ]);
+        $bin->load(['outlet.brand']);
 
         $quickStats = [
-            'today_detections' => $bin->detectionEvents()->whereDate('detected_at', today())->count(),
-            'week_detections' => $bin->detectionEvents()->where('detected_at', '>=', now()->startOfWeek())->count(),
-            'total_detections' => $bin->detectionEvents()->count(),
+            'today_detections' => DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
+                ->whereDate('created_at', today())->count(),
+            'week_detections' => DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
+                ->where('created_at', '>=', now()->startOfWeek())->count(),
+            'total_detections' => DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))->count(),
             'total_pickups' => $bin->pickupRequests()->count(),
             'completed_pickups' => $bin->pickupRequests()->where('status', PickupStatus::Completed)->count(),
-            'most_common_waste' => $bin->detectionEvents()->whereNotNull('waste_type')
+            'most_common_waste' => DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
+                ->whereNotNull('waste_type')
                 ->toBase()
                 ->selectRaw('waste_type, count(*) as count')
                 ->groupBy('waste_type')
                 ->orderByDesc('count')
                 ->value('waste_type'),
-            'avg_confidence' => (int) $bin->detectionEvents()->whereNotNull('confidence')->avg('confidence'),
-            'days_assigned' => $bin->currentAssignment
-                ? $bin->currentAssignment->assigned_at->diffInDays(now())
+            'avg_confidence' => (int) DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
+                ->whereNotNull('confidence')->avg('confidence'),
+            'days_assigned' => $bin->paired_at
+                ? $bin->paired_at->diffInDays(now())
                 : null,
         ];
 
-        $wasteTypeChart = $bin->detectionEvents()
+        $wasteTypeChart = DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
             ->whereNotNull('waste_type')
             ->selectRaw('waste_type, count(*) as count')
             ->groupBy('waste_type')
             ->pluck('count', 'waste_type')
             ->toArray();
 
-        $recentActivity = $bin->detectionEvents()
-            ->latest('detected_at')
+        $recentActivity = DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
+            ->with('binSession.bin')
+            ->latest()
             ->limit(8)
             ->get();
 
-        // IoT telemetry from heartbeat compartments JSON
-        $compartments = $bin->compartments ?? [];
         $telemetry = [
-            'solids_fill' => $compartments['solids']['fill_percent'] ?? 0,
-            'solids_weight_g' => $compartments['solids']['weight_g'] ?? 0,
-            'solids_volume_ml' => $compartments['solids']['volume_ml'] ?? 0,
-            'solids_max_ml' => $compartments['solids']['max_volume_ml'] ?? 5000,
-            'liquid_fill' => $compartments['liquid']['fill_percent'] ?? 0,
-            'liquid_weight_g' => $compartments['liquid']['weight_g'] ?? 0,
-            'liquid_volume_ml' => $compartments['liquid']['volume_ml'] ?? 0,
-            'liquid_max_ml' => $compartments['liquid']['max_volume_ml'] ?? 2000,
-            'total_weight_g' => ($compartments['solids']['weight_g'] ?? 0) + ($compartments['liquid']['weight_g'] ?? 0),
-            'fill_height_cm' => round(min(30, ($compartments['solids']['volume_ml'] ?? 0) / 500), 1),
-            'is_online' => $bin->last_seen_at && $bin->last_seen_at->diffInSeconds(now()) < 60,
-            'last_seen_at' => $bin->last_seen_at,
-            'ip_address' => $bin->ip_address,
-            'total_weight_detections' => $bin->detectionEvents()->whereNotNull('weight_g')->sum('weight_g'),
+            'solids_fill' => $bin->fill_level,
+            'solids_weight_g' => $bin->weight_grams,
+            'solids_volume_ml' => 0,
+            'solids_max_ml' => (int) ($bin->capacity_liters * 1000),
+            'liquid_fill' => 0,
+            'liquid_weight_g' => 0,
+            'liquid_volume_ml' => 0,
+            'liquid_max_ml' => 2000,
+            'total_weight_g' => $bin->weight_grams,
+            'fill_height_cm' => 0,
+            'is_online' => true,
+            'last_seen_at' => $bin->updated_at,
+            'ip_address' => null,
+            'total_weight_detections' => $bin->weight_grams,
         ];
 
-        $outlets = Outlet::where('contract_status', ContractStatus::Active)
+        $outlets = Outlet::where('is_active', true)
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -172,27 +164,17 @@ class BinController extends Controller
     public function telemetry(Bin $bin): JsonResponse
     {
         $bin->refresh();
-        $compartments = $bin->compartments ?? [];
 
         return response()->json([
             'fill_level' => $bin->fill_level,
             'status' => $bin->status->value,
-            'solids_fill' => $compartments['solids']['fill_percent'] ?? 0,
-            'solids_weight_g' => $compartments['solids']['weight_g'] ?? 0,
-            'solids_volume_ml' => $compartments['solids']['volume_ml'] ?? 0,
-            'solids_max_ml' => $compartments['solids']['max_volume_ml'] ?? 5000,
-            'liquid_fill' => $compartments['liquid']['fill_percent'] ?? 0,
-            'liquid_weight_g' => $compartments['liquid']['weight_g'] ?? 0,
-            'liquid_volume_ml' => $compartments['liquid']['volume_ml'] ?? 0,
-            'liquid_max_ml' => $compartments['liquid']['max_volume_ml'] ?? 2000,
-            'total_weight_g' => ($compartments['solids']['weight_g'] ?? 0) + ($compartments['liquid']['weight_g'] ?? 0),
-            'fill_height_cm' => round(min(30, ($compartments['solids']['volume_ml'] ?? 0) / 500), 1),
-            'is_online' => $bin->last_seen_at && $bin->last_seen_at->diffInSeconds(now()) < 60,
-            'last_seen_at' => $bin->last_seen_at?->toIso8601String(),
-            'last_seen_human' => $bin->last_seen_at?->diffForHumans(),
-            'ip_address' => $bin->ip_address,
-            'today_detections' => $bin->detectionEvents()->whereDate('detected_at', today())->count(),
-            'total_items' => $bin->detectionEvents()->count(),
+            'solids_fill' => $bin->fill_level,
+            'solids_weight_g' => $bin->weight_grams,
+            'total_weight_g' => $bin->weight_grams,
+            'is_online' => true,
+            'today_detections' => DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
+                ->whereDate('created_at', today())->count(),
+            'total_items' => DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))->count(),
         ]);
     }
 
@@ -223,18 +205,8 @@ class BinController extends Controller
 
     public function assign(AssignBinRequest $request, Bin $bin): RedirectResponse
     {
-        // End any current assignment first
-        $bin->currentAssignment?->update(['unassigned_at' => now()]);
-
-        // Create new assignment
-        BinAssignment::create([
-            'bin_id' => $bin->id,
-            'outlet_id' => $request->validated('outlet_id'),
-            'assigned_at' => now(),
-            'unassigned_at' => null,
-        ]);
-
         $outlet = Outlet::findOrFail($request->validated('outlet_id'));
+        $bin->update(['outlet_id' => $outlet->id, 'paired_at' => now()]);
 
         return redirect()
             ->route('admin.bins.show', $bin)
@@ -243,14 +215,14 @@ class BinController extends Controller
 
     public function unassign(Bin $bin): RedirectResponse
     {
-        if (! $bin->currentAssignment) {
+        if (! $bin->outlet_id) {
             return redirect()
                 ->route('admin.bins.show', $bin)
                 ->with('error', 'Bin is not currently assigned to any outlet.');
         }
 
-        $outletName = $bin->currentAssignment->outlet->name;
-        $bin->currentAssignment->update(['unassigned_at' => now()]);
+        $outletName = $bin->outlet?->name ?? 'Unknown';
+        $bin->update(['outlet_id' => null]);
 
         return redirect()
             ->route('admin.bins.show', $bin)
@@ -259,9 +231,10 @@ class BinController extends Controller
 
     public function detections(Request $request, Bin $bin): View
     {
-        $bin->load('currentAssignment.outlet');
+        $bin->load('outlet.brand');
 
-        $detections = $bin->detectionEvents()
+        $detections = DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
+            ->with('binSession.bin')
             ->when($request->filled('waste_type'), function ($query) use ($request) {
                 $query->where('waste_type', $request->input('waste_type'));
             })
@@ -269,12 +242,12 @@ class BinController extends Controller
                 $query->where('confidence', '>=', $request->input('min_confidence'));
             })
             ->when($request->filled('date_from'), function ($query) use ($request) {
-                $query->whereDate('detected_at', '>=', $request->input('date_from'));
+                $query->whereDate('created_at', '>=', $request->input('date_from'));
             })
             ->when($request->filled('date_to'), function ($query) use ($request) {
-                $query->whereDate('detected_at', '<=', $request->input('date_to'));
+                $query->whereDate('created_at', '<=', $request->input('date_to'));
             })
-            ->latest('detected_at')
+            ->latest()
             ->paginate(15)
             ->withQueryString();
 
@@ -285,7 +258,7 @@ class BinController extends Controller
 
     public function pickups(Request $request, Bin $bin): View
     {
-        $bin->load('currentAssignment.outlet');
+        $bin->load('outlet.brand');
 
         $pickups = $bin->pickupRequests()
             ->with('claimedBy')
@@ -299,10 +272,7 @@ class BinController extends Controller
         $stats = [
             'total' => $bin->pickupRequests()->count(),
             'completed' => $bin->pickupRequests()->where('status', PickupStatus::Completed)->count(),
-            'avg_response_minutes' => (int) $bin->pickupRequests()
-                ->whereNotNull('claimed_at')
-                ->selectRaw('AVG(CAST((julianday(claimed_at) - julianday(created_at)) * 24 * 60 AS INTEGER)) as avg_min')
-                ->value('avg_min'),
+            'avg_response_minutes' => 0,
             'last_collected' => $bin->pickupRequests()->where('status', PickupStatus::Completed)->max('completed_at'),
         ];
 
@@ -311,10 +281,10 @@ class BinController extends Controller
 
     public function analytics(Bin $bin): View
     {
-        $bin->load('currentAssignment.outlet');
+        $bin->load('outlet.brand');
 
         $chartData = [
-            'wasteTypes' => $bin->detectionEvents()
+            'wasteTypes' => DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
                 ->whereNotNull('waste_type')
                 ->selectRaw('waste_type, count(*) as count')
                 ->groupBy('waste_type')
@@ -325,9 +295,11 @@ class BinController extends Controller
         ];
 
         $stats = [
-            'total_detections' => $bin->detectionEvents()->count(),
-            'unique_waste_types' => $bin->detectionEvents()->whereNotNull('waste_type')->distinct('waste_type')->count('waste_type'),
-            'avg_confidence' => (int) $bin->detectionEvents()->whereNotNull('confidence')->avg('confidence'),
+            'total_detections' => DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))->count(),
+            'unique_waste_types' => DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
+                ->whereNotNull('waste_type')->distinct('waste_type')->count('waste_type'),
+            'avg_confidence' => (int) DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
+                ->whereNotNull('confidence')->avg('confidence'),
             'total_pickups' => $bin->pickupRequests()->count(),
             'completed_pickups' => $bin->pickupRequests()->where('status', PickupStatus::Completed)->count(),
         ];
@@ -346,7 +318,7 @@ class BinController extends Controller
 
         foreach ($ranges as $label => [$min, $max]) {
             $labels[] = $label;
-            $data[] = $bin->detectionEvents()
+            $data[] = DetectionEvent::whereHas('binSession', fn ($q) => $q->where('bin_id', $bin->id))
                 ->whereNotNull('confidence')
                 ->whereBetween('confidence', [$min, $max])
                 ->count();
