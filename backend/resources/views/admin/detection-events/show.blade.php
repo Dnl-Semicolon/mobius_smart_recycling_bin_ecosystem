@@ -162,7 +162,7 @@
                     <x-heroicon-o-camera class="w-3.5 h-3.5" />
                     Image
                 </h2>
-                @if ($detectionEvent->image_path)
+                @if ($detectionEvent->image_path && Storage::disk('public')->exists($detectionEvent->image_path))
                     <div class="mt-4 rounded-xl overflow-hidden bg-gray-100">
                         <img
                             src="{{ asset('storage/' . $detectionEvent->image_path) }}"

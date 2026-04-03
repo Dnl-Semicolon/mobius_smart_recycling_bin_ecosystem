@@ -1,0 +1,390 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 63;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		174B76A28A19089BEAA9405E /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA653C3ADE6D98264C749E8 /* AuthViewModel.swift */; };
+		2561D7D48FE97FA936B0FD08 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BC86B03BD3C511F0160F50C3 /* Assets.xcassets */; };
+		2C5C3FBB143234677083211C /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC736EABAA1FF718A49ABE2F /* APIService.swift */; };
+		32ED52F2D01B014BF8A93113 /* PolylineDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6424575917E594EB163ECD /* PolylineDecoder.swift */; };
+		401E14D4A31352594FCD2024 /* RouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1D627511CC39AA214ABAA3 /* RouteViewModel.swift */; };
+		510E7E99534B0121426BD4B9 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 544D5177CD81BCA95E35E520 /* User.swift */; };
+		56C07EAA9B02615C64793388 /* RouteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056BF06ACCCD5312E0979E0A /* RouteDetailView.swift */; };
+		5E10569C2A1CCF5B31FCA96A /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 828D6576401695E678B043FB /* LocationManager.swift */; };
+		89E64DEABE87B4B9A350192E /* CollectorHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69328C5A9C9E34C30D103124 /* CollectorHomeView.swift */; };
+		AE6C47CEB1512E60393808E8 /* ActiveRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4638D3B44BFF847FB9A9552 /* ActiveRouteView.swift */; };
+		F5A54AB310ED17165737327D /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455FEB9A30B3227861704C91 /* Route.swift */; };
+		FA109957703CA29BFFB31CCB /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7F1D7DD9666BE111C16B16 /* LoginView.swift */; };
+		FA30DA81795F92A7FD6AE83B /* MobiusCollectorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3F679B229EE7DA972FD372 /* MobiusCollectorApp.swift */; };
+		FBAF168B28EE69DFD71E0018 /* RouteMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9790F022375AAD4EB5CA217 /* RouteMapView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		056BF06ACCCD5312E0979E0A /* RouteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteDetailView.swift; sourceTree = "<group>"; };
+		0D7F1D7DD9666BE111C16B16 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		455FEB9A30B3227861704C91 /* Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
+		4CEFED574C979F5F18BF05DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		544D5177CD81BCA95E35E520 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		69328C5A9C9E34C30D103124 /* CollectorHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectorHomeView.swift; sourceTree = "<group>"; };
+		6F6424575917E594EB163ECD /* PolylineDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolylineDecoder.swift; sourceTree = "<group>"; };
+		7B1D627511CC39AA214ABAA3 /* RouteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteViewModel.swift; sourceTree = "<group>"; };
+		7B2A35C76804B00F115561D3 /* MobiusCollector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MobiusCollector.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		828D6576401695E678B043FB /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		A4638D3B44BFF847FB9A9552 /* ActiveRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveRouteView.swift; sourceTree = "<group>"; };
+		AC736EABAA1FF718A49ABE2F /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		BC86B03BD3C511F0160F50C3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C9790F022375AAD4EB5CA217 /* RouteMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteMapView.swift; sourceTree = "<group>"; };
+		DA3F679B229EE7DA972FD372 /* MobiusCollectorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobiusCollectorApp.swift; sourceTree = "<group>"; };
+		EAA653C3ADE6D98264C749E8 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		08282907B8444DD6977BE36C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7B2A35C76804B00F115561D3 /* MobiusCollector.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		09ECF16837471AFB271A027B /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AC736EABAA1FF718A49ABE2F /* APIService.swift */,
+				828D6576401695E678B043FB /* LocationManager.swift */,
+				6F6424575917E594EB163ECD /* PolylineDecoder.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		2FBCB1FE573EB8DD7A625908 = {
+			isa = PBXGroup;
+			children = (
+				6ABA13045C93B4563BB2DAB9 /* MobiusCollector */,
+				08282907B8444DD6977BE36C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6517B774319E73FBAB016216 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				BC86B03BD3C511F0160F50C3 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		6ABA13045C93B4563BB2DAB9 /* MobiusCollector */ = {
+			isa = PBXGroup;
+			children = (
+				4CEFED574C979F5F18BF05DE /* Info.plist */,
+				DA3F679B229EE7DA972FD372 /* MobiusCollectorApp.swift */,
+				9CB4DC6A3D0CDB4E876133B2 /* Models */,
+				6517B774319E73FBAB016216 /* Resources */,
+				09ECF16837471AFB271A027B /* Services */,
+				C58F4C2962DF67AF804C944E /* ViewModels */,
+				6EA04FB043D388DF53F2262C /* Views */,
+			);
+			path = MobiusCollector;
+			sourceTree = "<group>";
+		};
+		6EA04FB043D388DF53F2262C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A4638D3B44BFF847FB9A9552 /* ActiveRouteView.swift */,
+				69328C5A9C9E34C30D103124 /* CollectorHomeView.swift */,
+				0D7F1D7DD9666BE111C16B16 /* LoginView.swift */,
+				056BF06ACCCD5312E0979E0A /* RouteDetailView.swift */,
+				C9790F022375AAD4EB5CA217 /* RouteMapView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		9CB4DC6A3D0CDB4E876133B2 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				455FEB9A30B3227861704C91 /* Route.swift */,
+				544D5177CD81BCA95E35E520 /* User.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C58F4C2962DF67AF804C944E /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				EAA653C3ADE6D98264C749E8 /* AuthViewModel.swift */,
+				7B1D627511CC39AA214ABAA3 /* RouteViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5835A42141E36801D259E246 /* MobiusCollector */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E4C4BE7527553A3714965245 /* Build configuration list for PBXNativeTarget "MobiusCollector" */;
+			buildPhases = (
+				F12D64E829F4C04F3521D46E /* Sources */,
+				B3040C8FF9DD037911325E86 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MobiusCollector;
+			packageProductDependencies = (
+			);
+			productName = MobiusCollector;
+			productReference = 7B2A35C76804B00F115561D3 /* MobiusCollector.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CA575322FD34767277280A71 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2630;
+			};
+			buildConfigurationList = A21DBA0935676EC9DC74616D /* Build configuration list for PBXProject "MobiusCollector" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 2FBCB1FE573EB8DD7A625908;
+			minimizedProjectReferenceProxies = 1;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5835A42141E36801D259E246 /* MobiusCollector */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B3040C8FF9DD037911325E86 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2561D7D48FE97FA936B0FD08 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F12D64E829F4C04F3521D46E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C5C3FBB143234677083211C /* APIService.swift in Sources */,
+				AE6C47CEB1512E60393808E8 /* ActiveRouteView.swift in Sources */,
+				174B76A28A19089BEAA9405E /* AuthViewModel.swift in Sources */,
+				89E64DEABE87B4B9A350192E /* CollectorHomeView.swift in Sources */,
+				5E10569C2A1CCF5B31FCA96A /* LocationManager.swift in Sources */,
+				FA109957703CA29BFFB31CCB /* LoginView.swift in Sources */,
+				FA30DA81795F92A7FD6AE83B /* MobiusCollectorApp.swift in Sources */,
+				32ED52F2D01B014BF8A93113 /* PolylineDecoder.swift in Sources */,
+				F5A54AB310ED17165737327D /* Route.swift in Sources */,
+				56C07EAA9B02615C64793388 /* RouteDetailView.swift in Sources */,
+				FBAF168B28EE69DFD71E0018 /* RouteMapView.swift in Sources */,
+				401E14D4A31352594FCD2024 /* RouteViewModel.swift in Sources */,
+				510E7E99534B0121426BD4B9 /* User.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1B9E87BB4E4D5B5261285DA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = MobiusCollector/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = my.mobius.MobiusCollector;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		49CCD3CE5110CD58A2E55735 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = F4852LSMUZ;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		5BEA9482C68AEBA99FF0D01B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = MobiusCollector/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = my.mobius.MobiusCollector;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		8D1D875431268E3CB01BF964 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = F4852LSMUZ;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A21DBA0935676EC9DC74616D /* Build configuration list for PBXProject "MobiusCollector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49CCD3CE5110CD58A2E55735 /* Debug */,
+				8D1D875431268E3CB01BF964 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E4C4BE7527553A3714965245 /* Build configuration list for PBXNativeTarget "MobiusCollector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1B9E87BB4E4D5B5261285DA5 /* Debug */,
+				5BEA9482C68AEBA99FF0D01B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CA575322FD34767277280A71 /* Project object */;
+}

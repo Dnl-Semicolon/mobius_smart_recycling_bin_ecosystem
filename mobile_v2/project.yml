@@ -1,0 +1,23 @@
+name: MobiusCollector
+options:
+  bundleIdPrefix: my.mobius
+  deploymentTarget:
+    iOS: "18.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+targets:
+  MobiusCollector:
+    type: application
+    platform: iOS
+    sources: [MobiusCollector]
+    info:
+      path: MobiusCollector/Info.plist
+      properties:
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        NSLocationWhenInUseUsageDescription: "Mobius needs your location to verify stop completion and show your position on the route map."
+        UILaunchScreen: {}
+    settings:
+      base:
+        SWIFT_STRICT_CONCURRENCY: complete
