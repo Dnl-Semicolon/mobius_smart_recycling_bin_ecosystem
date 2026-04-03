@@ -27,10 +27,9 @@ return [
     ],
 
     'stripe' => [
-        'prices' => [
-            'basic' => env('STRIPE_PRICE_BASIC'),
-            'premium' => env('STRIPE_PRICE_PREMIUM'),
-        ],
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
     'roboflow' => [
