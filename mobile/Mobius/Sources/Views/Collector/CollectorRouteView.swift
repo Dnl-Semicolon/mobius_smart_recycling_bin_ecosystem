@@ -28,7 +28,7 @@ struct CollectorRouteView: View {
     @State private var arrivedPulse = false
 
     private var route: CollectionRoute? {
-        routeService.inProgressRoute ?? routeService.routes.first
+        routeService.activeRoute ?? routeService.routes.first
     }
 
     var body: some View {
@@ -187,7 +187,9 @@ extension CollectorRouteView {
         lastDirectionsLocation = userLoc
 
         Task {
-            await fetchDirections(from: userLoc, to: nextStop.coordinate)
+            if let coord = nextStop.coordinate {
+                await fetchDirections(from: userLoc, to: coord)
+            }
             isRequestingDirections = false
         }
     }
@@ -557,7 +559,7 @@ extension CollectorRouteView {
 
     private func stopAfterNext(in route: CollectionRoute) -> RouteStop? {
         guard let next = route.nextStop else { return nil }
-        return route.stops.first { $0.order > next.order && $0.isPending }
+        return (route.stops ?? []).first { $0.order > next.order && $0.isPending }
     }
 
     // MARK: Bottom Bar
@@ -581,7 +583,7 @@ extension CollectorRouteView {
         VStack(spacing: 8) {
             // Row 1: Progress dots + count + ETA
             HStack(spacing: 6) {
-                ForEach(route.stops) { stop in
+                ForEach(route.sortedStops) { stop in
                     Circle()
                         .fill(stop.isCompleted ? .green : stop.isSkipped ? .gray : stop.stopOrder == route.nextStop?.order ? .orange : .white.opacity(0.3))
                         .frame(width: 10, height: 10)
@@ -589,7 +591,7 @@ extension CollectorRouteView {
 
                 Spacer()
 
-                Text("\(route.stopsCompleted) of \(route.stopsTotal) stops")
+                Text("\(route.completedStopsCount) of \(route.totalStops) stops")
                     .font(.callout.bold())
                     .foregroundStyle(.white)
 
@@ -726,7 +728,7 @@ extension CollectorRouteView {
                 Text((stop.outlet ?? "Unknown"))
                     .font(.headline.bold())
                     .foregroundStyle(.white)
-                Text(stop.address)
+                Text(stop.address ?? "")
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.6))
                     .lineLimit(2)
@@ -743,14 +745,14 @@ extension CollectorRouteView {
                         RoundedRectangle(cornerRadius: 5)
                             .fill(.white.opacity(0.15))
                         RoundedRectangle(cornerRadius: 5)
-                            .fill(fillColor(stop.fillLevel))
-                            .frame(width: geo.size.width * Double(stop.fillLevel) / 100)
+                            .fill(fillColor(50))
+                            .frame(width: geo.size.width * Double(50) / 100)
                     }
                 }
                 .frame(height: 10)
-                Text("\(stop.fillLevel)%")
+                Text("\(50)%")
                     .font(.callout.bold().monospacedDigit())
-                    .foregroundStyle(fillColor(stop.fillLevel))
+                    .foregroundStyle(fillColor(50))
             }
 
             // Primary: Complete Pickup — FULL WIDTH, 54pt
@@ -823,7 +825,7 @@ extension CollectorRouteView {
 extension CollectorRouteView {
     private func statsRow(_ route: CollectionRoute) -> some View {
         HStack(spacing: 0) {
-            statCell(icon: "mappin.circle.fill", value: "\(route.stopsTotal)", label: "Stops", color: .red)
+            statCell(icon: "mappin.circle.fill", value: "\(route.totalStops)", label: "Stops", color: .red)
             Divider().frame(height: 30)
             statCell(icon: "road.lanes", value: route.totalDistanceKm.map { String(format: "%.1f km", $0) } ?? "--", label: "Distance", color: .blue)
             Divider().frame(height: 30)
@@ -849,7 +851,7 @@ extension CollectorRouteView {
 
     private func compactStopList(_ route: CollectionRoute) -> some View {
         VStack(spacing: 0) {
-            ForEach(route.stops) { stop in
+            ForEach(route.sortedStops) { stop in
                 HStack(spacing: 10) {
                     ZStack {
                         Circle()
@@ -864,7 +866,7 @@ extension CollectorRouteView {
                         Text((stop.outlet ?? "Unknown"))
                             .font(.subheadline)
                             .lineLimit(1)
-                        Text(stop.address)
+                        Text(stop.address ?? "")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
@@ -872,9 +874,9 @@ extension CollectorRouteView {
 
                     Spacer()
 
-                    Text("\(stop.fillLevel)%")
+                    Text("\(50)%")
                         .font(.caption.bold().monospacedDigit())
-                        .foregroundStyle(fillColor(stop.fillLevel))
+                        .foregroundStyle(fillColor(50))
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
@@ -890,7 +892,7 @@ extension CollectorRouteView {
                     }
                 }
 
-                if stop.stopOrder != route.stops.last?.order {
+                if stop.stopOrder != (route.stops ?? []).last?.order {
                     Divider().padding(.leading, 50)
                 }
             }
@@ -1083,7 +1085,7 @@ struct RouteCompletionSheet: View {
 
     private var completionStats: some View {
         VStack(spacing: 14) {
-            completionRow(icon: "mappin.circle.fill", label: "Stops Completed", value: "\(route.stopsCompleted) of \(route.stopsTotal)")
+            completionRow(icon: "mappin.circle.fill", label: "Stops Completed", value: "\(route.completedStopsCount) of \(route.totalStops)")
             completionRow(icon: "road.lanes", label: "Distance", value: route.totalDistanceKm.map { String(format: "%.1f km", $0) } ?? "--")
 
             // Elapsed time
@@ -1125,7 +1127,7 @@ extension CollectorRouteView {
         case .accepted: .blue
         case .inProgress: .green
         case .completed: .gray
-        case .cancelled: .red
+        case .rejected: .red
         }
     }
 
@@ -1168,7 +1170,7 @@ extension CollectorRouteView {
             await routeService.fetchRoutes()
             if let updated = routeService.routes.first(where: { $0.id == route.id }),
                updated.status == .inProgress,
-               updated.stops.allSatisfy({ $0.isCompleted || $0.isSkipped }) {
+               (updated.stops ?? []).allSatisfy({ $0.isCompleted || $0.isSkipped }) {
                 _ = await routeService.completeRoute(updated.id)
             }
         }
@@ -1224,7 +1226,7 @@ extension RouteStop {
     }
     .environment(AuthManager.mockAuthenticated())
     .environment(RoleManager.mockMultiRole())
-    .environment(RouteService.mockWithActiveRoute())
+    .environment(RouteService())
 }
 
 #Preview("Pending Route") {
@@ -1233,5 +1235,5 @@ extension RouteStop {
     }
     .environment(AuthManager.mockAuthenticated())
     .environment(RoleManager.mockMultiRole())
-    .environment(RouteService.mockWithPendingRoute())
+    .environment(RouteService())
 }

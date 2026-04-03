@@ -141,16 +141,19 @@ struct CollectorHomeView: View {
         }
     }
 
+    private func isRouteProminent(_ route: CollectionRoute) -> Bool {
+        route.status == .inProgress || route.status == .pending
+    }
+
+    @ViewBuilder
     private func routeStatusRow(_ route: CollectionRoute) -> some View {
         HStack(spacing: 14) {
-            // Larger icon with accent — 40pt for active/pending, 32pt otherwise
-            let isProminent = route.status == .inProgress || route.status == .pending
             Image(systemName: routeStatusIcon(route.status))
-                .font(.system(size: isProminent ? 18 : 16, weight: .semibold))
+                .font(.system(size: isRouteProminent(route) ? 18 : 16, weight: .semibold))
                 .foregroundStyle(.white)
-                .frame(width: isProminent ? 40 : 32, height: isProminent ? 40 : 32)
-                .background(routeAccentColor(route.status), in: RoundedRectangle(cornerRadius: isProminent ? 10 : 7))
-                .shadow(color: routeAccentColor(route.status).opacity(isProminent ? 0.3 : 0), radius: 4, y: 2)
+                .frame(width: isRouteProminent(route) ? 40 : 32, height: isRouteProminent(route) ? 40 : 32)
+                .background(routeAccentColor(route.status), in: RoundedRectangle(cornerRadius: isRouteProminent(route) ? 10 : 7))
+                .shadow(color: routeAccentColor(route.status).opacity(isRouteProminent(route) ? 0.3 : 0), radius: 4, y: 2)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(routeStatusTitle(route))
@@ -178,7 +181,7 @@ struct CollectorHomeView: View {
                         }
                     case .completed:
                         Text("\(route.completedStopsCount) stops completed")
-                    case .cancelled:
+                    case .rejected:
                         Text("Route was cancelled")
                     }
                 }
@@ -211,7 +214,7 @@ struct CollectorHomeView: View {
         case .accepted: "checkmark.circle.fill"
         case .inProgress: "location.fill"
         case .completed: "flag.checkered"
-        case .cancelled: "xmark.circle.fill"
+        case .rejected: "xmark.circle.fill"
         }
     }
 
@@ -221,7 +224,7 @@ struct CollectorHomeView: View {
         case .accepted: "Route Ready"
         case .inProgress: "Route In Progress"
         case .completed: "Route Completed"
-        case .cancelled: "Route Cancelled"
+        case .rejected: "Route Cancelled"
         }
     }
 
@@ -231,7 +234,7 @@ struct CollectorHomeView: View {
         case .accepted: .green
         case .inProgress: .green
         case .completed: .gray
-        case .cancelled: .red
+        case .rejected: .red
         }
     }
 
@@ -325,7 +328,7 @@ struct CollectorHomeView: View {
     .environment(AuthManager.mockAuthenticated())
     .environment(RoleManager.mockMultiRole())
     .environment(CollectorService.mockWithData())
-    .environment(RouteService.mockWithPendingRoute())
+    .environment(RouteService())
 }
 
 #Preview("With Active Route") {
@@ -335,5 +338,5 @@ struct CollectorHomeView: View {
     .environment(AuthManager.mockAuthenticated())
     .environment(RoleManager.mockMultiRole())
     .environment(CollectorService.mockWithData())
-    .environment(RouteService.mockWithActiveRoute())
+    .environment(RouteService())
 }

@@ -84,14 +84,25 @@
                     @enderror
                 </div>
 
-                {{-- Contact Phone --}}
-                <div>
+                {{-- Contact Phone (Malaysian format) --}}
+                <div x-data="{
+                    phone: '{{ old('contact_phone', '+60') }}',
+                    format(e) {
+                        let v = this.phone.replace(/[^\d+]/g, '');
+                        if (!v.startsWith('+60')) v = '+60' + v.replace(/^\+?6?0?/, '');
+                        if (v.length > 4) v = v.slice(0,3) + ' ' + v.slice(3);
+                        if (v.length > 7) v = v.slice(0,7) + '-' + v.slice(7);
+                        if (v.length > 12) v = v.slice(0,12) + ' ' + v.slice(12);
+                        this.phone = v.slice(0, 16);
+                    }
+                }">
                     <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-1.5">Phone <span class="text-red-500">*</span></label>
                     <input
                         type="tel"
                         id="contact_phone"
                         name="contact_phone"
-                        value="{{ old('contact_phone') }}"
+                        x-model="phone"
+                        @input="format($event)"
                         placeholder="+60 12-345 6789"
                         required
                         class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none transition-all"

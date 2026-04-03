@@ -11,6 +11,8 @@ class Subscription extends Model
 {
     use HasFactory;
 
+    protected $table = 'organization_subscriptions';
+
     protected $fillable = [
         'organization_id',
         'plan_id',

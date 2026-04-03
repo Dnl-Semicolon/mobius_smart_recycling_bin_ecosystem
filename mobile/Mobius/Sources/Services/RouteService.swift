@@ -131,7 +131,7 @@ final class RouteService {
     }
 }
 
-// MARK: - API Response Types
+// MARK: - Shared API Response Types (used by multiple services)
 
 private struct RoutesListResponse: Decodable {
     let routes: [CollectionRoute]
@@ -152,4 +152,13 @@ private struct CompleteStopRequest: Encodable, Sendable {
 
 struct APISimpleMessageResponse: Decodable {
     let message: String
+}
+
+struct APIDataResponse<T: Decodable>: Decodable {
+    let data: T
+}
+
+struct APIMessageResponse<T: Decodable>: Decodable {
+    let message: String
+    let data: T
 }

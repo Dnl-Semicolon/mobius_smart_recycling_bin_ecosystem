@@ -125,3 +125,31 @@ enum StopStatus: String, Codable, Sendable {
     case completed
     case skipped
 }
+
+// MARK: - Backwards compat for views
+
+extension RouteStop {
+    /// Compat: old views use `order`
+    var order: Int { stopOrder }
+
+    /// Compat: old views use `outletName`
+    var outletName: String { outlet ?? "Unknown" }
+
+    var isCompleted: Bool { status == .completed }
+    var isSkipped: Bool { status == .skipped }
+    var isPending: Bool { status == .pending }
+
+    func distanceFormatted(from location: CLLocationCoordinate2D) -> String {
+        let meters = distanceMeters(from: location)
+        if meters < 1000 { return "\(Int(meters))m" }
+        return String(format: "%.1fkm", meters / 1000)
+    }
+}
+
+extension CollectionRoute {
+    /// Compat: old views
+    var stopsCompleted: Int { completedStopsCount }
+    var stopsTotal_compat: Int { totalStops }
+    var proximityThreshold: Double { 200.0 }
+    var remainingStops: Int { totalStops - completedStopsCount }
+}

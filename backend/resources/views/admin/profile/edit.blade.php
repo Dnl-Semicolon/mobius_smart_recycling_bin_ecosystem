@@ -191,8 +191,8 @@
                         {{-- Right: avatar --}}
                         <div class="lg:w-52 shrink-0"
                             x-data="{
-                                hasAvatar: @js((bool) $user->avatar_path),
-                                previewUrl: @js($user->avatar_path ? Storage::url($user->avatar_path) : ''),
+                                hasAvatar: @js((bool) $user->avatar_path && Storage::disk('public')->exists($user->avatar_path)),
+                                previewUrl: @js($user->avatar_path && Storage::disk('public')->exists($user->avatar_path) ? Storage::url($user->avatar_path) : ''),
                                 handleFile(event) {
                                     const file = event.target.files[0];
                                     if (!file) return;
@@ -226,7 +226,7 @@
                             <input type="file" name="avatar" x-ref="avatarInput" @change="handleFile($event)" accept="image/*" class="hidden">
                             <div class="flex items-center gap-2 mt-3 justify-center lg:justify-start">
                                 <button type="button" @click="$refs.avatarInput.click()" class="text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors cursor-pointer">Upload photo</button>
-                                @if ($user->avatar_path)
+                                @if ($user->avatar_path && Storage::disk('public')->exists($user->avatar_path))
                                     <span class="text-gray-300">|</span>
                                     <button type="button" @click="removeAvatar()" class="text-xs font-medium text-red-500 hover:text-red-600 transition-colors cursor-pointer">Remove</button>
                                 @endif
