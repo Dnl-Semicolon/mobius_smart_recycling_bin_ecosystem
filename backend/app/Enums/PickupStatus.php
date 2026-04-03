@@ -5,12 +5,17 @@ namespace App\Enums;
 enum PickupStatus: string
 {
     case Pending = 'pending';
-    case Claimed = 'claimed';
+    case Claimed = 'assigned';
     case Completed = 'completed';
     case Cancelled = 'cancelled';
 
     public function label(): string
     {
-        return ucwords(str_replace('_', ' ', $this->value));
+        return match ($this) {
+            self::Pending => 'Pending',
+            self::Claimed => 'Claimed',
+            self::Completed => 'Completed',
+            self::Cancelled => 'Cancelled',
+        };
     }
 }

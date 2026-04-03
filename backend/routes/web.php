@@ -5,15 +5,20 @@ use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\Admin\BinController;
 use App\Http\Controllers\Admin\BinSessionController;
 use App\Http\Controllers\Admin\BrandMonitoringController;
+use App\Http\Controllers\Admin\CollectionRouteManagementController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DetectionEventController;
+use App\Http\Controllers\Admin\InvitationManagementController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\OrganizationManagementController;
 use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\PaymentManagementController;
 use App\Http\Controllers\Admin\PickupRequestController;
 use App\Http\Controllers\Admin\PlacesProxyController;
+use App\Http\Controllers\Admin\PlanManagementController;
 use App\Http\Controllers\Admin\SubscriptionManagementController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VoucherManagementController;
 // use App\Http\Controllers\Admin\Z_ACodex_TempWorkbenchController;
 use App\Http\Controllers\Agency;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -105,7 +110,6 @@ Route::prefix('register')->name('registration.')->group(function () {
     Route::post('brand', [BrandRegistrationController::class, 'store'])->name('brand.store');
     Route::get('agency', [AgencyRegistrationController::class, 'create'])->name('agency.create');
     Route::post('agency', [AgencyRegistrationController::class, 'store'])->name('agency.store');
-    Route::get('brand/search', [BrandRegistrationController::class, 'search'])->name('brand.search');
     Route::get('success', fn () => view('registration.success'))->name('success');
 });
 
@@ -189,6 +193,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::post('pickup-requests/{pickup_request}/cancel', [PickupRequestController::class, 'cancel'])->name('pickup-requests.cancel');
     Route::post('pickup-requests/{pickup_request}/unclaim', [PickupRequestController::class, 'unclaim'])->name('pickup-requests.unclaim');
 
+    // Collection Routes
+    Route::get('collection-routes', [CollectionRouteManagementController::class, 'index'])->name('collection-routes.index');
+    Route::get('collection-routes/{collectionRoute}', [CollectionRouteManagementController::class, 'show'])->name('collection-routes.show');
+
     // Users
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/create', [UserController::class, 'create'])->name('users.create');
@@ -223,6 +231,27 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
 
     // Payments
     Route::get('payments', [PaymentManagementController::class, 'index'])->name('payments.index');
+
+    // Vouchers
+    Route::get('vouchers', [VoucherManagementController::class, 'index'])->name('vouchers.index');
+
+    // Organizations + Registration Requests
+    Route::get('organizations', [OrganizationManagementController::class, 'index'])->name('organizations.index');
+    Route::get('organizations/{organization}', [OrganizationManagementController::class, 'show'])->name('organizations.show');
+    Route::post('registration-requests/{registrationRequest}/approve', [OrganizationManagementController::class, 'approveRequest'])->name('registration-requests.approve');
+    Route::post('registration-requests/{registrationRequest}/reject', [OrganizationManagementController::class, 'rejectRequest'])->name('registration-requests.reject');
+
+    // Invitations
+    Route::get('invitations', [InvitationManagementController::class, 'index'])->name('invitations.index');
+    Route::post('invitations/{invitation}/admin-approve', [InvitationManagementController::class, 'approve'])->name('invitations.admin-approve');
+    Route::post('invitations/{invitation}/admin-reject', [InvitationManagementController::class, 'reject'])->name('invitations.admin-reject');
+
+    // Plans CRUD
+    Route::get('plans', [PlanManagementController::class, 'index'])->name('plans.index');
+    Route::get('plans/create', [PlanManagementController::class, 'create'])->name('plans.create');
+    Route::post('plans', [PlanManagementController::class, 'store'])->name('plans.store');
+    Route::get('plans/{plan}/edit', [PlanManagementController::class, 'edit'])->name('plans.edit');
+    Route::put('plans/{plan}', [PlanManagementController::class, 'update'])->name('plans.update');
 
     // Notifications
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');

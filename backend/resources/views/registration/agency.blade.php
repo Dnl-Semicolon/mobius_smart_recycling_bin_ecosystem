@@ -1,125 +1,156 @@
-<x-layouts.app title="Collector Agency Registration">
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
+<x-layouts.app title="Register as Collection Agency">
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-emerald-50/30 px-4 py-12">
         <div class="w-full max-w-lg">
+
+            {{-- Header --}}
             <div class="text-center mb-8">
-                <img src="{{ asset('images/mobius-icon.png') }}" alt="Mobius" class="w-16 h-16 object-contain mx-auto mb-3">
-                <h1 class="text-xl font-semibold text-gray-900">Collector Agency Registration</h1>
-                <p class="text-sm text-gray-500 mt-1">Register your collection agency to join the platform</p>
+                <a href="{{ route('home') }}" class="inline-block">
+                    <img src="{{ asset('images/mobius-icon.png') }}" alt="Mobius" class="w-14 h-14 object-contain mx-auto mb-3">
+                </a>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Register as Collection Agency</h1>
+                <p class="text-sm text-gray-500 mt-1.5">Join the Mobius recycling ecosystem as a collection partner</p>
             </div>
 
-            <x-card class="p-6">
-                <form method="POST" action="{{ route('registration.agency.store') }}" enctype="multipart/form-data" class="space-y-5">
-                    @csrf
+            {{-- Flash messages --}}
+            @if (session('success'))
+                <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                    {{ session('success') }}
+                </div>
+            @endif
 
-                    {{-- Company Info --}}
-                    <fieldset class="space-y-4">
-                        <legend class="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-2 w-full">Company Information</legend>
+            @if ($errors->any())
+                <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                    <p class="text-sm font-semibold text-red-700 mb-1">Please fix the following errors:</p>
+                    <ul class="list-disc list-inside text-sm text-red-600 space-y-0.5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-                        <x-input
-                            name="name"
-                            label="Company Name"
-                            placeholder="e.g. CleanCycle Sdn Bhd"
-                            required
-                            autofocus
-                        />
+            <form method="POST" action="{{ route('registration.agency.store') }}" class="space-y-5">
+                @csrf
 
-                        <x-input
-                            name="description"
-                            label="Description"
-                            placeholder="Brief description of your services"
-                        />
+                {{-- Company Name --}}
+                <div>
+                    <label for="company_name" class="block text-sm font-medium text-gray-700 mb-1.5">Company Name <span class="text-red-500">*</span></label>
+                    <input
+                        type="text"
+                        id="company_name"
+                        name="company_name"
+                        value="{{ old('company_name') }}"
+                        placeholder="e.g. CleanCycle Sdn Bhd"
+                        required
+                        autofocus
+                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none transition-all"
+                    >
+                    @error('company_name')
+                        <p class="mt-1 text-xs text-red-600 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <x-input
-                                name="fleet_size"
-                                type="number"
-                                label="Fleet Size"
-                                placeholder="Number of vehicles"
-                                min="1"
-                            />
+                {{-- Contact Name --}}
+                <div>
+                    <label for="contact_name" class="block text-sm font-medium text-gray-700 mb-1.5">Contact Person <span class="text-red-500">*</span></label>
+                    <input
+                        type="text"
+                        id="contact_name"
+                        name="contact_name"
+                        value="{{ old('contact_name') }}"
+                        placeholder="Your full name"
+                        required
+                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none transition-all"
+                    >
+                    @error('contact_name')
+                        <p class="mt-1 text-xs text-red-600 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                            <x-input
-                                name="coverage_area"
-                                label="Coverage Area"
-                                placeholder="e.g. Penang Island"
-                            />
-                        </div>
+                {{-- Contact Email --}}
+                <div>
+                    <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-1.5">Email <span class="text-red-500">*</span></label>
+                    <input
+                        type="email"
+                        id="contact_email"
+                        name="contact_email"
+                        value="{{ old('contact_email') }}"
+                        placeholder="you@company.com"
+                        required
+                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none transition-all"
+                    >
+                    @error('contact_email')
+                        <p class="mt-1 text-xs text-red-600 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Company Logo</label>
-                            <input
-                                type="file"
-                                name="logo"
-                                accept="image/*"
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 file:cursor-pointer"
-                            >
-                            @error('logo')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </fieldset>
+                {{-- Contact Phone --}}
+                <div>
+                    <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-1.5">Phone <span class="text-red-500">*</span></label>
+                    <input
+                        type="tel"
+                        id="contact_phone"
+                        name="contact_phone"
+                        value="{{ old('contact_phone') }}"
+                        placeholder="+60 12-345 6789"
+                        required
+                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none transition-all"
+                    >
+                    @error('contact_phone')
+                        <p class="mt-1 text-xs text-red-600 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                    {{-- Contact Details --}}
-                    <fieldset class="space-y-4">
-                        <legend class="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-2 w-full">Contact Details</legend>
+                {{-- Type --}}
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-1.5">Organisation Type <span class="text-red-500">*</span></label>
+                    <select
+                        id="type"
+                        name="type"
+                        required
+                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none transition-all"
+                    >
+                        <option value="" disabled {{ old('type') ? '' : 'selected' }}>Select type...</option>
+                        <option value="beverage_company" {{ old('type') === 'beverage_company' ? 'selected' : '' }}>Beverage Company</option>
+                        <option value="recycling_company" {{ old('type') === 'recycling_company' ? 'selected' : '' }}>Recycling Company</option>
+                        <option value="government" {{ old('type') === 'government' ? 'selected' : '' }}>Government</option>
+                    </select>
+                    @error('type')
+                        <p class="mt-1 text-xs text-red-600 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                        <x-input
-                            name="contact_person"
-                            label="Contact Person"
-                            placeholder="Your full name"
-                            required
-                        />
+                {{-- Description --}}
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1.5">Description <span class="text-red-500">*</span></label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="4"
+                        placeholder="Tell us about your agency and your collection capabilities"
+                        required
+                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none transition-all resize-none"
+                    >{{ old('description') }}</textarea>
+                    @error('description')
+                        <p class="mt-1 text-xs text-red-600 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                        <x-input
-                            name="phone"
-                            type="tel"
-                            label="Phone"
-                            placeholder="+60 12-345 6789"
-                        />
-                    </fieldset>
+                {{-- Submit --}}
+                <button
+                    type="submit"
+                    class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors shadow-sm"
+                >
+                    Submit Application
+                </button>
+            </form>
 
-                    {{-- Account --}}
-                    <fieldset class="space-y-4">
-                        <legend class="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-2 w-full">Account Credentials</legend>
-
-                        <x-input
-                            name="email"
-                            type="email"
-                            label="Email"
-                            placeholder="you@company.com"
-                            required
-                        />
-
-                        <x-input
-                            name="password"
-                            type="password"
-                            label="Password"
-                            placeholder="Min 8 characters"
-                            required
-                        />
-
-                        <x-input
-                            name="password_confirmation"
-                            type="password"
-                            label="Confirm Password"
-                            placeholder="Repeat your password"
-                            required
-                        />
-                    </fieldset>
-
-                    <x-button type="submit" class="w-full justify-center">
-                        <x-heroicon-o-paper-airplane class="w-4 h-4" />
-                        Submit Application
-                    </x-button>
-                </form>
-
-                <p class="text-center text-sm text-gray-500 mt-4">
-                    Already have an account?
-                    <a href="{{ route('login') }}" class="text-emerald-600 hover:text-emerald-700 font-medium">Sign in</a>
-                    &middot;
-                    <a href="{{ route('home') }}" class="text-emerald-600 hover:text-emerald-700 font-medium">Back</a>
-                </p>
-            </x-card>
+            <p class="text-center text-sm text-gray-500 mt-6">
+                Already have an account?
+                <a href="{{ route('login') }}" class="text-emerald-600 hover:text-emerald-700 font-medium">Sign in</a>
+                &middot;
+                <a href="{{ route('home') }}" class="text-emerald-600 hover:text-emerald-700 font-medium">Back to home</a>
+            </p>
         </div>
     </div>
 </x-layouts.app>

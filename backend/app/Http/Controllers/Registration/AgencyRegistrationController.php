@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Registration;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreAgencyRegistrationRequest;
-use App\Services\ApplicationService;
+use App\Models\RegistrationRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class AgencyRegistrationController extends Controller
@@ -15,17 +15,23 @@ class AgencyRegistrationController extends Controller
         return view('registration.agency');
     }
 
-    public function store(StoreAgencyRegistrationRequest $request, ApplicationService $service): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        $data = $request->validated();
+        $validated = $request->validate([
+            'company_name' => ['required', 'string', 'max:255'],
+            'contact_name' => ['required', 'string', 'max:255'],
+            'contact_email' => ['required', 'email', 'max:255'],
+            'contact_phone' => ['required', 'string', 'max:20'],
+            'type' => ['required', 'in:beverage_company,recycling_company,government'],
+            'description' => ['required', 'string'],
+        ]);
 
-        if ($request->hasFile('logo')) {
-            $data['logo_path'] = $request->file('logo')->store('agencies', 'public');
-        }
+        $validated['status'] = 'pending';
+        $validated['admin_notes'] = '';
 
-        $service->registerAgency($data);
+        RegistrationRequest::create($validated);
 
         return redirect()->route('registration.success')
-            ->with('success', 'Your agency application has been submitted.');
+            ->with('success', 'Your application has been submitted successfully.');
     }
 }

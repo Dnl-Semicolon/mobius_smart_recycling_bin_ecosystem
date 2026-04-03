@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -28,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone',
         'phone_verified_at',
         'profile_photo_path',
+        'avatar_path',
         'roles',
         'points_balance',
         'current_streak',
@@ -88,6 +90,25 @@ class User extends Authenticatable implements MustVerifyEmail
     public function collectionRoutes(): HasMany
     {
         return $this->hasMany(CollectionRoute::class, 'collector_id');
+    }
+
+    /**
+     * Compat accessor: views reference $user->avatar_path but DB column is profile_photo_path.
+     */
+    protected function avatarPath(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->profile_photo_path,
+            set: fn (?string $value) => ['profile_photo_path' => $value],
+        );
+    }
+
+    /**
+     * Compat accessor: views reference $user->username but column doesn't exist in new schema.
+     */
+    protected function username(): Attribute
+    {
+        return Attribute::get(fn () => null);
     }
 
     /**

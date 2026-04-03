@@ -32,6 +32,12 @@
         <x-admin.sidebar-item route="admin.dashboard" label="Dashboard" :exact="true">
             <x-slot:icon><x-heroicon-o-home class="w-5 h-5" /></x-slot:icon>
         </x-admin.sidebar-item>
+        <x-admin.sidebar-item route="admin.organizations.index" label="Organizations">
+            <x-slot:icon><x-heroicon-o-building-office-2 class="w-5 h-5" /></x-slot:icon>
+            @if (($pendingRegCount = \App\Models\RegistrationRequest::where('status', 'pending')->count()) > 0)
+                <x-slot:badge>{{ $pendingRegCount }}</x-slot:badge>
+            @endif
+        </x-admin.sidebar-item>
         <x-admin.sidebar-item route="admin.outlets.index" label="Outlets">
             <x-slot:icon><x-heroicon-o-building-storefront class="w-5 h-5" /></x-slot:icon>
         </x-admin.sidebar-item>
@@ -50,8 +56,17 @@
                 <x-slot:badge>{{ $pendingPickupCount }}</x-slot:badge>
             @endif
         </x-admin.sidebar-item>
+        <x-admin.sidebar-item route="admin.collection-routes.index" label="Collection Routes">
+            <x-slot:icon><x-heroicon-o-map class="w-5 h-5" /></x-slot:icon>
+        </x-admin.sidebar-item>
         <x-admin.sidebar-item route="admin.users.index" label="Users">
             <x-slot:icon><x-heroicon-o-users class="w-5 h-5" /></x-slot:icon>
+        </x-admin.sidebar-item>
+        <x-admin.sidebar-item route="admin.invitations.index" label="Invitations">
+            <x-slot:icon><x-heroicon-o-envelope class="w-5 h-5" /></x-slot:icon>
+            @if (($pendingInvCount = \App\Models\Invitation::where('status', 'pending')->count()) > 0)
+                <x-slot:badge>{{ $pendingInvCount }}</x-slot:badge>
+            @endif
         </x-admin.sidebar-item>
         <x-admin.sidebar-item route="admin.brands.index" label="Brands">
             <x-slot:icon><x-heroicon-o-building-storefront class="w-5 h-5" /></x-slot:icon>
@@ -77,6 +92,12 @@
         </x-admin.sidebar-item>
         <x-admin.sidebar-item route="admin.payments.index" label="Payments">
             <x-slot:icon><x-heroicon-o-banknotes class="w-5 h-5" /></x-slot:icon>
+        </x-admin.sidebar-item>
+        <x-admin.sidebar-item route="admin.vouchers.index" label="Vouchers">
+            <x-slot:icon><x-heroicon-o-gift class="w-5 h-5" /></x-slot:icon>
+        </x-admin.sidebar-item>
+        <x-admin.sidebar-item route="admin.plans.index" label="Plans">
+            <x-slot:icon><x-heroicon-o-rectangle-group class="w-5 h-5" /></x-slot:icon>
         </x-admin.sidebar-item>
     </nav>
 
