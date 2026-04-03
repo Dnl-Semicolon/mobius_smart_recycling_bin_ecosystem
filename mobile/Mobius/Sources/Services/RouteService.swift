@@ -5,8 +5,8 @@ import Foundation
 final class RouteService {
     private let api = APIClient()
 
-    /// Set to `true` to bypass the backend and use hardcoded mock routes.
-    var useHardcodedRoutes = true
+    /// Set to false to use real backend API
+    var useHardcodedRoutes = false
 
     var routes: [CollectionRoute] = []
     var activeRoute: CollectionRoute?
@@ -19,34 +19,39 @@ final class RouteService {
         isLoading = true
         error = nil
 
-        if useHardcodedRoutes {
-            routes = [CollectionRoute.mockActive, CollectionRoute.mockPending]
-            activeRoute = routes.first { $0.status == .active || $0.status == .accepted }
-            isLoading = false
-            return
-        }
-
         do {
-            let response: APIDataResponse<[CollectionRoute]> = try await api.get("/collector/routes")
-            routes = response.data
-            activeRoute = routes.first { $0.status == .active || $0.status == .accepted }
+            let response: RoutesListResponse = try await api.get("/collector/routes")
+            routes = response.routes
+            activeRoute = routes.first { $0.status == .inProgress || $0.status == .accepted }
         } catch {
             self.error = error.localizedDescription
         }
         isLoading = false
     }
 
+    func fetchRouteDetail(_ routeId: Int) async -> CollectionRoute? {
+        do {
+            let response: RouteDetailResponse = try await api.get("/collector/routes/\(routeId)")
+            // Update local cache
+            if let idx = routes.firstIndex(where: { $0.id == routeId }) {
+                routes[idx] = response.route
+            }
+            if response.route.status == .inProgress || response.route.status == .accepted {
+                activeRoute = response.route
+            }
+            return response.route
+        } catch {
+            self.error = error.localizedDescription
+            return nil
+        }
+    }
+
     // MARK: - Route Lifecycle
 
     func acceptRoute(_ routeId: Int) async -> Bool {
-        if useHardcodedRoutes {
-            return mutateLocalRoute(routeId) { route in
-                route.status = .accepted
-            }
-        }
         do {
-            let response: APIMessageResponse<CollectionRoute> = try await api.post("/collector/routes/\(routeId)/accept")
-            updateLocalRoute(response.data)
+            let _: APISimpleMessageResponse = try await api.post("/collector/routes/\(routeId)/accept")
+            _ = await fetchRouteDetail(routeId)
             return true
         } catch {
             self.error = error.localizedDescription
@@ -55,15 +60,9 @@ final class RouteService {
     }
 
     func startRoute(_ routeId: Int) async -> Bool {
-        if useHardcodedRoutes {
-            return mutateLocalRoute(routeId) { route in
-                route.status = .active
-                route.startedAt = Date()
-            }
-        }
         do {
-            let response: APIMessageResponse<CollectionRoute> = try await api.post("/collector/routes/\(routeId)/start")
-            updateLocalRoute(response.data)
+            let _: APISimpleMessageResponse = try await api.post("/collector/routes/\(routeId)/start")
+            _ = await fetchRouteDetail(routeId)
             return true
         } catch {
             self.error = error.localizedDescription
@@ -72,19 +71,10 @@ final class RouteService {
     }
 
     func completeStop(routeId: Int, order: Int, latitude: Double, longitude: Double) async -> Bool {
-        if useHardcodedRoutes {
-            return mutateLocalRoute(routeId) { route in
-                if let idx = route.stops.firstIndex(where: { $0.order == order }) {
-                    route.stops[idx].status = "completed"
-                    route.stops[idx].completedAt = Date()
-                    route.stopsCompleted = route.stops.filter { $0.status == "completed" }.count
-                }
-            }
-        }
         do {
             let body = CompleteStopRequest(latitude: latitude, longitude: longitude)
-            let response: APIMessageResponse<CollectionRoute> = try await api.post("/collector/routes/\(routeId)/stops/\(order)/complete", body: body)
-            updateLocalRoute(response.data)
+            let _: APISimpleMessageResponse = try await api.post("/collector/routes/\(routeId)/stops/\(order)/complete", body: body)
+            _ = await fetchRouteDetail(routeId)
             return true
         } catch {
             self.error = error.localizedDescription
@@ -93,18 +83,10 @@ final class RouteService {
     }
 
     func skipStop(routeId: Int, order: Int, reason: String) async -> Bool {
-        if useHardcodedRoutes {
-            return mutateLocalRoute(routeId) { route in
-                if let idx = route.stops.firstIndex(where: { $0.order == order }) {
-                    route.stops[idx].status = "skipped"
-                    route.stops[idx].skipReason = reason
-                }
-            }
-        }
         do {
             let body = SkipStopRequest(reason: reason)
-            let response: APIMessageResponse<CollectionRoute> = try await api.post("/collector/routes/\(routeId)/stops/\(order)/skip", body: body)
-            updateLocalRoute(response.data)
+            let _: APISimpleMessageResponse = try await api.post("/collector/routes/\(routeId)/stops/\(order)/skip", body: body)
+            _ = await fetchRouteDetail(routeId)
             return true
         } catch {
             self.error = error.localizedDescription
@@ -113,15 +95,9 @@ final class RouteService {
     }
 
     func completeRoute(_ routeId: Int) async -> Bool {
-        if useHardcodedRoutes {
-            return mutateLocalRoute(routeId) { route in
-                route.status = .completed
-                route.completedAt = Date()
-            }
-        }
         do {
-            let response: APIMessageResponse<CollectionRoute> = try await api.post("/collector/routes/\(routeId)/complete")
-            updateLocalRoute(response.data)
+            let _: APISimpleMessageResponse = try await api.post("/collector/routes/\(routeId)/complete")
+            _ = await fetchRouteDetail(routeId)
             return true
         } catch {
             self.error = error.localizedDescription
@@ -130,11 +106,6 @@ final class RouteService {
     }
 
     func rejectRoute(_ routeId: Int) async -> Bool {
-        if useHardcodedRoutes {
-            routes.removeAll { $0.id == routeId }
-            if activeRoute?.id == routeId { activeRoute = nil }
-            return true
-        }
         do {
             let _: APISimpleMessageResponse = try await api.post("/collector/routes/\(routeId)/reject")
             routes.removeAll { $0.id == routeId }
@@ -147,10 +118,6 @@ final class RouteService {
     }
 
     func generateRoutes() async -> Bool {
-        if useHardcodedRoutes {
-            await fetchRoutes()
-            return true
-        }
         isLoading = true
         do {
             let _: APISimpleMessageResponse = try await api.post("/collector/routes/generate")
@@ -162,54 +129,17 @@ final class RouteService {
             return false
         }
     }
-
-    // MARK: - Helpers
-
-    /// Mutate a local route in-place (for hardcoded mode).
-    private func mutateLocalRoute(_ routeId: Int, _ transform: (inout CollectionRoute) -> Void) -> Bool {
-        guard let idx = routes.firstIndex(where: { $0.id == routeId }) else { return false }
-        transform(&routes[idx])
-        let route = routes[idx]
-        if route.status == .active || route.status == .accepted {
-            activeRoute = route
-        } else if activeRoute?.id == routeId {
-            activeRoute = nil
-        }
-        return true
-    }
-
-    private func updateLocalRoute(_ route: CollectionRoute) {
-        if let idx = routes.firstIndex(where: { $0.id == route.id }) {
-            routes[idx] = route
-        }
-        if route.status == .active || route.status == .accepted {
-            activeRoute = route
-        } else if activeRoute?.id == route.id {
-            activeRoute = nil
-        }
-    }
-
-    // MARK: - Mock
-
-    static func mockWithActiveRoute() -> RouteService {
-        let service = RouteService()
-        service.routes = [CollectionRoute.mockActive, CollectionRoute.mockPending]
-        service.activeRoute = CollectionRoute.mockActive
-        return service
-    }
-
-    static func mockEmpty() -> RouteService {
-        RouteService()
-    }
-
-    static func mockWithPendingRoute() -> RouteService {
-        let service = RouteService()
-        service.routes = [CollectionRoute.mockPending]
-        return service
-    }
 }
 
 // MARK: - API Response Types
+
+private struct RoutesListResponse: Decodable {
+    let routes: [CollectionRoute]
+}
+
+private struct RouteDetailResponse: Decodable {
+    let route: CollectionRoute
+}
 
 private struct SkipStopRequest: Encodable, Sendable {
     let reason: String
@@ -218,15 +148,6 @@ private struct SkipStopRequest: Encodable, Sendable {
 private struct CompleteStopRequest: Encodable, Sendable {
     let latitude: Double
     let longitude: Double
-}
-
-struct APIDataResponse<T: Decodable>: Decodable {
-    let data: T
-}
-
-struct APIMessageResponse<T: Decodable>: Decodable {
-    let message: String
-    let data: T
 }
 
 struct APISimpleMessageResponse: Decodable {

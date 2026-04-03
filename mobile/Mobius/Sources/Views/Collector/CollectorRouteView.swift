@@ -28,7 +28,7 @@ struct CollectorRouteView: View {
     @State private var arrivedPulse = false
 
     private var route: CollectionRoute? {
-        routeService.activeRoute ?? routeService.routes.first
+        routeService.inProgressRoute ?? routeService.routes.first
     }
 
     var body: some View {
@@ -67,7 +67,7 @@ struct CollectorRouteView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                if route?.status != .active {
+                if route?.status != .inProgress {
                     Button {
                         dismiss()
                     } label: {
@@ -86,7 +86,7 @@ struct CollectorRouteView: View {
         }
         .onChange(of: route?.status) { _, newStatus in
             if newStatus == .completed { showCompletion = true }
-            if newStatus == .active {
+            if newStatus == .inProgress {
                 locationManager.startTracking()
                 withAnimation(.easeInOut(duration: 0.6)) {
                     cameraPosition = .userLocation(followsHeading: true, fallback: .automatic)
@@ -95,13 +95,13 @@ struct CollectorRouteView: View {
             }
         }
         .onChange(of: route?.nextStop?.order) { oldOrder, newOrder in
-            if route?.status == .active, newOrder != nil, newOrder != oldOrder {
+            if route?.status == .inProgress, newOrder != nil, newOrder != oldOrder {
                 clearDirections()
                 requestDirectionsIfNeeded()
             }
         }
         .onChange(of: locationManager.userLocation?.latitude) { _, _ in
-            if route?.status == .active {
+            if route?.status == .inProgress {
                 requestDirectionsIfNeeded()
             }
         }
@@ -120,13 +120,13 @@ extension CollectorRouteView {
             }
 
             // MKDirections route — thick bold blue (9pt)
-            if route?.status == .active, !directionsCoordinates.isEmpty {
+            if route?.status == .inProgress, !directionsCoordinates.isEmpty {
                 MapPolyline(coordinates: directionsCoordinates)
                     .stroke(.blue, style: StrokeStyle(lineWidth: 9, lineCap: .round, lineJoin: .round))
             }
 
             // VROOM solid overlay (non-active or no directions yet) — 6pt
-            if route?.status != .active || directionsCoordinates.isEmpty {
+            if route?.status != .inProgress || directionsCoordinates.isEmpty {
                 if let route, !route.routeCoordinates.isEmpty {
                     MapPolyline(coordinates: route.routeCoordinates)
                         .stroke(.blue.opacity(0.7), style: StrokeStyle(lineWidth: 6, lineCap: .round, lineJoin: .round))
@@ -134,8 +134,8 @@ extension CollectorRouteView {
             }
 
             // Depot
-            if let zone = route?.zone {
-                Annotation("Depot", coordinate: zone.depotCoordinate, anchor: .bottom) {
+            if let depotCoord = route?.depotCoordinate {
+                Annotation("Depot", coordinate: depotCoord, anchor: .bottom) {
                     DepotPin()
                 }
             }
@@ -143,8 +143,8 @@ extension CollectorRouteView {
             // Stops
             if let stops = route?.stops {
                 ForEach(stops) { stop in
-                    Annotation(stop.outletName, coordinate: stop.coordinate, anchor: .bottom) {
-                        StopPin(stop: stop, isNext: stop.order == route?.nextStop?.order)
+                    Annotation((stop.outlet ?? "Unknown"), coordinate: (stop.coordinate ?? CLLocationCoordinate2D()), anchor: .bottom) {
+                        StopPin(stop: stop, isNext: stop.stopOrder == route?.nextStop?.order)
                     }
                     .tag(stop)
                 }
@@ -160,7 +160,7 @@ extension CollectorRouteView {
         .safeAreaPadding(.top, 50)
         .onMapCameraChange(frequency: .onEnd) { _ in
             // Detect user panning during active nav → show re-centre button
-            if route?.status == .active && isFollowingUser {
+            if route?.status == .inProgress && isFollowingUser {
                 isFollowingUser = false
             }
         }
@@ -171,7 +171,7 @@ extension CollectorRouteView {
 
 extension CollectorRouteView {
     private func requestDirectionsIfNeeded() {
-        guard let route, route.status == .active,
+        guard let route, route.status == .inProgress,
               let nextStop = route.nextStop,
               let userLoc = locationManager.userLocation,
               !isRequestingDirections else { return }
@@ -238,7 +238,7 @@ extension CollectorRouteView {
             pendingLayout(route)
         case .accepted:
             acceptedLayout(route)
-        case .active:
+        case .inProgress:
             activeLayout(route)
         default:
             EmptyView()
@@ -306,8 +306,8 @@ extension CollectorRouteView {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("New Route")
                                 .font(.headline)
-                            if let zone = route.zone {
-                                Text(zone.name + " · " + zone.region)
+                            if let depotName = route.depotName {
+                                Text(depotName)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -386,8 +386,8 @@ extension CollectorRouteView {
                                 Text("Route Ready")
                                     .font(.headline)
                             }
-                            if let zone = route.zone {
-                                Text(zone.name)
+                            if let depotName = route.depotName {
+                                Text(depotName)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -425,7 +425,7 @@ extension CollectorRouteView {
 extension CollectorRouteView {
     /// Whether the re-centre button should show (user panned away during active nav)
     private var showRecentreButton: Bool {
-        guard route?.status == .active else { return false }
+        guard route?.status == .inProgress else { return false }
         return !isFollowingUser
     }
 
@@ -491,13 +491,13 @@ extension CollectorRouteView {
                 .foregroundStyle(.white)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text("Stop \(stop.order) · \(stop.outletName)")
+                Text("Stop \(stop.stopOrder) · \((stop.outlet ?? "Unknown"))")
                     .font(.callout.bold())
                     .foregroundStyle(.white)
                     .lineLimit(1)
 
                 Group {
-                    if let dist = directionsDistance, lastDirectionsTarget == stop.order {
+                    if let dist = directionsDistance, lastDirectionsTarget == stop.stopOrder {
                         if let eta = directionsETA {
                             Text("\(formatDistance(dist)) · ~\(formatETA(eta))")
                         } else {
@@ -545,7 +545,7 @@ extension CollectorRouteView {
             Image(systemName: "arrow.right")
                 .font(.system(size: 9, weight: .bold))
                 .foregroundStyle(.white.opacity(0.5))
-            Text(stop.outletName)
+            Text((stop.outlet ?? "Unknown"))
                 .foregroundStyle(.white)
                 .lineLimit(1)
         }
@@ -583,7 +583,7 @@ extension CollectorRouteView {
             HStack(spacing: 6) {
                 ForEach(route.stops) { stop in
                     Circle()
-                        .fill(stop.isCompleted ? .green : stop.isSkipped ? .gray : stop.order == route.nextStop?.order ? .orange : .white.opacity(0.3))
+                        .fill(stop.isCompleted ? .green : stop.isSkipped ? .gray : stop.stopOrder == route.nextStop?.order ? .orange : .white.opacity(0.3))
                         .frame(width: 10, height: 10)
                 }
 
@@ -723,7 +723,7 @@ extension CollectorRouteView {
 
             // Outlet info
             VStack(alignment: .leading, spacing: 4) {
-                Text(stop.outletName)
+                Text((stop.outlet ?? "Unknown"))
                     .font(.headline.bold())
                     .foregroundStyle(.white)
                 Text(stop.address)
@@ -759,7 +759,7 @@ extension CollectorRouteView {
                 HapticManager.notification(.success)
                 Task {
                     _ = await routeService.completeStop(
-                        routeId: route.id, order: stop.order,
+                        routeId: route.id, order: stop.stopOrder,
                         latitude: loc.latitude, longitude: loc.longitude
                     )
                     checkAutoComplete(route)
@@ -855,13 +855,13 @@ extension CollectorRouteView {
                         Circle()
                             .fill(stopColor(stop, route: route))
                             .frame(width: 28, height: 28)
-                        Text("\(stop.order)")
+                        Text("\(stop.stopOrder)")
                             .font(.system(size: 12, weight: .bold))
                             .foregroundStyle(.white)
                     }
 
                     VStack(alignment: .leading, spacing: 1) {
-                        Text(stop.outletName)
+                        Text((stop.outlet ?? "Unknown"))
                             .font(.subheadline)
                             .lineLimit(1)
                         Text(stop.address)
@@ -883,14 +883,14 @@ extension CollectorRouteView {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         cameraPosition = .region(
                             MKCoordinateRegion(
-                                center: stop.coordinate,
+                                center: (stop.coordinate ?? CLLocationCoordinate2D()),
                                 span: MKCoordinateSpan(latitudeDelta: 0.006, longitudeDelta: 0.006)
                             )
                         )
                     }
                 }
 
-                if stop.order != route.stops.last?.order {
+                if stop.stopOrder != route.stops.last?.order {
                     Divider().padding(.leading, 50)
                 }
             }
@@ -987,7 +987,7 @@ struct StopPin: View {
                         .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(.white)
                 } else {
-                    Text("\(stop.order)")
+                    Text("\(stop.stopOrder)")
                         .font(.system(size: isNext ? 19 : 16, weight: .heavy))
                         .foregroundStyle(.white)
                 }
@@ -1094,8 +1094,8 @@ struct RouteCompletionSheet: View {
                 completionRow(icon: "clock.fill", label: "Est. Duration", value: route.totalDurationMin.map { "\($0) min" } ?? "--")
             }
 
-            if let zone = route.zone {
-                completionRow(icon: "map.fill", label: "Zone", value: zone.name)
+            if let depotName = route.depotName {
+                completionRow(icon: "map.fill", label: "Depot", value: depotName)
             }
         }
         .padding(20)
@@ -1123,7 +1123,7 @@ extension CollectorRouteView {
         switch status {
         case .pending: .orange
         case .accepted: .blue
-        case .active: .green
+        case .inProgress: .green
         case .completed: .gray
         case .cancelled: .red
         }
@@ -1140,14 +1140,14 @@ extension CollectorRouteView {
     private func stopColor(_ stop: RouteStop, route: CollectionRoute) -> Color {
         if stop.isCompleted { return .green }
         if stop.isSkipped { return .gray }
-        if stop.order == route.nextStop?.order { return .orange }
+        if stop.stopOrder == route.nextStop?.order { return .orange }
         return .blue
     }
 
     private func openInMaps(_ stop: RouteStop) {
-        let placemark = MKPlacemark(coordinate: stop.coordinate)
+        let placemark = MKPlacemark(coordinate: (stop.coordinate ?? CLLocationCoordinate2D()))
         let item = MKMapItem(placemark: placemark)
-        item.name = stop.outletName
+        item.name = (stop.outlet ?? "Unknown")
         item.openInMaps(launchOptions: [
             MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving,
         ])
@@ -1156,7 +1156,7 @@ extension CollectorRouteView {
     private func performSkip() {
         guard let stop = stopToSkip, let route else { return }
         Task {
-            _ = await routeService.skipStop(routeId: route.id, order: stop.order, reason: skipReason)
+            _ = await routeService.skipStop(routeId: route.id, order: stop.stopOrder, reason: skipReason)
             skipReason = ""
             stopToSkip = nil
             checkAutoComplete(route)
@@ -1167,7 +1167,7 @@ extension CollectorRouteView {
         Task {
             await routeService.fetchRoutes()
             if let updated = routeService.routes.first(where: { $0.id == route.id }),
-               updated.status == .active,
+               updated.status == .inProgress,
                updated.stops.allSatisfy({ $0.isCompleted || $0.isSkipped }) {
                 _ = await routeService.completeRoute(updated.id)
             }

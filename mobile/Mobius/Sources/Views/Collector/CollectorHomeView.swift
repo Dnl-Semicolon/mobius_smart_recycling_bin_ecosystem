@@ -144,7 +144,7 @@ struct CollectorHomeView: View {
     private func routeStatusRow(_ route: CollectionRoute) -> some View {
         HStack(spacing: 14) {
             // Larger icon with accent — 40pt for active/pending, 32pt otherwise
-            let isProminent = route.status == .active || route.status == .pending
+            let isProminent = route.status == .inProgress || route.status == .pending
             Image(systemName: routeStatusIcon(route.status))
                 .font(.system(size: isProminent ? 18 : 16, weight: .semibold))
                 .foregroundStyle(.white)
@@ -159,10 +159,10 @@ struct CollectorHomeView: View {
                 Group {
                     switch route.status {
                     case .pending:
-                        Text("\(route.zone?.name ?? "Unknown zone") · \(route.stopsTotal) stops · \(route.totalDistanceKm.map { String(format: "%.1f km", $0) } ?? "--")")
+                        Text("\(route.depotName ?? "Unknown") · \(route.totalStops) stops · \(route.totalDistanceKm.map { String(format: "%.1f km", $0) } ?? "--")")
                     case .accepted:
-                        Text("\(route.zone?.name ?? "Unknown zone") · Tap to start navigation")
-                    case .active:
+                        Text("\(route.depotName ?? "Unknown") · Tap to start navigation")
+                    case .inProgress:
                         VStack(alignment: .leading, spacing: 4) {
                             HStack(spacing: 5) {
                                 ForEach(route.stops) { stop in
@@ -177,7 +177,7 @@ struct CollectorHomeView: View {
                             }
                         }
                     case .completed:
-                        Text("\(route.stopsCompleted) stops completed")
+                        Text("\(route.completedStopsCount) stops completed")
                     case .cancelled:
                         Text("Route was cancelled")
                     }
@@ -189,7 +189,7 @@ struct CollectorHomeView: View {
             Spacer(minLength: 0)
 
             // Chevron indicator for prominent states
-            if route.status == .active || route.status == .pending || route.status == .accepted {
+            if route.status == .inProgress || route.status == .pending || route.status == .accepted {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.tertiary)
@@ -197,7 +197,7 @@ struct CollectorHomeView: View {
         }
         .padding(.vertical, 6)
         .listRowBackground(
-            route.status == .active
+            route.status == .inProgress
                 ? Color.green.opacity(0.06)
                 : route.status == .pending
                     ? Color.orange.opacity(0.06)
@@ -209,7 +209,7 @@ struct CollectorHomeView: View {
         switch status {
         case .pending: "map.fill"
         case .accepted: "checkmark.circle.fill"
-        case .active: "location.fill"
+        case .inProgress: "location.fill"
         case .completed: "flag.checkered"
         case .cancelled: "xmark.circle.fill"
         }
@@ -219,7 +219,7 @@ struct CollectorHomeView: View {
         switch route.status {
         case .pending: "New Route Available"
         case .accepted: "Route Ready"
-        case .active: "Route In Progress"
+        case .inProgress: "Route In Progress"
         case .completed: "Route Completed"
         case .cancelled: "Route Cancelled"
         }
@@ -229,7 +229,7 @@ struct CollectorHomeView: View {
         switch status {
         case .pending: .orange
         case .accepted: .green
-        case .active: .green
+        case .inProgress: .green
         case .completed: .gray
         case .cancelled: .red
         }
