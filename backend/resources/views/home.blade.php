@@ -751,7 +751,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('registration.brand.store') }}" method="POST" class="space-y-4">
+                <form action="{{ route('registration.company.store') }}" method="POST" class="space-y-4">
                     @csrf
 
                     <div>
@@ -799,12 +799,9 @@
                         <select name="type" id="type" required
                                 class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                             <option value="">Select type...</option>
-                            <option value="beverage_chain" {{ old('type') === 'beverage_chain' ? 'selected' : '' }}>Beverage Chain / Franchise</option>
-                            <option value="independent_cafe" {{ old('type') === 'independent_cafe' ? 'selected' : '' }}>Independent Cafe</option>
-                            <option value="food_court" {{ old('type') === 'food_court' ? 'selected' : '' }}>Food Court / Mall</option>
-                            <option value="university" {{ old('type') === 'university' ? 'selected' : '' }}>University / Campus</option>
+                            <option value="beverage_company" {{ old('type') === 'beverage_company' ? 'selected' : '' }}>Beverage Company</option>
+                            <option value="recycling_company" {{ old('type') === 'recycling_company' ? 'selected' : '' }}>Recycling Company</option>
                             <option value="government" {{ old('type') === 'government' ? 'selected' : '' }}>Government / Municipal</option>
-                            <option value="other" {{ old('type') === 'other' ? 'selected' : '' }}>Other</option>
                         </select>
                         @error('type')
                             <p class="mt-1 text-xs text-red-600">{{ $message }}</p>

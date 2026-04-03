@@ -81,7 +81,26 @@ Route::middleware('auth')->group(function () {
 | Corporate Home + Registration + Subscription
 |--------------------------------------------------------------------------
 */
-Route::get('/home', fn () => view('home'))->name('home');
+// Landing page company registration (simple form → registration_requests table)
+Route::post('/register/company', function (\Illuminate\Http\Request $request) {
+    $validated = $request->validate([
+        'company_name' => ['required', 'string', 'max:255'],
+        'contact_name' => ['required', 'string', 'max:255'],
+        'contact_email' => ['required', 'email', 'max:255'],
+        'contact_phone' => ['nullable', 'string', 'max:20'],
+        'type' => ['required', 'in:beverage_company,recycling_company,government'],
+        'description' => ['nullable', 'string'],
+    ]);
+
+    $validated['status'] = 'pending';
+    $validated['admin_notes'] = '';
+    $validated['contact_phone'] = $validated['contact_phone'] ?? '';
+    $validated['description'] = $validated['description'] ?? '';
+
+    \App\Models\RegistrationRequest::create($validated);
+
+    return redirect()->route('home')->with('success', 'Application submitted! We\'ll review and contact you within 2 business days.');
+})->name('registration.company.store');
 
 Route::prefix('register')->name('registration.')->group(function () {
     Route::get('brand', [BrandRegistrationController::class, 'create'])->name('brand.create');
@@ -110,7 +129,7 @@ Route::middleware('auth')->prefix('subscribe')->name('subscribe.')->group(functi
 */
 Route::get('/', function () {
     if (! auth()->check()) {
-        return redirect()->route('login');
+        return view('home');
     }
 
     return match (auth()->user()->primaryRole()) {
@@ -121,7 +140,7 @@ Route::get('/', function () {
         UserRole::AgencyAdmin => redirect()->route('agency.dashboard'),
         default => redirect()->route('public.dashboard'),
     };
-});
+})->name('home');
 
 /*
 |--------------------------------------------------------------------------
