@@ -3,15 +3,18 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\Admin\BinController;
+use App\Http\Controllers\Admin\BinSessionController;
 use App\Http\Controllers\Admin\BrandDirectoryController;
 use App\Http\Controllers\Admin\BrandMonitoringController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DetectionEventController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OutletController;
+use App\Http\Controllers\Admin\PaymentManagementController;
 use App\Http\Controllers\Admin\PickupRequestController;
 use App\Http\Controllers\Admin\PlacesProxyController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SubscriptionManagementController;
 use App\Http\Controllers\Admin\UserController;
 // use App\Http\Controllers\Admin\Z_ACodex_TempWorkbenchController;
 use App\Http\Controllers\Agency;
@@ -159,6 +162,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::get('detection-events/{detection_event}', [DetectionEventController::class, 'show'])->name('detection-events.show');
     Route::post('detection-events/simulate', [DetectionEventController::class, 'simulate'])->name('detection-events.simulate');
 
+    // Bin Sessions
+    Route::get('bin-sessions', [BinSessionController::class, 'index'])->name('bin-sessions.index');
+    Route::get('bin-sessions/{binSession}', [BinSessionController::class, 'show'])->name('bin-sessions.show');
+
     // Pickup Requests
     Route::get('pickup-requests', [PickupRequestController::class, 'index'])->name('pickup-requests.index');
     Route::get('pickup-requests/{pickup_request}', [PickupRequestController::class, 'show'])->name('pickup-requests.show');
@@ -201,6 +208,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('reports/{report}', [ReportController::class, 'show'])->name('reports.show');
     Route::post('reports/{report}/resolve', [ReportController::class, 'resolve'])->name('reports.resolve');
+
+    // Subscriptions
+    Route::get('subscriptions', [SubscriptionManagementController::class, 'index'])->name('subscriptions.index');
+
+    // Payments
+    Route::get('payments', [PaymentManagementController::class, 'index'])->name('payments.index');
 
     // Notifications
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');

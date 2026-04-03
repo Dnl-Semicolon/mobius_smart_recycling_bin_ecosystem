@@ -38,6 +38,42 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
+        // Org 3 — CHAGEE
+        DB::table('organizations')->insert([
+            'name' => 'CHAGEE (International) Sdn Bhd',
+            'type' => 'beverage_company',
+            'description' => 'Premium Chinese tea chain',
+            'logo_path' => 'organizations/chagee.png',
+            'website' => 'https://www.chagee.com',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Org 4 — ZUS Coffee
+        DB::table('organizations')->insert([
+            'name' => 'ZUS Coffee Sdn Bhd',
+            'type' => 'beverage_company',
+            'description' => 'Malaysian specialty coffee chain',
+            'logo_path' => 'organizations/zus-coffee.png',
+            'website' => 'https://www.zuscoffee.com',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Org 5 — Lucky Cup
+        DB::table('organizations')->insert([
+            'name' => 'Lucky Cup Sdn Bhd',
+            'type' => 'beverage_company',
+            'description' => 'Popular bubble tea chain',
+            'logo_path' => 'organizations/lucky-cup.png',
+            'website' => 'https://www.luckycup.com',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         // =============================================
         // PLANS
         // =============================================
@@ -440,42 +476,6 @@ class DatabaseSeeder extends Seeder
             'description' => 'Ice cream and tea chain',
             'website' => 'https://www.mixue.com',
             'point_multiplier' => 1.30,
-            'is_active' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // Org 3 — CHAGEE
-        DB::table('organizations')->insert([
-            'name' => 'CHAGEE (International) Sdn Bhd',
-            'type' => 'beverage_company',
-            'description' => 'Premium Chinese tea chain',
-            'logo_path' => 'organizations/chagee.png',
-            'website' => 'https://www.chagee.com',
-            'is_active' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // Org 4 — ZUS Coffee
-        DB::table('organizations')->insert([
-            'name' => 'ZUS Coffee Sdn Bhd',
-            'type' => 'beverage_company',
-            'description' => 'Malaysian specialty coffee chain',
-            'logo_path' => 'organizations/zus-coffee.png',
-            'website' => 'https://www.zuscoffee.com',
-            'is_active' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // Org 5 — Lucky Cup
-        DB::table('organizations')->insert([
-            'name' => 'Lucky Cup Sdn Bhd',
-            'type' => 'beverage_company',
-            'description' => 'Popular bubble tea chain',
-            'logo_path' => 'organizations/lucky-cup.png',
-            'website' => 'https://www.luckycup.com',
             'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),

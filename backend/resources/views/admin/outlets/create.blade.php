@@ -7,7 +7,7 @@
         New Outlet
     </x-slot:header>
 
-    <form action="{{ route('admin.outlets.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.outlets.store') }}" method="POST">
         @csrf
 
         @include('admin.outlets._form')

@@ -2,36 +2,6 @@
 @php
     $outlet ??= null;
     $hasPlacesApi = (bool) config('services.google_maps.api_key');
-
-    // Build full 7-day schedule for Alpine (existing data or defaults)
-    $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    $defaultSchedule = collect($days)->mapWithKeys(fn ($d) => [
-        $d => ['open' => true, 'from' => '09:00', 'to' => '22:00'],
-    ])->toArray();
-
-    $existingHours = old('operating_hours', $outlet?->operating_hours);
-    $parsedHours = $existingHours ? json_decode($existingHours, true) : null;
-
-    $scheduleData = $defaultSchedule;
-    if (is_array($parsedHours)) {
-        foreach ($days as $day) {
-            if (isset($parsedHours[$day])) {
-                $scheduleData[$day] = [
-                    'open' => (bool) ($parsedHours[$day]['open'] ?? true),
-                    'from' => $parsedHours[$day]['from'] ?? '09:00',
-                    'to' => $parsedHours[$day]['to'] ?? '22:00',
-                ];
-            }
-        }
-    }
-
-    // Pre-generate time slots so Alpine has them on first render
-    $timeSlots = [];
-    for ($h = 0; $h < 24; $h++) {
-        for ($m = 0; $m < 60; $m += 30) {
-            $timeSlots[] = str_pad($h, 2, '0', STR_PAD_LEFT) . ':' . str_pad($m, 2, '0', STR_PAD_LEFT);
-        }
-    }
 @endphp
 
 <div class="space-y-8">
@@ -47,7 +17,7 @@
                 </div>
                 <h2 class="text-sm font-semibold text-gray-900">Outlet Identity</h2>
             </div>
-            <p class="text-xs text-gray-500 leading-relaxed lg:pl-[42px]">Name, photo, and contract status.</p>
+            <p class="text-xs text-gray-500 leading-relaxed lg:pl-[42px]">Name and active status.</p>
         </div>
 
         <div class="rounded-xl bg-white border border-gray-200 shadow-sm p-6 space-y-5">
@@ -70,110 +40,21 @@
                 @enderror
             </div>
 
-            {{-- Photo Upload --}}
+            {{-- Active Status --}}
             <div class="space-y-1.5">
-                <label class="block text-sm font-medium text-gray-700">Outlet Photo</label>
-                <div
-                    x-data="{
-                        preview: {{ $outlet?->photo_url ? "'" . e($outlet->photo_url) . "'" : 'null' }},
-                        fileName: null,
-                        fileSize: null,
-                        dragging: false,
-                        removeExisting: false,
-
-                        handleFiles(files) {
-                            if (!files || !files.length) return;
-                            const file = files[0];
-
-                            if (!file.type.startsWith('image/')) {
-                                alert('Please select an image file (JPEG, PNG, GIF, WebP).');
-                                return;
-                            }
-                            if (file.size > 2 * 1024 * 1024) {
-                                alert('Image must be smaller than 2 MB.');
-                                return;
-                            }
-
-                            this.fileName = file.name;
-                            this.fileSize = (file.size / 1024 / 1024).toFixed(1) + ' MB';
-                            this.removeExisting = false;
-
-                            const reader = new FileReader();
-                            reader.onload = (e) => { this.preview = e.target.result; };
-                            reader.readAsDataURL(file);
-
-                            this.$refs.photoInput.files = files;
-                        },
-
-                        removePhoto() {
-                            this.preview = null;
-                            this.fileName = null;
-                            this.fileSize = null;
-                            this.$refs.photoInput.value = '';
-                            this.removeExisting = true;
-                        }
-                    }"
-                    @dragover.prevent="dragging = true"
-                    @dragleave.prevent="dragging = false"
-                    @drop.prevent="dragging = false; handleFiles($event.dataTransfer.files)"
+                <label for="is_active" class="block text-sm font-medium text-gray-700">Status</label>
+                <select
+                    id="is_active"
+                    name="is_active"
+                    class="w-full rounded-xl border px-4 py-2.5 text-sm text-gray-900 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/10 border-gray-200 bg-gray-50/50 cursor-pointer @error('is_active') border-red-300 bg-red-50/50 @enderror"
                 >
-                    <input type="hidden" name="remove_photo" :value="removeExisting ? '1' : '0'">
-                    <input type="file" name="photo" accept="image/*" class="hidden" x-ref="photoInput"
-                        @change="handleFiles($event.target.files)">
-
-                    {{-- Upload zone --}}
-                    <div
-                        x-show="!preview"
-                        @click="$refs.photoInput.click()"
-                        :class="dragging ? 'border-emerald-400 bg-emerald-50/50 scale-[1.01]' : 'border-gray-300 bg-gray-50/30 hover:border-emerald-300 hover:bg-emerald-50/20'"
-                        class="relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 cursor-pointer transition-all duration-200"
-                    >
-                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center" :class="dragging && 'bg-emerald-100'">
-                            <x-heroicon-o-camera class="w-6 h-6 text-gray-400" x-bind:class="dragging && '!text-emerald-500'" />
-                        </div>
-                        <div class="text-center">
-                            <p class="text-sm text-gray-600"><span class="font-semibold text-emerald-600">Click to upload</span> or drag and drop</p>
-                            <p class="text-xs text-gray-400 mt-1">JPEG, PNG, WebP &middot; Max 2 MB</p>
-                        </div>
-                    </div>
-
-                    {{-- Preview --}}
-                    <div x-show="preview" x-cloak class="relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-100">
-                        <img :src="preview" alt="Outlet preview" class="w-full h-48 object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="absolute bottom-0 left-0 right-0 flex items-center justify-between px-4 py-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <div class="text-white text-xs">
-                                <span x-show="fileName" x-text="fileName" class="font-medium"></span>
-                                <span x-show="fileSize" class="opacity-70 ml-1" x-text="fileSize"></span>
-                                <span x-show="!fileName && preview" class="font-medium">Current photo</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button type="button" @click="$refs.photoInput.click()"
-                                    class="rounded-lg bg-white/20 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-white hover:bg-white/30 transition-colors cursor-pointer">
-                                    Replace
-                                </button>
-                                <button type="button" @click="removePhoto()"
-                                    class="rounded-lg bg-red-500/80 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600/90 transition-colors cursor-pointer">
-                                    Remove
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    @error('photo')
-                        <p class="mt-1.5 text-xs text-red-600 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <option value="1" {{ old('is_active', $outlet?->is_active ? '1' : '0') === '1' ? 'selected' : '' }}>Active</option>
+                    <option value="0" {{ old('is_active', $outlet?->is_active ? '1' : '0') === '0' ? 'selected' : '' }}>Inactive</option>
+                </select>
+                @error('is_active')
+                    <p class="text-xs text-red-600 font-medium">{{ $message }}</p>
+                @enderror
             </div>
-
-            {{-- Contract Status --}}
-            <x-dropdown.select
-                name="contract_status"
-                label="Contract Status"
-                :options="collect($statuses)->mapWithKeys(fn($s) => [$s->value => $s->label()])->toArray()"
-                :selected="old('contract_status', $outlet?->contract_status?->value)"
-                placeholder="Select status"
-            />
         </div>
     </div>
 
@@ -364,249 +245,6 @@
         </div>
     </div>
 
-    {{-- ═══════════════════════════════════════════════════════════ --}}
-    {{-- Section 3 · Operating Hours                                --}}
-    {{-- ═══════════════════════════════════════════════════════════ --}}
-    <div
-        class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-x-10 gap-y-4"
-        x-data="outletHoursPicker()"
-    >
-        <div class="lg:pt-1">
-            <div class="flex items-center gap-2.5 mb-1.5">
-                <div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center ring-1 ring-orange-200/60">
-                    <x-heroicon-s-clock class="w-4 h-4 text-orange-600" />
-                </div>
-                <h2 class="text-sm font-semibold text-gray-900">Operating Hours</h2>
-            </div>
-            <p class="text-xs text-gray-500 leading-relaxed lg:pl-[42px]">Set the weekly schedule.</p>
-        </div>
-
-        <div class="rounded-xl bg-white border border-gray-200 shadow-sm p-6">
-            {{-- Hidden input holds the JSON --}}
-            <input type="hidden" name="operating_hours" :value="getJson()">
-
-            {{-- Quick action bar --}}
-            <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
-                <p class="text-xs text-gray-500">Toggle each day and set open/close times.</p>
-                <button type="button" @click="applyMondayToAll()"
-                    class="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors cursor-pointer">
-                    <x-heroicon-o-document-duplicate class="w-3.5 h-3.5" />
-                    Copy Mon to all
-                </button>
-            </div>
-
-            {{-- Day rows --}}
-            <div class="space-y-1.5">
-                <template x-for="(dayKey, index) in dayKeys" :key="dayKey">
-                    <div
-                        class="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors duration-150"
-                        :class="schedule[dayKey].open ? 'bg-emerald-50/40' : 'bg-gray-50/50'"
-                    >
-                        {{-- Day name --}}
-                        <span
-                            class="w-20 text-sm font-medium shrink-0 transition-colors"
-                            :class="schedule[dayKey].open ? 'text-gray-800' : 'text-gray-400'"
-                            x-text="dayLabels[index]"
-                        ></span>
-
-                        {{-- Toggle switch --}}
-                        <button
-                            type="button"
-                            @click="schedule[dayKey].open = !schedule[dayKey].open"
-                            :class="schedule[dayKey].open ? 'bg-emerald-500' : 'bg-gray-300'"
-                            class="relative inline-flex h-5 w-9 shrink-0 rounded-full transition-colors duration-200 cursor-pointer"
-                            :aria-label="'Toggle ' + dayLabels[index]"
-                        >
-                            <span
-                                :class="schedule[dayKey].open ? 'translate-x-4' : 'translate-x-0'"
-                                class="inline-block h-5 w-5 rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform duration-200"
-                            ></span>
-                        </button>
-
-                        {{-- Time selects (shown when open) --}}
-                        <div x-show="schedule[dayKey].open" x-cloak x-transition.opacity.duration.150ms class="flex items-center gap-2 flex-1 min-w-0">
-                            <select
-                                x-model="schedule[dayKey].from"
-                                class="rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-sm text-gray-700 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-500/10 cursor-pointer"
-                            >
-                                @foreach ($timeSlots as $time)
-                                    <option value="{{ $time }}">{{ $time }}</option>
-                                @endforeach
-                            </select>
-                            <span class="text-gray-400 text-xs font-medium">to</span>
-                            <select
-                                x-model="schedule[dayKey].to"
-                                class="rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-sm text-gray-700 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-500/10 cursor-pointer"
-                            >
-                                @foreach ($timeSlots as $time)
-                                    <option value="{{ $time }}">{{ $time }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Closed label --}}
-                        <div x-show="!schedule[dayKey].open" x-cloak x-transition.opacity.duration.150ms class="flex-1">
-                            <span class="text-sm text-gray-400 italic">Closed</span>
-                        </div>
-                    </div>
-                </template>
-            </div>
-
-            @error('operating_hours')
-                <p class="mt-3 text-xs text-red-600 font-medium">{{ $message }}</p>
-            @enderror
-        </div>
-    </div>
-
-    {{-- ═══════════════════════════════════════════════════════════ --}}
-    {{-- Section 4 · Contact Info                                   --}}
-    {{-- ═══════════════════════════════════════════════════════════ --}}
-    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-x-10 gap-y-4">
-        <div class="lg:pt-1">
-            <div class="flex items-center gap-2.5 mb-1.5">
-                <div class="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center ring-1 ring-violet-200/60">
-                    <x-heroicon-s-user class="w-4 h-4 text-violet-600" />
-                </div>
-                <h2 class="text-sm font-semibold text-gray-900">Contact Info</h2>
-            </div>
-            <p class="text-xs text-gray-500 leading-relaxed lg:pl-[42px]">Person in charge at this outlet.</p>
-        </div>
-
-        <div class="rounded-xl bg-white border border-gray-200 shadow-sm p-6 space-y-5">
-            {{-- Contact Name --}}
-            <div class="space-y-1.5">
-                <label for="contact_name" class="block text-sm font-medium text-gray-700">Contact Name</label>
-                <input
-                    id="contact_name"
-                    name="contact_name"
-                    type="text"
-                    value="{{ old('contact_name', $outlet?->contact_name) }}"
-                    placeholder="Person in charge"
-                    class="w-full rounded-xl border px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/10 @error('contact_name') border-red-300 bg-red-50/50 @else border-gray-200 bg-gray-50/50 @enderror"
-                >
-                @error('contact_name')
-                    <p class="text-xs text-red-600 font-medium">{{ $message }}</p>
-                @enderror
-            </div>
-
-            {{-- Phone / Email --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {{-- Phone with Malaysian flag --}}
-                <div class="space-y-1.5">
-                    <label for="contact_phone" class="block text-sm font-medium text-gray-700">Contact Phone</label>
-                    <div
-                        x-data="{
-                            phone: @js(old('contact_phone', $outlet?->contact_phone ?? '')),
-                            valid: null,
-
-                            format() {
-                                let digits = this.phone.replace(/[^\d]/g, '');
-                                if (digits.length === 0) { this.valid = null; return; }
-
-                                // Auto-format: 01X-XXX XXXX or 01X-XXXX XXXX
-                                if (digits.length >= 3 && digits.startsWith('01')) {
-                                    let prefix = digits.slice(0, 3);
-                                    let rest = digits.slice(3);
-                                    if (rest.length <= 3) {
-                                        this.phone = prefix + '-' + rest;
-                                    } else if (rest.length <= 7) {
-                                        this.phone = prefix + '-' + rest.slice(0, 3) + ' ' + rest.slice(3);
-                                    } else {
-                                        rest = rest.slice(0, 8);
-                                        this.phone = prefix + '-' + rest.slice(0, 4) + ' ' + rest.slice(4);
-                                    }
-                                } else if (digits.length >= 2 && digits.startsWith('0')) {
-                                    let prefix = digits.slice(0, 2);
-                                    let rest = digits.slice(2);
-                                    if (rest.length <= 4) {
-                                        this.phone = prefix + '-' + rest;
-                                    } else {
-                                        rest = rest.slice(0, 8);
-                                        this.phone = prefix + '-' + rest.slice(0, 4) + ' ' + rest.slice(4);
-                                    }
-                                }
-
-                                this.valid = /^0\d[\d\s\-]{6,12}$/.test(this.phone);
-                            }
-                        }"
-                        x-init="if (phone) format()"
-                        class="relative"
-                    >
-                        <div class="pointer-events-none absolute left-0 top-0 bottom-0 flex items-center pl-3 gap-1.5 border-r border-gray-200 pr-2.5">
-                            <img src="{{ asset('images/flag-malaysia.svg') }}" alt="Malaysia" class="w-5 h-3.5 rounded-[2px] shadow-sm ring-1 ring-black/10 object-cover">
-                            <span class="text-xs text-gray-400 font-medium">+60</span>
-                        </div>
-                        <input
-                            id="contact_phone"
-                            name="contact_phone"
-                            type="text"
-                            x-model="phone"
-                            @input="format()"
-                            placeholder="012-345 6789"
-                            class="w-full rounded-xl border pl-[6.5rem] pr-9 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/10 @error('contact_phone') border-red-300 bg-red-50/50 @else border-gray-200 bg-gray-50/50 @enderror"
-                        >
-                        {{-- Validity indicator --}}
-                        <div class="absolute right-3 top-1/2 -translate-y-1/2">
-                            <template x-if="valid === true">
-                                <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                            </template>
-                            <template x-if="valid === false">
-                                <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                            </template>
-                        </div>
-                    </div>
-                    @error('contact_phone')
-                        <p class="text-xs text-red-600 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- Email --}}
-                <div class="space-y-1.5">
-                    <label for="contact_email" class="block text-sm font-medium text-gray-700">Contact Email</label>
-                    <input
-                        id="contact_email"
-                        name="contact_email"
-                        type="email"
-                        value="{{ old('contact_email', $outlet?->contact_email) }}"
-                        placeholder="email@example.com"
-                        class="w-full rounded-xl border px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/10 @error('contact_email') border-red-300 bg-red-50/50 @else border-gray-200 bg-gray-50/50 @enderror"
-                    >
-                    @error('contact_email')
-                        <p class="text-xs text-red-600 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ═══════════════════════════════════════════════════════════ --}}
-    {{-- Section 5 · Notes                                          --}}
-    {{-- ═══════════════════════════════════════════════════════════ --}}
-    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-x-10 gap-y-4">
-        <div class="lg:pt-1">
-            <div class="flex items-center gap-2.5 mb-1.5">
-                <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center ring-1 ring-amber-200/60">
-                    <x-heroicon-s-document-text class="w-4 h-4 text-amber-600" />
-                </div>
-                <h2 class="text-sm font-semibold text-gray-900">Notes</h2>
-            </div>
-            <p class="text-xs text-gray-500 leading-relaxed lg:pl-[42px]">Optional internal notes or reminders.</p>
-        </div>
-
-        <div class="rounded-xl bg-white border border-gray-200 shadow-sm p-6">
-            <textarea
-                name="notes"
-                id="notes"
-                rows="4"
-                placeholder="Additional notes about this outlet..."
-                class="w-full rounded-xl border px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/10 resize-none @error('notes') border-red-300 bg-red-50/50 @else border-gray-200 bg-gray-50/50 @enderror"
-            >{{ old('notes', $outlet?->notes) }}</textarea>
-            @error('notes')
-                <p class="mt-1.5 text-xs text-red-600 font-medium">{{ $message }}</p>
-            @enderror
-        </div>
-    </div>
-
 </div>
 
 {{-- ══════════════════════════════════════════════════════════════════ --}}
@@ -773,27 +411,6 @@ document.addEventListener('alpine:init', () => {
             if (this.highlightedIndex >= 0 && this.highlightedIndex < this.suggestions.length) {
                 this.selectSuggestion(this.suggestions[this.highlightedIndex]);
             }
-        },
-    }));
-
-    /* ─── Operating Hours Picker ─── */
-    Alpine.data('outletHoursPicker', () => ({
-        dayKeys: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-        dayLabels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-        timeSlots: @js($timeSlots),
-        schedule: @js($scheduleData),
-
-        getJson() {
-            return JSON.stringify(this.schedule);
-        },
-
-        applyMondayToAll() {
-            const mon = this.schedule.monday;
-            this.dayKeys.forEach(day => {
-                if (day !== 'monday') {
-                    this.schedule[day] = { open: mon.open, from: mon.from, to: mon.to };
-                }
-            });
         },
     }));
 });

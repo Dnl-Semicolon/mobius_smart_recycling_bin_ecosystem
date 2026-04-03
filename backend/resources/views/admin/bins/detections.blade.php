@@ -105,9 +105,6 @@
 
                         <div class="shrink-0 flex flex-col items-end gap-1">
                             <div class="flex items-center gap-2">
-                                @if ($detection->weight_g)
-                                    <span class="text-sm font-mono text-amber-500">{{ $detection->weight_g }}g</span>
-                                @endif
                                 @if ($detection->confidence)
                                     <span class="text-sm font-semibold {{ $detection->confidence >= 90 ? 'text-emerald-600' : ($detection->confidence >= 70 ? 'text-yellow-600' : 'text-gray-500') }}">
                                         {{ $detection->confidence }}%

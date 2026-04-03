@@ -64,9 +64,9 @@
             @foreach ($pickups as $pickup)
                 @php
                     $statusConfig = match($pickup->status) {
-                        \App\Enums\PickupStatus::Pending => ['bg' => 'bg-amber-100 text-amber-700', 'border' => 'border-l-amber-400'],
-                        \App\Enums\PickupStatus::Claimed => ['bg' => 'bg-blue-100 text-blue-700', 'border' => 'border-l-blue-400'],
-                        \App\Enums\PickupStatus::Completed => ['bg' => 'bg-emerald-100 text-emerald-700', 'border' => 'border-l-emerald-400'],
+                        'pending' => ['bg' => 'bg-amber-100 text-amber-700', 'border' => 'border-l-amber-400'],
+                        'claimed' => ['bg' => 'bg-blue-100 text-blue-700', 'border' => 'border-l-blue-400'],
+                        'completed' => ['bg' => 'bg-emerald-100 text-emerald-700', 'border' => 'border-l-emerald-400'],
                         default => ['bg' => 'bg-gray-100 text-gray-600', 'border' => 'border-l-gray-400'],
                     };
                 @endphp
@@ -78,7 +78,7 @@
                     {{-- Timeline-style layout --}}
                     <div class="flex items-start justify-between mb-3">
                         <span class="text-xs font-semibold rounded-full px-3 py-1 {{ $statusConfig['bg'] }}">
-                            {{ $pickup->status->label() }}
+                            {{ ucwords($pickup->status) }}
                         </span>
                         <span class="text-xs text-gray-400">#{{ $pickup->id }}</span>
                     </div>
@@ -93,12 +93,12 @@
                         </div>
 
                         {{-- Claimed --}}
-                        @if ($pickup->claimed_at)
+                        @if ($pickup->assigned_at)
                             <div class="relative mb-3">
                                 <div class="absolute -left-6 w-3 h-3 rounded-full bg-blue-400 border-2 border-white mt-0.5"></div>
                                 <p class="text-sm text-gray-700">
-                                    Claimed by {{ $pickup->claimedBy?->name ?? 'Unknown' }}
-                                    <span class="text-gray-400">{{ $pickup->claimed_at->format('d M, H:i') }}</span>
+                                    Claimed by {{ $pickup->assignedTo?->name ?? 'Unknown' }}
+                                    <span class="text-gray-400">{{ $pickup->assigned_at->format('d M, H:i') }}</span>
                                 </p>
                             </div>
                         @endif

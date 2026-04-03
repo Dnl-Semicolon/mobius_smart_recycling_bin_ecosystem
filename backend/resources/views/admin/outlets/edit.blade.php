@@ -7,7 +7,7 @@
         Edit Outlet
     </x-slot:header>
 
-    <form action="{{ route('admin.outlets.update', $outlet) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.outlets.update', $outlet) }}" method="POST">
         @csrf
         @method('PUT')
 

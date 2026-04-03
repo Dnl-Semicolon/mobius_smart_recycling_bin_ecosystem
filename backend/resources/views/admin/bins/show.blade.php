@@ -48,7 +48,7 @@
                                 </span>
                             @endif
                             @if ($bin->activePickupRequest)
-                                @if ($bin->activePickupRequest->isPending())
+                                @if ($bin->activePickupRequest->status === 'pending')
                                     <span class="text-sm font-medium bg-amber-100 text-amber-700 rounded-full px-3 py-0.5 flex items-center gap-1">
                                         <x-heroicon-s-clock class="w-3.5 h-3.5" />
                                         Pickup Pending
@@ -56,7 +56,7 @@
                                 @else
                                     <span class="text-sm font-medium bg-blue-100 text-blue-700 rounded-full px-3 py-0.5 flex items-center gap-1">
                                         <x-heroicon-s-truck class="w-3.5 h-3.5" />
-                                        Claimed by {{ $bin->activePickupRequest->claimedBy->name }}
+                                        Claimed by {{ $bin->activePickupRequest->assignedTo->name }}
                                     </span>
                                 @endif
                             @endif
@@ -358,9 +358,6 @@
                                             <p class="text-[11px] text-gray-400">{{ $detection->detected_at->diffForHumans() }}</p>
                                         </div>
                                         <div class="flex items-center gap-1.5 shrink-0">
-                                            @if ($detection->weight_g)
-                                                <span class="text-[11px] font-mono text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded">{{ $detection->weight_g }}g</span>
-                                            @endif
                                             @if ($detection->confidence)
                                                 <span class="text-[11px] font-mono {{ $detection->confidence >= 90 ? 'text-emerald-600 bg-emerald-50' : ($detection->confidence >= 70 ? 'text-amber-600 bg-amber-50' : 'text-gray-500 bg-gray-50') }} px-1.5 py-0.5 rounded">
                                                     {{ $detection->confidence }}%

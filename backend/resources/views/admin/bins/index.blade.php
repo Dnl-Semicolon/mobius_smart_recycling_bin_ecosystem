@@ -19,8 +19,8 @@
                 'id' => $b->id,
                 'fill_level' => $b->fill_level,
                 'status' => $b->status->value,
-                'is_online' => $b->last_seen_at && $b->last_seen_at->diffInSeconds(now()) < 60,
-                'last_seen_human' => $b->last_seen_at?->diffForHumans(),
+                'is_online' => true,
+                'last_seen_human' => 'Online',
             ])),
             summary: @js($summary),
             init() {
@@ -314,10 +314,10 @@
                             <div class="shrink-0 w-24 text-right">
                                 <div class="flex items-center justify-end gap-1.5 text-xs text-gray-500">
                                     <x-heroicon-o-eye class="w-3.5 h-3.5 text-gray-400" />
-                                    <span class="font-medium">{{ $bin->detection_events_count }}</span>
+                                    <span class="font-medium">{{ $bin->bin_sessions_count }}</span>
                                 </div>
-                                @if ($bin->detection_events_max_detected_at)
-                                    <p class="text-[10px] text-gray-400 mt-0.5">{{ \Carbon\Carbon::parse($bin->detection_events_max_detected_at)->diffForHumans(short: true) }}</p>
+                                @if ($bin->bin_sessions_max_created_at)
+                                    <p class="text-[10px] text-gray-400 mt-0.5">{{ \Carbon\Carbon::parse($bin->bin_sessions_max_created_at)->diffForHumans(short: true) }}</p>
                                 @endif
                             </div>
 

@@ -82,21 +82,16 @@
                         @endphp
                         <tr class="hover:bg-gray-50/50 transition-colors">
                             <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    @if ($brand->primary_color)
-                                        <span class="w-3 h-3 rounded-full shrink-0 ring-2 ring-white shadow-sm" style="background: {{ $brand->primary_color }}"></span>
-                                    @endif
-                                    <span class="font-semibold text-gray-900">{{ $brand->name }}</span>
-                                </div>
+                                <span class="font-semibold text-gray-900">{{ $brand->name }}</span>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="text-xs font-medium rounded-full px-2.5 py-1 {{ $statusColors[$brand->status->value] ?? 'bg-gray-100 text-gray-600' }}">
-                                    {{ $brand->status->label() }}
+                                <span class="text-xs font-medium rounded-full px-2.5 py-1 {{ $statusColors[$brand->status] ?? 'bg-gray-100 text-gray-600' }}">
+                                    {{ ucfirst($brand->status) }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center text-sm text-gray-600 tabular-nums">{{ $brand->outlets_count }}</td>
-                            <td class="px-6 py-4 text-center text-sm text-gray-600 tabular-nums">{{ $brand->rewards_count }}</td>
-                            <td class="px-6 py-4 text-center text-sm text-gray-600 tabular-nums">{{ $brand->redemptions_count }}</td>
+                            <td class="px-6 py-4 text-center text-sm text-gray-400">&mdash;</td>
+                            <td class="px-6 py-4 text-center text-sm text-gray-400">&mdash;</td>
                             <td class="px-6 py-4 text-right">
                                 <a href="{{ route('admin.brands.show', $brand) }}" class="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
                                     View

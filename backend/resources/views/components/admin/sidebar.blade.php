@@ -38,6 +38,9 @@
         <x-admin.sidebar-item route="admin.bins.index" label="Bins">
             <x-slot:icon><x-heroicon-o-archive-box class="w-5 h-5" /></x-slot:icon>
         </x-admin.sidebar-item>
+        <x-admin.sidebar-item route="admin.bin-sessions.index" label="Bin Sessions">
+            <x-slot:icon><x-heroicon-o-clock class="w-5 h-5" /></x-slot:icon>
+        </x-admin.sidebar-item>
         <x-admin.sidebar-item route="admin.detection-events.index" label="Detections">
             <x-slot:icon><x-heroicon-o-eye class="w-5 h-5" /></x-slot:icon>
         </x-admin.sidebar-item>
@@ -76,6 +79,12 @@
             @if ($pendingAppCount > 0)
                 <x-slot:badge>{{ $pendingAppCount }}</x-slot:badge>
             @endif
+        </x-admin.sidebar-item>
+        <x-admin.sidebar-item route="admin.subscriptions.index" label="Subscriptions">
+            <x-slot:icon><x-heroicon-o-credit-card class="w-5 h-5" /></x-slot:icon>
+        </x-admin.sidebar-item>
+        <x-admin.sidebar-item route="admin.payments.index" label="Payments">
+            <x-slot:icon><x-heroicon-o-banknotes class="w-5 h-5" /></x-slot:icon>
         </x-admin.sidebar-item>
     </nav>
 

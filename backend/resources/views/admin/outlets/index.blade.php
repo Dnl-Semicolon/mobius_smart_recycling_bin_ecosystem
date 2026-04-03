@@ -92,12 +92,6 @@
                     'on' => 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm shadow-emerald-500/10',
                     'badge' => 'bg-emerald-100 text-emerald-600',
                 ],
-                'pending' => [
-                    'dot' => 'bg-amber-500',
-                    'dotRing' => 'ring-4 ring-amber-500/20',
-                    'on' => 'bg-amber-50 text-amber-700 border-amber-200 shadow-sm shadow-amber-500/10',
-                    'badge' => 'bg-amber-100 text-amber-600',
-                ],
                 'inactive' => [
                     'dot' => 'bg-gray-400',
                     'dotRing' => 'ring-4 ring-gray-400/20',
@@ -198,22 +192,12 @@
                     <x-card :href="route('admin.outlets.show', $outlet)" :interactive="true" class="p-5">
                         <div class="flex items-start justify-between gap-4">
                             <div class="flex items-start gap-3 min-w-0">
-                                @if ($outlet->photo_url)
-                                    <img src="{{ $outlet->photo_url }}" alt="{{ $outlet->name }}" class="w-10 h-10 rounded-xl object-cover shrink-0 mt-0.5 ring-1 ring-black/5">
-                                @else
-                                    <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-blue-200/60">
-                                        <x-heroicon-s-building-storefront class="w-5 h-5 text-blue-600" />
-                                    </div>
-                                @endif
+                                <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-blue-200/60">
+                                    <x-heroicon-s-building-storefront class="w-5 h-5 text-blue-600" />
+                                </div>
                                 <div class="min-w-0">
                                     <h2 class="font-semibold text-gray-900 truncate">{{ $outlet->name }}</h2>
                                     <p class="text-sm text-gray-500 mt-0.5 truncate">{{ $outlet->address }}</p>
-                                    @if ($outlet->contact_name)
-                                        <p class="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                                            <x-heroicon-o-user class="w-3 h-3" />
-                                            {{ $outlet->contact_name }}
-                                        </p>
-                                    @endif
                                 </div>
                             </div>
                             <div class="shrink-0 flex flex-col items-end gap-1.5">
@@ -221,11 +205,10 @@
                                     $statusColors = [
                                         'active' => 'bg-emerald-100 text-emerald-700',
                                         'inactive' => 'bg-gray-100 text-gray-600',
-                                        'pending' => 'bg-yellow-100 text-yellow-700',
                                     ];
                                 @endphp
-                                <span class="text-xs font-medium rounded-full px-2.5 py-1 {{ $statusColors[$outlet->contract_status->value] ?? 'bg-gray-100 text-gray-600' }}">
-                                    {{ $outlet->contract_status->label() }}
+                                <span class="text-xs font-medium rounded-full px-2.5 py-1 {{ $statusColors[$outlet->is_active ? 'active' : 'inactive'] ?? 'bg-gray-100 text-gray-600' }}">
+                                    {{ $outlet->is_active ? 'Active' : 'Inactive' }}
                                 </span>
                                 <span class="text-xs text-gray-400 flex items-center gap-1">
                                     <x-heroicon-o-archive-box class="w-3 h-3" />
@@ -244,41 +227,30 @@
                         $statusColors = [
                             'active' => 'bg-emerald-100 text-emerald-700',
                             'inactive' => 'bg-gray-100 text-gray-600',
-                            'pending' => 'bg-yellow-100 text-yellow-700',
                         ];
                     @endphp
                     <a
                         href="{{ route('admin.outlets.show', $outlet) }}"
                         class="group bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition-all duration-200"
                     >
-                        {{-- Image --}}
+                        {{-- Icon placeholder --}}
                         <div class="relative h-40 overflow-hidden">
-                            @if ($outlet->photo_url)
-                                <img
-                                    src="{{ $outlet->photo_url }}"
-                                    alt="{{ $outlet->name }}"
-                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                >
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                            @else
-                                <div class="w-full h-full bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 flex flex-col items-center justify-center">
-                                    <div class="w-12 h-12 rounded-xl bg-white border-2 border-dashed border-gray-200 flex items-center justify-center shadow-sm">
-                                        <x-heroicon-o-camera class="w-5 h-5 text-gray-300" />
-                                    </div>
-                                    <p class="text-[11px] text-gray-400 mt-2 font-medium">No photo</p>
+                            <div class="w-full h-full bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 flex flex-col items-center justify-center">
+                                <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center ring-1 ring-blue-200/60">
+                                    <x-heroicon-s-building-storefront class="w-6 h-6 text-blue-600" />
                                 </div>
-                            @endif
+                            </div>
 
                             {{-- Status badge overlay --}}
                             <div class="absolute top-3 left-3">
-                                <span class="text-[11px] font-semibold rounded-full px-2 py-0.5 {{ $outlet->photo_url ? 'bg-white/80 text-gray-700 shadow-sm backdrop-blur-sm' : ($statusColors[$outlet->contract_status->value] ?? 'bg-gray-100 text-gray-600') }}">
-                                    {{ $outlet->contract_status->label() }}
+                                <span class="text-[11px] font-semibold rounded-full px-2 py-0.5 {{ $statusColors[$outlet->is_active ? 'active' : 'inactive'] ?? 'bg-gray-100 text-gray-600' }}">
+                                    {{ $outlet->is_active ? 'Active' : 'Inactive' }}
                                 </span>
                             </div>
 
                             {{-- Bin count overlay --}}
                             <div class="absolute top-3 right-3">
-                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold rounded-full px-2 py-0.5 {{ $outlet->photo_url ? 'bg-black/40 text-white backdrop-blur-sm' : 'bg-gray-200 text-gray-500' }}">
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold rounded-full px-2 py-0.5 bg-gray-200 text-gray-500">
                                     <x-heroicon-s-archive-box class="w-3 h-3" />
                                     {{ $outlet->current_bins_count }}
                                 </span>
@@ -292,12 +264,6 @@
                                 <x-heroicon-o-map-pin class="w-3 h-3 shrink-0" />
                                 {{ $outlet->address }}
                             </p>
-                            @if ($outlet->contact_name)
-                                <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
-                                    <x-heroicon-o-user class="w-3 h-3 shrink-0" />
-                                    {{ $outlet->contact_name }}
-                                </p>
-                            @endif
                         </div>
                     </a>
                 @endforeach
