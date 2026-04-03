@@ -2,6 +2,11 @@ import CoreLocation
 
 enum PolylineDecoder {
     static func decode(_ encoded: String) -> [CLLocationCoordinate2D] {
+        // Guard against placeholder/invalid strings
+        guard !encoded.isEmpty,
+              encoded.allSatisfy({ $0.asciiValue != nil && $0.asciiValue! >= 63 })
+        else { return [] }
+
         var coordinates: [CLLocationCoordinate2D] = []
         var index = encoded.startIndex
         var lat: Int32 = 0
@@ -13,7 +18,12 @@ enum PolylineDecoder {
             var byte: Int32
 
             repeat {
-                byte = Int32(encoded[index].asciiValue! - 63)
+                guard index < encoded.endIndex,
+                      let ascii = encoded[index].asciiValue,
+                      ascii >= 63
+                else { return coordinates }
+
+                byte = Int32(ascii - 63)
                 index = encoded.index(after: index)
                 result |= (byte & 0x1F) << shift
                 shift += 5
@@ -25,7 +35,12 @@ enum PolylineDecoder {
             result = 0
 
             repeat {
-                byte = Int32(encoded[index].asciiValue! - 63)
+                guard index < encoded.endIndex,
+                      let ascii = encoded[index].asciiValue,
+                      ascii >= 63
+                else { return coordinates }
+
+                byte = Int32(ascii - 63)
                 index = encoded.index(after: index)
                 result |= (byte & 0x1F) << shift
                 shift += 5

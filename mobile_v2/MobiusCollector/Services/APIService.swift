@@ -35,7 +35,14 @@ final class APIService {
 
         let (data, response) = try await URLSession.shared.data(for: request)
         try validateResponse(data: data, response: response)
-        return try JSONDecoder().decode(T.self, from: data)
+
+        do {
+            return try JSONDecoder().decode(T.self, from: data)
+        } catch {
+            // Show the actual decode error + raw JSON so we can debug
+            let raw = String(data: data.prefix(500), encoding: .utf8) ?? "?"
+            throw APIError.decodeFailed(detail: "\(error)", rawJSON: raw)
+        }
     }
 
     func post(path: String, body: [String: Any]? = nil) async throws {
@@ -89,6 +96,7 @@ enum APIError: LocalizedError {
     case invalidResponse
     case unauthorized
     case serverError(statusCode: Int, message: String)
+    case decodeFailed(detail: String, rawJSON: String)
 
     var errorDescription: String? {
         switch self {
@@ -96,6 +104,7 @@ enum APIError: LocalizedError {
         case .invalidResponse: "Invalid response"
         case .unauthorized: "Session expired. Please sign in again."
         case .serverError(let code, let msg): "Error \(code): \(msg)"
+        case .decodeFailed(let detail, let raw): "Decode error: \(detail)\n\nRaw: \(raw)"
         }
     }
 }
