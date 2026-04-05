@@ -1,14 +1,8 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 type BrandOption = { id: number; name: string; organization_id: number };
 type UserOption = { id: number; name: string; organization_id: number };
-
-declare global {
-    interface Window {
-        google: typeof google;
-    }
-}
 
 export default function CreateOutlet({
     brands,
@@ -17,6 +11,7 @@ export default function CreateOutlet({
     brands: BrandOption[];
     users: UserOption[];
 }) {
+    const addressRef = useRef<HTMLInputElement>(null);
     const form = useForm({
         brand_id: '',
         user_id: '',
@@ -26,28 +21,30 @@ export default function CreateOutlet({
         longitude: '',
     });
 
-    const addressRef = useRef<HTMLInputElement>(null);
-
-    // Google Places Autocomplete
+    // Google Places autocomplete (graceful degradation)
     useEffect(() => {
-        if (!addressRef.current || !window.google?.maps?.places) return;
-
-        const autocomplete = new window.google.maps.places.Autocomplete(addressRef.current, {
-            componentRestrictions: { country: 'my' },
-            fields: ['formatted_address', 'geometry'],
-        });
-
-        autocomplete.addListener('place_changed', () => {
-            const place = autocomplete.getPlace();
-            if (place.geometry?.location) {
-                form.setData((prev) => ({
-                    ...prev,
-                    address: place.formatted_address ?? '',
-                    latitude: String(place.geometry!.location!.lat()),
-                    longitude: String(place.geometry!.location!.lng()),
-                }));
-            }
-        });
+        const interval = setInterval(() => {
+            if (!addressRef.current || !window.google?.maps?.places) return;
+            clearInterval(interval);
+            try {
+                const autocomplete = new window.google.maps.places.Autocomplete(addressRef.current, {
+                    componentRestrictions: { country: 'my' },
+                    fields: ['formatted_address', 'geometry'],
+                });
+                autocomplete.addListener('place_changed', () => {
+                    const place = autocomplete.getPlace();
+                    if (place.geometry?.location) {
+                        form.setData((prev) => ({
+                            ...prev,
+                            address: place.formatted_address ?? '',
+                            latitude: String(place.geometry!.location!.lat()),
+                            longitude: String(place.geometry!.location!.lng()),
+                        }));
+                    }
+                });
+            } catch { /* Google Places unavailable, form still works */ }
+        }, 500);
+        return () => clearInterval(interval);
     }, []);
 
     // Scope owners to selected brand's organization
@@ -125,30 +122,30 @@ export default function CreateOutlet({
                             value={form.data.address}
                             onChange={(e) => form.setData('address', e.target.value)}
                             className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                            placeholder="Start typing to search Google Places..."
+                            placeholder="Type address or search via Google Places"
                         />
                         {form.errors.address && <p className="mt-1 text-xs text-red-600">{form.errors.address}</p>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-muted-foreground">Latitude</label>
+                            <label className="block text-sm font-medium">Latitude</label>
                             <input
                                 type="text"
                                 value={form.data.latitude}
-                                readOnly
-                                className="mt-1 block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400"
-                                placeholder="Auto-filled from address"
+                                onChange={(e) => form.setData('latitude', e.target.value)}
+                                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                placeholder="e.g. 5.4575"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-muted-foreground">Longitude</label>
+                            <label className="block text-sm font-medium">Longitude</label>
                             <input
                                 type="text"
                                 value={form.data.longitude}
-                                readOnly
-                                className="mt-1 block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400"
-                                placeholder="Auto-filled from address"
+                                onChange={(e) => form.setData('longitude', e.target.value)}
+                                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                placeholder="e.g. 100.2895"
                             />
                         </div>
                     </div>
