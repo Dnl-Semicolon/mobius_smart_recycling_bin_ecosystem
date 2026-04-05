@@ -46,6 +46,7 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'o
 
 export default function BrandBilling({
     subscription,
+    limits,
     stripe,
     invoices,
     hasStripeSubscription,
