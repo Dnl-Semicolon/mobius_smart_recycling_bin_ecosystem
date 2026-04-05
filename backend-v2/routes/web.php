@@ -1,14 +1,21 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Http\Controllers\Admin\UserController;
+use App\Models\Plan;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
 // Landing page (public, no auth)
-Route::inertia('/', 'welcome', [
-    'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+Route::get('/', function () {
+    $plans = Plan::where('is_active', true)->orderBy('price_monthly')->get();
+
+    return Inertia::render('welcome', [
+        'canRegister' => Features::enabled(Features::registration()),
+        'plans' => $plans,
+    ]);
+})->name('home');
 
 // Role router — redirects to the correct dashboard based on primary role
 Route::get('dashboard', function () {
@@ -27,6 +34,7 @@ Route::get('dashboard', function () {
 // =============================================
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
 });
 
 // =============================================

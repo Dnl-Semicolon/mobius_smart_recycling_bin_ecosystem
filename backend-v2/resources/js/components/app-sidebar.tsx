@@ -1,23 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import {
-    Building2,
-    ClipboardList,
-    CreditCard,
-    LayoutGrid,
-    MapPin,
-    Package,
-    Route,
-    ScanLine,
-    ScrollText,
-    Send,
-    ShieldCheck,
-    Store,
-    Trash2,
-    Truck,
-    Users,
-    History,
-    Ticket,
-} from 'lucide-react';
+import { LayoutGrid, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -40,46 +22,28 @@ function getNavItemsForRole(roles: string[]): NavItem[] {
         case 'admin':
             return [
                 { title: 'Dashboard', href: '/admin', icon: LayoutGrid },
-                { title: 'Organizations', href: '/admin/organizations', icon: Building2 },
                 { title: 'Users', href: '/admin/users', icon: Users },
-                { title: 'Bins', href: '/admin/bins', icon: Trash2 },
-                { title: 'Outlets', href: '/admin/outlets', icon: Store },
-                { title: 'Detection Events', href: '/admin/detection-events', icon: ScanLine },
-                { title: 'Collection Routes', href: '/admin/routes', icon: Route },
-                { title: 'Pickup Requests', href: '/admin/pickup-requests', icon: Truck },
-                { title: 'Plans', href: '/admin/plans', icon: ScrollText },
-                { title: 'Subscriptions', href: '/admin/subscriptions', icon: ShieldCheck },
-                { title: 'Payments', href: '/admin/payments', icon: CreditCard },
             ];
         case 'brand_owner':
             return [
                 { title: 'Dashboard', href: '/brand', icon: LayoutGrid },
-                { title: 'Outlets', href: '/brand/outlets', icon: Store },
-                { title: 'Invitations', href: '/brand/invitations', icon: Send },
             ];
         case 'store_owner':
             return [
                 { title: 'Dashboard', href: '/store', icon: LayoutGrid },
-                { title: 'My Outlets', href: '/store/outlets', icon: Store },
-                { title: 'My Bins', href: '/store/bins', icon: Trash2 },
             ];
         case 'collector':
             return [
                 { title: 'Dashboard', href: '/collector', icon: LayoutGrid },
-                { title: 'Pickup Requests', href: '/collector/pickup-requests', icon: ClipboardList },
-                { title: 'Routes', href: '/collector/routes', icon: Route },
             ];
         case 'agency_admin':
             return [
                 { title: 'Dashboard', href: '/agency', icon: LayoutGrid },
-                { title: 'Collectors', href: '/agency/collectors', icon: Users },
-                { title: 'Routes', href: '/agency/routes', icon: Route },
             ];
         case 'public_user':
         default:
             return [
                 { title: 'Dashboard', href: '/public', icon: LayoutGrid },
-                { title: 'My Recycling History', href: '/public/history', icon: History },
             ];
     }
 }

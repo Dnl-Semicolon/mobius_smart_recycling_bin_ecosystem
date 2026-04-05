@@ -78,51 +78,60 @@ class DatabaseSeeder extends Seeder
         // PLANS
         // =============================================
 
-        // Plan 1 — Basic
+        // Plan 1 — Starter
         DB::table('plans')->insert([
-            'name' => 'Basic',
-            'description' => 'For small businesses getting started with smart recycling',
-            'price_monthly' => 299.00,
-            'price_yearly' => 2990.00,
+            'name' => 'Starter',
+            'description' => 'For single-outlet brands getting started with smart recycling',
+            'price_monthly' => 199.00,
+            'price_yearly' => 1990.00,
             'features' => json_encode([
                 'bin_limit' => 5,
                 'analytics' => 'basic',
                 'support' => 'email',
+                'brand_detection' => true,
+                'first_year_discount' => 20,
             ]),
             'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        // Plan 2 — Pro
+        // Plan 2 — Growth
         DB::table('plans')->insert([
-            'name' => 'Pro',
-            'description' => 'For growing brands with multiple outlets',
-            'price_monthly' => 599.00,
-            'price_yearly' => 5990.00,
+            'name' => 'Growth',
+            'description' => 'For growing brands scaling across multiple outlets',
+            'price_monthly' => 499.00,
+            'price_yearly' => 4990.00,
             'features' => json_encode([
-                'bin_limit' => 20,
+                'bin_limit' => 25,
                 'analytics' => 'advanced',
                 'support' => 'priority',
                 'brand_detection' => true,
+                'route_optimization' => true,
+                'voucher_system' => true,
+                'first_year_discount' => 20,
             ]),
             'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        // Plan 3 — Enterprise
+        // Plan 3 — Custom (no fixed price, contact sales)
         DB::table('plans')->insert([
-            'name' => 'Enterprise',
-            'description' => 'For large organizations with nationwide deployments',
-            'price_monthly' => 999.00,
-            'price_yearly' => 9990.00,
+            'name' => 'Custom',
+            'description' => 'For large deployments, government programs, or unique requirements',
+            'price_monthly' => 0.00,
+            'price_yearly' => 0.00,
             'features' => json_encode([
-                'bin_limit' => 100,
+                'bin_limit' => 'unlimited',
                 'analytics' => 'full',
                 'support' => 'dedicated',
                 'brand_detection' => true,
+                'route_optimization' => true,
+                'voucher_system' => true,
                 'api_access' => true,
+                'custom_integrations' => true,
+                'sla' => true,
             ]),
             'is_active' => true,
             'created_at' => now(),
