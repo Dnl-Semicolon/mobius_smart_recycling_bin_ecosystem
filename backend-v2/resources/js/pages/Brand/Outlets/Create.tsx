@@ -1,9 +1,11 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import AddressInput from '@/components/address-input';
+import LimitBanner from '@/components/limit-banner';
 
 type UserOption = { id: number; name: string };
+type LimitInfo = { current: number; max: number | null; reached: boolean; unlimited: boolean };
 
-export default function CreateBrandOutlet({ users }: { users: UserOption[] }) {
+export default function CreateBrandOutlet({ users, limitInfo }: { users: UserOption[]; limitInfo: LimitInfo | null }) {
     const form = useForm({
         user_id: '',
         name: '',
@@ -28,7 +30,13 @@ export default function CreateBrandOutlet({ users }: { users: UserOption[] }) {
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <h1 className="text-2xl font-bold">Create Outlet</h1>
 
-                <form onSubmit={submit} className="max-w-xl space-y-4">
+                <LimitBanner label="Outlets" limitInfo={limitInfo} />
+
+                {limitInfo?.reached && (
+                    <p className="text-sm text-muted-foreground">You cannot create more outlets on your current plan.</p>
+                )}
+
+                <form onSubmit={submit} className={`max-w-xl space-y-4 ${limitInfo?.reached ? 'pointer-events-none opacity-50' : ''}`}>
                     <div>
                         <label className="block text-sm font-medium">Outlet Manager</label>
                         <select

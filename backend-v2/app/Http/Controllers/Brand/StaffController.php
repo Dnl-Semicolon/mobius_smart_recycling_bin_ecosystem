@@ -36,12 +36,21 @@ class StaffController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Brand/Staff/Create');
+        $org = auth()->user()->organization;
+
+        return Inertia::render('Brand/Staff/Create', [
+            'limitInfo' => $org?->getLimitInfo('staff_limit'),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $user = auth()->user();
+
+        $org = $user->organization;
+        if ($org && $org->hasReachedLimit('staff_limit')) {
+            return back()->withErrors(['limit' => 'Staff limit reached for your plan. Upgrade to add more staff.']);
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],

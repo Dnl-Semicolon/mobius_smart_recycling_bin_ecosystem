@@ -355,6 +355,29 @@ Option A is cleaner and keeps everything in Stripe. For the viva demo: admin can
 
 This is a full planning session, not a quick fix.
 
+### ChatGPT's verdict (Session 7)
+
+**The answer: Hybrid. Schema columns for enforced limits. JSON only for loose metadata.**
+
+Key takeaways:
+- Custom is NOT unlimited. Custom = negotiated package with per-org overrides.
+- `plans` table: structured columns for bin_limit, outlet_limit, staff_limit
+- `organization_subscriptions` table: nullable override columns (custom_bin_limit, etc.)
+- `effective_limit = org_override ?? plan_default ?? unlimited`
+- Features JSON stays ONLY for boolean flags (api_access) and descriptive notes
+- Stripe handles discount execution (coupons, promo codes). Our DB stores business meaning (why campaign exists, who's eligible).
+- For viva: Basic + Premium + Custom + yearly + 1-2 discount examples. Not a full campaign engine.
+
+**Build order confirmed:**
+1. plans table gets proper limit columns
+2. org_subscriptions gets override columns
+3. Helper methods compute effective limits
+4. UI shows plan entitlements
+5. Enforcement checks limits
+6. Custom subscription creation form for admin
+7. Yearly pricing
+8. 1-2 discount/campaign examples
+
 ---
 
 ## Session 7 — 2026-04-06, ~3:30 AM MYT — Custom Tier & Schema Design

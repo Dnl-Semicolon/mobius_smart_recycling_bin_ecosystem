@@ -31,8 +31,20 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('price_monthly', 10, 2);
             $table->decimal('price_yearly', 10, 2);
-            $table->json('features')->comment('bin_limit, analytics_level, etc.');
-            $table->string('stripe_price_id')->nullable()->comment('Stripe Price ID for checkout');
+
+            // Enforced limits (null = unlimited)
+            $table->unsignedInteger('bin_limit')->nullable();
+            $table->unsignedInteger('outlet_limit')->nullable();
+            $table->unsignedInteger('staff_limit')->nullable();
+            $table->boolean('api_access')->default(false);
+
+            // Display-only metadata (not enforced)
+            $table->json('features')->nullable()->comment('cosmetic: analytics level, support tier, etc.');
+
+            // Stripe
+            $table->string('stripe_price_id')->nullable()->comment('monthly Stripe Price ID');
+            $table->string('stripe_price_yearly_id')->nullable()->comment('yearly Stripe Price ID');
+
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
@@ -109,6 +121,15 @@ return new class extends Migration
             $table->foreignId('organization_id')->constrained();
             $table->foreignId('plan_id')->constrained();
             $table->enum('status', ['pending_payment', 'active', 'past_due', 'cancelled', 'expired'])->default('pending_payment');
+            $table->enum('billing_interval', ['monthly', 'yearly'])->default('monthly');
+
+            // Per-org overrides (null = use plan defaults)
+            $table->unsignedInteger('custom_bin_limit')->nullable();
+            $table->unsignedInteger('custom_outlet_limit')->nullable();
+            $table->unsignedInteger('custom_staff_limit')->nullable();
+            $table->decimal('custom_price_monthly', 10, 2)->nullable()->comment('display only — Stripe has actual charge');
+            $table->text('notes')->nullable()->comment('admin internal notes about the deal');
+
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('ends_at')->nullable();
             $table->timestamp('renews_at')->nullable();

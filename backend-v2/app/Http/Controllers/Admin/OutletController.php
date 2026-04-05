@@ -37,14 +37,23 @@ class OutletController extends Controller
 
     public function create(): Response
     {
-        $brands = Brand::where('is_active', true)->get(['id', 'name', 'organization_id']);
+        $brands = Brand::with('organization')->where('is_active', true)->get(['id', 'name', 'organization_id']);
 
         $users = User::whereIn('organization_id', $brands->pluck('organization_id')->unique())
             ->get(['id', 'name', 'organization_id']);
 
+        // Pass limit info per org so frontend can show "2 of 3 used" when brand is selected
+        $orgLimits = [];
+        foreach ($brands->pluck('organization')->unique('id') as $org) {
+            if ($org) {
+                $orgLimits[$org->id] = $org->getLimitInfo('outlet_limit');
+            }
+        }
+
         return Inertia::render('Admin/Outlets/Create', [
             'brands' => $brands,
             'users' => $users,
+            'orgLimits' => $orgLimits,
         ]);
     }
 
@@ -63,6 +72,13 @@ class OutletController extends Controller
             'latitude' => ['required', 'numeric'],
             'longitude' => ['required', 'numeric'],
         ]);
+
+        // Enforce outlet limit
+        $brand = Brand::find($validated['brand_id']);
+        $org = $brand?->organization;
+        if ($org && $org->hasReachedLimit('outlet_limit')) {
+            return back()->withErrors(['limit' => 'Outlet limit reached for this organization\'s plan. Upgrade to add more outlets.']);
+        }
 
         Outlet::create([
             ...$validated,

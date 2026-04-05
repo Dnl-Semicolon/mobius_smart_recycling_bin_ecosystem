@@ -34,12 +34,14 @@ class BinController extends Controller
 
     public function create(): Response
     {
-        $outlets = Outlet::with('brand:id,name')
+        $outlets = Outlet::with('brand.organization')
             ->where('is_active', true)
             ->get()
             ->map(fn (Outlet $o) => [
                 'id' => $o->id,
                 'label' => $o->brand->name.' — '.$o->name,
+                'org_id' => $o->brand->organization_id,
+                'limit_info' => $o->brand->organization?->getLimitInfo('bin_limit'),
             ]);
 
         return Inertia::render('Admin/Bins/Create', [
@@ -53,7 +55,13 @@ class BinController extends Controller
             'outlet_id' => ['required', 'exists:outlets,id'],
         ]);
 
-        $outlet = Outlet::find($validated['outlet_id']);
+        $outlet = Outlet::with('brand.organization')->find($validated['outlet_id']);
+
+        // Enforce bin limit
+        $org = $outlet->brand?->organization;
+        if ($org && $org->hasReachedLimit('bin_limit')) {
+            return back()->withErrors(['limit' => 'Bin limit reached for this organization\'s plan. Upgrade to add more bins.']);
+        }
 
         $bin = Bin::create([
             'outlet_id' => $validated['outlet_id'],

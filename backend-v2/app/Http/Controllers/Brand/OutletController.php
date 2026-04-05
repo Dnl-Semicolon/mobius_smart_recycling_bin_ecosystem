@@ -41,10 +41,12 @@ class OutletController extends Controller
     public function create(): Response
     {
         $user = auth()->user();
+        $org = $user->organization;
         $orgUsers = User::where('organization_id', $user->organization_id)->get(['id', 'name']);
 
         return Inertia::render('Brand/Outlets/Create', [
             'users' => $orgUsers,
+            'limitInfo' => $org?->getLimitInfo('outlet_limit'),
         ]);
     }
 
@@ -55,6 +57,11 @@ class OutletController extends Controller
 
         if (! $brand) {
             abort(403);
+        }
+
+        $org = $user->organization;
+        if ($org && $org->hasReachedLimit('outlet_limit')) {
+            return back()->withErrors(['limit' => 'Outlet limit reached for your plan. Upgrade to add more outlets.']);
         }
 
         $validated = $request->validate([

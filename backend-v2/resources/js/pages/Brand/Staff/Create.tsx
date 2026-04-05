@@ -1,6 +1,9 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import LimitBanner from '@/components/limit-banner';
 
-export default function CreateStaff() {
+type LimitInfo = { current: number; max: number | null; reached: boolean; unlimited: boolean };
+
+export default function CreateStaff({ limitInfo }: { limitInfo: LimitInfo | null }) {
     const form = useForm({
         name: '',
         email: '',
@@ -21,7 +24,9 @@ export default function CreateStaff() {
                     Create an outlet manager account. They will be assigned the store owner role within your organization. A password will be auto-generated.
                 </p>
 
-                <form onSubmit={submit} className="max-w-xl space-y-4">
+                <LimitBanner label="Staff" limitInfo={limitInfo} />
+
+                <form onSubmit={submit} className={`max-w-xl space-y-4 ${limitInfo?.reached ? 'pointer-events-none opacity-50' : ''}`}>
                     <div>
                         <label className="block text-sm font-medium">Full Name</label>
                         <input

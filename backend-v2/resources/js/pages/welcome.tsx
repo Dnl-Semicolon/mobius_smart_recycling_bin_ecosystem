@@ -8,6 +8,10 @@ type Plan = {
     description: string;
     price_monthly: string;
     price_yearly: string;
+    bin_limit: number | null;
+    outlet_limit: number | null;
+    staff_limit: number | null;
+    api_access: boolean;
     features: Record<string, unknown>;
     is_active: boolean;
 };
@@ -139,12 +143,30 @@ export default function Welcome({
                                             )}
                                         </div>
                                         <ul className="mt-6 flex flex-1 flex-col gap-2 text-sm">
-                                            {features.bin_limit && (
-                                                <li className="flex items-center gap-2">
-                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
-                                                    {features.bin_limit === 'unlimited' ? 'Unlimited bins' : `Up to ${features.bin_limit} bins`}
-                                                </li>
-                                            )}
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                {plan.bin_limit === null ? 'Unlimited bins' : `Up to ${plan.bin_limit} bins`}
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                {plan.outlet_limit === null ? 'Unlimited outlets' : `Up to ${plan.outlet_limit} outlets`}
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                {plan.staff_limit === null ? 'Unlimited staff' : `Up to ${plan.staff_limit} staff`}
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                AI waste &amp; brand detection
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                Route optimization
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                Voucher &amp; rewards
+                                            </li>
                                             {features.analytics && (
                                                 <li className="flex items-center gap-2">
                                                     <Check className="h-4 w-4 shrink-0 text-emerald-500" />
@@ -157,46 +179,10 @@ export default function Welcome({
                                                     {String(features.support).charAt(0).toUpperCase() + String(features.support).slice(1)} support
                                                 </li>
                                             )}
-                                            {features.ai_detection && (
+                                            {plan.api_access && (
                                                 <li className="flex items-center gap-2">
                                                     <Check className="h-4 w-4 shrink-0 text-emerald-500" />
-                                                    AI waste detection
-                                                </li>
-                                            )}
-                                            {features.brand_detection && (
-                                                <li className="flex items-center gap-2">
-                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
-                                                    Brand detection
-                                                </li>
-                                            )}
-                                            {features.route_optimization && (
-                                                <li className="flex items-center gap-2">
-                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
-                                                    Route optimization
-                                                </li>
-                                            )}
-                                            {features.voucher_system && (
-                                                <li className="flex items-center gap-2">
-                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
-                                                    Voucher &amp; rewards
-                                                </li>
-                                            )}
-                                            {features.api_access && (
-                                                <li className="flex items-center gap-2">
-                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
-                                                    API access
-                                                </li>
-                                            )}
-                                            {features.custom_integrations && (
-                                                <li className="flex items-center gap-2">
-                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
-                                                    Custom integrations
-                                                </li>
-                                            )}
-                                            {features.sla && (
-                                                <li className="flex items-center gap-2">
-                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
-                                                    SLA &amp; uptime guarantee
+                                                    API &amp; ERP integration
                                                 </li>
                                             )}
                                         </ul>
