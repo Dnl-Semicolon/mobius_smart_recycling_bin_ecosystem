@@ -6,6 +6,7 @@ type BrandInfo = { id: number; name: string; slug: string };
 type Sub = {
     plan: string;
     price_monthly: string;
+    billing_interval: string;
     status: string;
     starts_at: string;
     ends_at: string;
@@ -58,7 +59,7 @@ export default function BrandDashboard({
                                 </Badge>
                             </div>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                RM{parseFloat(subscription.price_monthly)}/mo
+                                RM{parseFloat(subscription.price_monthly).toLocaleString()}/{subscription.billing_interval === 'yearly' ? 'yr' : 'mo'}
                             </p>
                             {subscription.status === 'pending_payment' && (
                                 <div className="mt-4">

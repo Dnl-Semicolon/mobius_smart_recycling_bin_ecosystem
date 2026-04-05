@@ -31,7 +31,8 @@ class DashboardController extends Controller
             ] : null,
             'subscription' => $subscription ? [
                 'plan' => $subscription->plan->name,
-                'price_monthly' => $subscription->plan->price_monthly,
+                'price_monthly' => $subscription->custom_price_monthly ?? $subscription->plan->price_monthly,
+                'billing_interval' => $subscription->billing_interval,
                 'status' => $subscription->status,
                 'starts_at' => $subscription->starts_at?->format('Y-m-d'),
                 'ends_at' => $subscription->ends_at?->format('Y-m-d'),
