@@ -129,6 +129,7 @@ return new class extends Migration
         // =============================================
         Schema::create('registration_requests', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('selected_plan_id')->nullable()->constrained('plans');
             $table->string('company_name');
             $table->string('contact_name');
             $table->string('contact_email');

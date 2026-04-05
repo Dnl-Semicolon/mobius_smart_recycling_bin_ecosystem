@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Users } from 'lucide-react';
+import { ClipboardList, LayoutGrid, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -22,6 +22,7 @@ function getNavItemsForRole(roles: string[]): NavItem[] {
         case 'admin':
             return [
                 { title: 'Dashboard', href: '/admin', icon: LayoutGrid },
+                { title: 'Leads', href: '/admin/leads', icon: ClipboardList },
                 { title: 'Users', href: '/admin/users', icon: Users },
             ];
         case 'brand_owner':

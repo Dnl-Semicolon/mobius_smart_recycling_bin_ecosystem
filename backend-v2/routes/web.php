@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\LeadController;
 use App\Models\Plan;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -16,6 +17,11 @@ Route::get('/', function () {
         'plans' => $plans,
     ]);
 })->name('home');
+
+// Lead capture (public, no auth)
+Route::get('get-started', [LeadController::class, 'create'])->name('get-started');
+Route::post('get-started', [LeadController::class, 'store'])->name('get-started.store');
+Route::get('get-started/thank-you', [LeadController::class, 'confirmation'])->name('get-started.confirmation');
 
 // Role router — redirects to the correct dashboard based on primary role
 Route::get('dashboard', function () {
@@ -34,6 +40,7 @@ Route::get('dashboard', function () {
 // =============================================
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
+    Route::get('/leads', [App\Http\Controllers\Admin\LeadController::class, 'index'])->name('leads.index');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
 });
 

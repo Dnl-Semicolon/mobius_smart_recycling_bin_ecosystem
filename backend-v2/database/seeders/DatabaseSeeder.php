@@ -48,7 +48,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // =============================================
-        // USERS (one per role, for dashboard access)
+        // USERS (admin only — other roles created via lead conversion)
         // =============================================
 
         DB::table('users')->insert([
@@ -65,60 +65,32 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        DB::table('users')->insert([
-            'name' => 'Sarah Lee',
-            'email' => 'brand@mobius.my',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-            'phone' => '0171112222',
-            'roles' => json_encode(['brand_owner']),
-            'points_balance' => 0,
-            'current_streak' => 0,
-            'longest_streak' => 0,
-            'created_at' => now(),
-            'updated_at' => now(),
+        // =============================================
+        // LEADS (submitted via landing page)
+        // =============================================
+
+        DB::table('registration_requests')->insert([
+            'selected_plan_id' => 1,
+            'company_name' => 'Berjaya Starbucks Coffee Company Sdn Bhd',
+            'contact_name' => 'Brand Owner Name',
+            'contact_email' => 'brand1@brand.com',
+            'contact_phone' => '01124120654',
+            'type' => 'beverage_company',
+            'status' => 'pending',
+            'created_at' => '2026-04-05 20:06:01',
+            'updated_at' => '2026-04-05 20:06:01',
         ]);
 
-        DB::table('users')->insert([
-            'name' => 'Jenny Wong',
-            'email' => 'store@mobius.my',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-            'phone' => '0171113333',
-            'roles' => json_encode(['store_owner']),
-            'points_balance' => 0,
-            'current_streak' => 0,
-            'longest_streak' => 0,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        DB::table('users')->insert([
-            'name' => 'Kumar Rajan',
-            'email' => 'collector@mobius.my',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-            'phone' => '0195556666',
-            'roles' => json_encode(['collector']),
-            'points_balance' => 0,
-            'current_streak' => 0,
-            'longest_streak' => 0,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        DB::table('users')->insert([
-            'name' => 'Mei Ling',
-            'email' => 'public@mobius.my',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-            'phone' => '0167778888',
-            'roles' => json_encode(['public_user']),
-            'points_balance' => 0,
-            'current_streak' => 0,
-            'longest_streak' => 0,
-            'created_at' => now(),
-            'updated_at' => now(),
+        DB::table('registration_requests')->insert([
+            'selected_plan_id' => 2,
+            'company_name' => 'Zuspresso (M) Sdn Bhd',
+            'contact_name' => 'Brand Owner 2',
+            'contact_email' => 'brand2@brandtwo.com',
+            'contact_phone' => '01124120655',
+            'type' => 'beverage_company',
+            'status' => 'pending',
+            'created_at' => '2026-04-05 20:06:55',
+            'updated_at' => '2026-04-05 20:06:55',
         ]);
     }
 }

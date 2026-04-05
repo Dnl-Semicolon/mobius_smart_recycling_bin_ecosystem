@@ -139,13 +139,12 @@ export default function Welcome({
                                         </div>
                                         {/* Features list — to be designed */}
                                         <div className="mt-8 flex-1" />
-                                        <button
-                                            type="button"
-                                            className="mt-8 block w-full cursor-default rounded-lg border border-gray-300 py-3 text-center text-sm font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300"
-                                            disabled
+                                        <Link
+                                            href={`/get-started?plan=${plan.id}`}
+                                            className="mt-8 block w-full rounded-lg border border-gray-300 py-3 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-900"
                                         >
                                             {isCustom ? 'Contact Sales' : 'Get Started'}
-                                        </button>
+                                        </Link>
                                     </div>
                                 );
                             })}
