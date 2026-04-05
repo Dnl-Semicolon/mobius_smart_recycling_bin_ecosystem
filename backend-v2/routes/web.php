@@ -60,6 +60,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::post('/bins', [BinController::class, 'store'])->name('bins.store');
     Route::get('/billing', [App\Http\Controllers\Admin\BillingController::class, 'index'])->name('billing');
     Route::post('/billing/{subscription}/activate', [App\Http\Controllers\Admin\BillingController::class, 'activate'])->name('billing.activate');
+    Route::get('/billing/{subscription}/customize', [App\Http\Controllers\Admin\BillingController::class, 'customize'])->name('billing.customize');
+    Route::patch('/billing/{subscription}/customize', [App\Http\Controllers\Admin\BillingController::class, 'updateCustom'])->name('billing.update-custom');
 });
 
 // =============================================

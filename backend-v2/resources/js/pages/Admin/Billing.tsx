@@ -9,7 +9,9 @@ type Sub = {
     organization: string;
     plan: string;
     price_monthly: string;
+    billing_interval: string;
     status: string;
+    has_overrides: boolean;
     starts_at: string | null;
     ends_at: string | null;
     created_at: string;
@@ -56,6 +58,7 @@ export default function AdminBilling({ subscriptions }: { subscriptions: Paginat
                                 <TableHead>Status</TableHead>
                                 <TableHead>Started</TableHead>
                                 <TableHead>Ends</TableHead>
+                                <TableHead>Interval</TableHead>
                                 <TableHead>Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -72,15 +75,24 @@ export default function AdminBilling({ subscriptions }: { subscriptions: Paginat
                                     </TableCell>
                                     <TableCell>{sub.starts_at ?? '-'}</TableCell>
                                     <TableCell>{sub.ends_at ?? '-'}</TableCell>
+                                    <TableCell className="capitalize">{sub.billing_interval}</TableCell>
                                     <TableCell>
-                                        {sub.status === 'pending_payment' && (
-                                            <button
-                                                onClick={() => handleActivate(sub.id)}
-                                                className="rounded border px-3 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950"
+                                        <div className="flex gap-2">
+                                            {sub.status === 'pending_payment' && (
+                                                <button
+                                                    onClick={() => handleActivate(sub.id)}
+                                                    className="rounded border px-3 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950"
+                                                >
+                                                    Activate
+                                                </button>
+                                            )}
+                                            <a
+                                                href={`/admin/billing/${sub.id}/customize`}
+                                                className="rounded border px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-900"
                                             >
-                                                Activate
-                                            </button>
-                                        )}
+                                                {sub.has_overrides ? 'Edit Overrides' : 'Customize'}
+                                            </a>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))}
