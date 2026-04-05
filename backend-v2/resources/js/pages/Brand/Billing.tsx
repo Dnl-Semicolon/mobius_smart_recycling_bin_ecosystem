@@ -100,7 +100,7 @@ export default function BrandBilling({
                                     {!subscription.ends_at && (
                                         <div className="flex justify-between">
                                             <dt className="text-muted-foreground">Renewal</dt>
-                                            <dd>Auto-renewing monthly</dd>
+                                            <dd>Auto-renewing {subscription.billing_interval}</dd>
                                         </div>
                                     )}
                                 </dl>

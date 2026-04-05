@@ -67,7 +67,7 @@ export default function AdminBilling({ subscriptions }: { subscriptions: Paginat
                                 <TableRow key={sub.id}>
                                     <TableCell className="font-medium">{sub.organization}</TableCell>
                                     <TableCell>{sub.plan}</TableCell>
-                                    <TableCell>RM{parseFloat(sub.price_monthly)}/mo</TableCell>
+                                    <TableCell>RM{parseFloat(sub.price_monthly).toLocaleString()}/{sub.billing_interval === 'yearly' ? 'yr' : 'mo'}</TableCell>
                                     <TableCell>
                                         <Badge variant={statusVariant[sub.status] ?? 'secondary'}>
                                             {sub.status.replace(/_/g, ' ')}
