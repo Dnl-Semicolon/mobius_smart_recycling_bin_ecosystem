@@ -4,6 +4,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Admin\BinController;
 use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Brand\BillingController;
 use App\Http\Controllers\Brand\DashboardController;
 use App\Http\Controllers\Brand\StaffController;
 use App\Http\Controllers\LeadController;
@@ -69,7 +70,11 @@ Route::prefix('brand')->name('brand.')->middleware(['auth', 'verified', 'role:br
     Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
     Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
     Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
-    Route::inertia('/billing', 'Brand/Billing')->name('billing');
+    Route::get('/billing', [BillingController::class, 'index'])->name('billing');
+    Route::post('/billing/checkout', [BillingController::class, 'checkout'])->name('billing.checkout');
+    Route::get('/billing/success', [BillingController::class, 'success'])->name('billing.success');
+    Route::get('/billing/cancel', [BillingController::class, 'cancel'])->name('billing.cancel');
+    Route::get('/billing/portal', [BillingController::class, 'portal'])->name('billing.portal');
 });
 
 // =============================================

@@ -32,6 +32,7 @@ return new class extends Migration
             $table->decimal('price_monthly', 10, 2);
             $table->decimal('price_yearly', 10, 2);
             $table->json('features')->comment('bin_limit, analytics_level, etc.');
+            $table->string('stripe_price_id')->nullable()->comment('Stripe Price ID for checkout');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
@@ -62,6 +63,12 @@ return new class extends Migration
             $table->unsignedInteger('current_streak')->default(0);
             $table->unsignedInteger('longest_streak')->default(0);
             $table->timestamp('last_recycled_at')->nullable();
+
+            // Stripe (Cashier)
+            $table->string('stripe_id')->nullable()->index();
+            $table->string('pm_type')->nullable();
+            $table->string('pm_last_four', 4)->nullable();
+            $table->timestamp('trial_ends_at')->nullable();
 
             $table->rememberToken();
             $table->timestamps();
@@ -434,6 +441,34 @@ return new class extends Migration
         });
 
         // =============================================
+        // STRIPE SUBSCRIPTIONS (Cashier)
+        // =============================================
+        Schema::create('subscriptions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id');
+            $table->string('type');
+            $table->string('stripe_id')->unique();
+            $table->string('stripe_status');
+            $table->string('stripe_price')->nullable();
+            $table->integer('quantity')->nullable();
+            $table->timestamp('trial_ends_at')->nullable();
+            $table->timestamp('ends_at')->nullable();
+            $table->timestamps();
+            $table->index(['user_id', 'stripe_status']);
+        });
+
+        Schema::create('subscription_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('subscription_id');
+            $table->string('stripe_id')->unique();
+            $table->string('stripe_product');
+            $table->string('stripe_price');
+            $table->integer('quantity')->nullable();
+            $table->timestamps();
+            $table->index(['subscription_id', 'stripe_price']);
+        });
+
+        // =============================================
         // CACHE (Laravel infrastructure)
         // =============================================
         Schema::create('cache', function (Blueprint $table) {
@@ -492,6 +527,8 @@ return new class extends Migration
         Schema::dropIfExists('jobs');
         Schema::dropIfExists('cache_locks');
         Schema::dropIfExists('cache');
+        Schema::dropIfExists('subscription_items');
+        Schema::dropIfExists('subscriptions');
         Schema::dropIfExists('app_notifications');
         Schema::dropIfExists('brand_applications');
         Schema::dropIfExists('agency_collector');
