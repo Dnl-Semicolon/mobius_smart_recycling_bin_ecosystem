@@ -60,7 +60,12 @@ class OutletController extends Controller
         $validated = $request->validate([
             'user_id' => ['required', 'exists:users,id'],
             'name' => ['required', 'string', 'max:255'],
-            'address' => ['required', 'string'],
+            'address' => ['nullable', 'string'],
+            'street' => ['nullable', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:255'],
+            'state' => ['nullable', 'string', 'max:255'],
+            'postcode' => ['nullable', 'string', 'max:10'],
+            'country' => ['nullable', 'string', 'max:255'],
             'latitude' => ['required', 'numeric'],
             'longitude' => ['required', 'numeric'],
         ]);

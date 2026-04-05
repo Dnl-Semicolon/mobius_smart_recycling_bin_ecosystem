@@ -8,6 +8,11 @@ export default function CreateBrandOutlet({ users }: { users: UserOption[] }) {
         user_id: '',
         name: '',
         address: '',
+        street: '',
+        city: '',
+        state: '',
+        postcode: '',
+        country: 'Malaysia',
         latitude: '',
         longitude: '',
     });
@@ -39,6 +44,23 @@ export default function CreateBrandOutlet({ users }: { users: UserOption[] }) {
                         {form.errors.user_id && <p className="mt-1 text-xs text-red-600">{form.errors.user_id}</p>}
                     </div>
 
+                    <AddressInput
+                        onPlaceSelect={(place) => {
+                            form.setData((prev: typeof form.data) => ({
+                                ...prev,
+                                name: prev.name || place.name,
+                                address: place.address,
+                                street: place.street,
+                                city: place.city,
+                                state: place.state,
+                                postcode: place.postcode,
+                                country: place.country || 'Malaysia',
+                                latitude: String(place.lat),
+                                longitude: String(place.lng),
+                            }));
+                        }}
+                    />
+
                     <div>
                         <label className="block text-sm font-medium">Outlet Name</label>
                         <input
@@ -46,60 +68,53 @@ export default function CreateBrandOutlet({ users }: { users: UserOption[] }) {
                             value={form.data.name}
                             onChange={(e) => form.setData('name', e.target.value)}
                             className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                            placeholder="e.g. Starbucks Hillside Tg Bungah"
+                            placeholder="Auto-filled from Google or type manually"
                         />
                         {form.errors.name && <p className="mt-1 text-xs text-red-600">{form.errors.name}</p>}
                     </div>
 
-                    <AddressInput
-                        value={form.data.address}
-                        onChange={(v) => form.setData('address', v)}
-                        onPlaceSelect={(place) => {
-                            form.setData((prev: typeof form.data) => ({
-                                ...prev,
-                                name: prev.name || place.name,
-                                address: place.address,
-                                latitude: String(place.lat),
-                                longitude: String(place.lng),
-                            }));
-                        }}
-                    />
-                    {form.errors.address && <p className="mt-1 text-xs text-red-600">{form.errors.address}</p>}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium">Street</label>
+                            <input type="text" value={form.data.street} onChange={(e) => form.setData('street', e.target.value)}
+                                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium">City</label>
+                            <input type="text" value={form.data.city} onChange={(e) => form.setData('city', e.target.value)}
+                                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium">State</label>
+                            <input type="text" value={form.data.state} onChange={(e) => form.setData('state', e.target.value)}
+                                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium">Postcode</label>
+                            <input type="text" value={form.data.postcode} onChange={(e) => form.setData('postcode', e.target.value)}
+                                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                        </div>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium">Latitude</label>
-                            <input
-                                type="text"
-                                value={form.data.latitude}
-                                onChange={(e) => form.setData('latitude', e.target.value)}
-                                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                                placeholder="e.g. 5.4575"
-                            />
+                            <label className="block text-sm font-medium text-muted-foreground">Latitude</label>
+                            <input type="text" value={form.data.latitude} readOnly
+                                className="mt-1 block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium">Longitude</label>
-                            <input
-                                type="text"
-                                value={form.data.longitude}
-                                onChange={(e) => form.setData('longitude', e.target.value)}
-                                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                                placeholder="e.g. 100.2895"
-                            />
+                            <label className="block text-sm font-medium text-muted-foreground">Longitude</label>
+                            <input type="text" value={form.data.longitude} readOnly
+                                className="mt-1 block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400" />
                         </div>
                     </div>
 
                     <div className="flex gap-3">
-                        <button
-                            type="submit"
-                            disabled={form.processing}
-                            className="rounded-lg bg-emerald-600 px-6 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
-                        >
+                        <button type="submit" disabled={form.processing}
+                            className="rounded-lg bg-emerald-600 px-6 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">
                             {form.processing ? 'Creating...' : 'Create Outlet'}
                         </button>
-                        <Link href="/brand/outlets" className="rounded-lg border px-6 py-2 text-sm font-semibold">
-                            Cancel
-                        </Link>
+                        <Link href="/brand/outlets" className="rounded-lg border px-6 py-2 text-sm font-semibold">Cancel</Link>
                     </div>
                 </form>
             </div>

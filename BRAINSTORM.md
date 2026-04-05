@@ -261,7 +261,54 @@ The lecturer wants to see:
 3. Does the brand owner see a "your plan" page showing what's included vs locked?
 4. Can they upgrade from Basic to Premium themselves via Stripe?
 
-*Waiting for Daniel's input on the pricing model.*
+### Daniel's response
+> ok. happy. now, back to where we were. [re-raised the 3 questions about pricing]
+
+### My thinking on each question
+
+**1. What does each tier actually get?**
+
+Current features in the DB seeder are reasonable but untested. The question is whether these are HARD limits (enforced in code) or SOFT limits (shown on the pricing page but not enforced). For an FYP, hard limits are more impressive — they show real business logic.
+
+Proposed tier breakdown:
+
+| Feature | Basic (RM49) | Premium (RM149) | Custom |
+|---------|-------------|----------------|--------|
+| Bins | 3 max | 15 max | Negotiated |
+| Outlets | 1 | 5 | Unlimited |
+| Staff accounts | 2 | 10 | Unlimited |
+| Analytics | Basic (counts only) | Advanced (charts, trends) | Full |
+| Support | Email | Priority | Dedicated |
+| AI waste detection | Yes | Yes | Yes |
+| Brand detection | No | Yes | Yes |
+| Route optimization | No | Yes | Yes |
+| Voucher system | No | Yes | Yes |
+| API access | No | No | Yes |
+
+**2. Where do we enforce?**
+
+Two layers:
+- **Hard limits**: bin count, outlet count, staff count — checked at creation time. Error message: "Your Basic plan allows 3 bins. You have 3. Upgrade to Premium for up to 15."
+- **Feature gates**: sidebar items hidden if plan doesn't include them. e.g., Basic doesn't see "Vouchers" in sidebar. If they somehow hit the URL, they get a 403.
+
+Both are needed. Hard limits prevent overselling. Feature gates keep the UI clean.
+
+Where the check lives: a middleware or a helper method on the Organization/Subscription model that reads the plan's features JSON and checks against current counts.
+
+**3. Custom tier payment**
+
+Two realistic options for the viva:
+- **Option A**: Admin creates a custom Stripe Price in Stripe dashboard (e.g., RM800/mo), adds its price_id to our plan record, brand pays via normal checkout. Clean, everything through Stripe.
+- **Option B**: Admin manually activates (already built). Payment is offline (bank transfer, invoice).
+
+Option A is cleaner and keeps everything in Stripe. For the viva demo: admin can show they'd create a custom Stripe price, assign it, and the brand pays through the same flow.
+
+### Decisions needed
+1. Are the tier limits above right? (bins, outlets, staff counts)
+2. Both hard limits + feature gates?
+3. Custom: Stripe price created by admin, or manual activation?
+
+*Waiting for Daniel.*
 
 ### Daniel's answers
 1. **Stripe owns billing cycle.** Ticket it — use Stripe simulation for demo. Our system syncs with Stripe, not the other way.

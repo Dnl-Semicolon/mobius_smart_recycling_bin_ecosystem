@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['user_id', 'brand_id', 'name', 'address', 'latitude', 'longitude', 'is_active'])]
+#[Fillable(['user_id', 'brand_id', 'name', 'address', 'street', 'city', 'state', 'postcode', 'country', 'latitude', 'longitude', 'is_active'])]
 class Outlet extends Model
 {
     protected function casts(): array
