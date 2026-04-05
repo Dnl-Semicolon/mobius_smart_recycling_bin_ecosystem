@@ -129,6 +129,7 @@ return new class extends Migration
             $table->unsignedInteger('custom_staff_limit')->nullable();
             $table->decimal('custom_price_monthly', 10, 2)->nullable()->comment('display only — Stripe has actual charge');
             $table->text('notes')->nullable()->comment('admin internal notes about the deal');
+            $table->string('stripe_price_id')->nullable()->comment('org-specific Stripe Price for custom deals');
 
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('ends_at')->nullable();

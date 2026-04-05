@@ -73,15 +73,31 @@ class BillingController extends Controller
             }
         }
 
+        // Determine effective price and stripe_price_id
+        $effectiveStripePriceId = $orgSub?->stripe_price_id ?? $orgSub?->plan?->stripe_price_id;
+        $effectivePrice = $orgSub?->custom_price_monthly ?? $orgSub?->plan?->price_monthly;
+        $billingInterval = $orgSub?->billing_interval ?? 'monthly';
+        $isCustom = $orgSub?->custom_price_monthly !== null;
+
+        // Effective limits for display
+        $limits = $org ? [
+            'bins' => $org->getLimitInfo('bin_limit'),
+            'outlets' => $org->getLimitInfo('outlet_limit'),
+            'staff' => $org->getLimitInfo('staff_limit'),
+        ] : null;
+
         return Inertia::render('Brand/Billing', [
             'subscription' => $orgSub ? [
                 'plan_name' => $orgSub->plan->name,
-                'price_monthly' => $orgSub->plan->price_monthly,
-                'stripe_price_id' => $orgSub->plan->stripe_price_id,
+                'price' => $effectivePrice,
+                'billing_interval' => $billingInterval,
+                'stripe_price_id' => $effectiveStripePriceId,
+                'is_custom' => $isCustom,
                 'status' => $orgSub->status,
                 'starts_at' => $orgSub->starts_at?->format('Y-m-d'),
                 'ends_at' => $orgSub->ends_at?->format('Y-m-d'),
             ] : null,
+            'limits' => $limits,
             'stripe' => $stripeData,
             'invoices' => $invoices,
             'hasStripeSubscription' => $user->fresh()->subscribed('default'),
@@ -94,11 +110,14 @@ class BillingController extends Controller
         $org = $user->organization;
         $orgSub = Subscription::where('organization_id', $org->id)->with('plan')->first();
 
-        if (! $orgSub?->plan?->stripe_price_id) {
+        // Use org-specific price if set, otherwise plan price
+        $stripePriceId = $orgSub?->stripe_price_id ?? $orgSub?->plan?->stripe_price_id;
+
+        if (! $stripePriceId) {
             return back();
         }
 
-        return $user->newSubscription('default', $orgSub->plan->stripe_price_id)
+        return $user->newSubscription('default', $stripePriceId)
             ->checkout([
                 'success_url' => route('brand.billing.success').'?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('brand.billing.cancel'),

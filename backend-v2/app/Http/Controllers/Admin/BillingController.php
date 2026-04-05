@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Stripe\StripeClient;
 
 class BillingController extends Controller
 {
@@ -25,6 +26,7 @@ class BillingController extends Controller
                 'billing_interval' => $sub->billing_interval,
                 'status' => $sub->status,
                 'has_overrides' => $sub->custom_bin_limit !== null || $sub->custom_outlet_limit !== null,
+                'has_stripe_price' => (bool) $sub->stripe_price_id,
                 'starts_at' => $sub->starts_at?->format('Y-m-d'),
                 'ends_at' => $sub->ends_at?->format('Y-m-d'),
                 'created_at' => $sub->created_at->format('Y-m-d'),
@@ -51,7 +53,7 @@ class BillingController extends Controller
 
     public function customize(Subscription $subscription): Response
     {
-        $subscription->load(['organization:id,name', 'plan:id,name']);
+        $subscription->load(['organization:id,name', 'plan:id,name,bin_limit,outlet_limit,staff_limit']);
 
         return Inertia::render('Admin/Billing/Customize', [
             'subscription' => [
@@ -68,6 +70,7 @@ class BillingController extends Controller
                 'billing_interval' => $subscription->billing_interval,
                 'notes' => $subscription->notes,
                 'status' => $subscription->status,
+                'stripe_price_id' => $subscription->stripe_price_id,
             ],
         ]);
     }
@@ -81,10 +84,81 @@ class BillingController extends Controller
             'custom_price_monthly' => ['nullable', 'numeric', 'min:0'],
             'billing_interval' => ['required', 'in:monthly,yearly'],
             'notes' => ['nullable', 'string'],
+            'create_stripe_price' => ['nullable', 'boolean'],
         ]);
+
+        $createStripePrice = $validated['create_stripe_price'] ?? false;
+        unset($validated['create_stripe_price']);
 
         $subscription->update($validated);
 
+        // Create Stripe Price if requested and custom price is set
+        if ($createStripePrice && $subscription->custom_price_monthly > 0) {
+            $stripePriceId = $this->createStripePrice($subscription);
+            if ($stripePriceId) {
+                $subscription->update(['stripe_price_id' => $stripePriceId]);
+            }
+        }
+
         return redirect()->route('admin.billing');
+    }
+
+    private function createStripePrice(Subscription $subscription): ?string
+    {
+        try {
+            $stripe = new StripeClient(config('cashier.secret'));
+            $subscription->load('organization');
+
+            // Find or create the "Mobius Custom Plan" product
+            $productId = $this->getOrCreateCustomProduct($stripe);
+
+            // Calculate amount in cents (MYR)
+            $interval = $subscription->billing_interval;
+            $amountMonthly = (int) round($subscription->custom_price_monthly * 100);
+
+            if ($interval === 'yearly') {
+                // Yearly: multiply monthly by 12
+                $amount = $amountMonthly * 12;
+            } else {
+                $amount = $amountMonthly;
+            }
+
+            $price = $stripe->prices->create([
+                'product' => $productId,
+                'unit_amount' => $amount,
+                'currency' => 'myr',
+                'recurring' => [
+                    'interval' => $interval === 'yearly' ? 'year' : 'month',
+                ],
+                'nickname' => 'Custom — '.$subscription->organization->name,
+            ]);
+
+            return $price->id;
+        } catch (\Exception $e) {
+            report($e);
+
+            return null;
+        }
+    }
+
+    private function getOrCreateCustomProduct(StripeClient $stripe): string
+    {
+        // Search for existing product by metadata
+        $products = $stripe->products->search([
+            'query' => "metadata['mobius_type']:'custom_plan'",
+        ]);
+
+        if (count($products->data) > 0) {
+            return $products->data[0]->id;
+        }
+
+        // Create it
+        $product = $stripe->products->create([
+            'name' => 'Mobius Custom Plan',
+            'description' => 'Custom enterprise plan for Mobius Smart Recycling Bin Ecosystem',
+            'metadata' => ['mobius_type' => 'custom_plan'],
+        ]);
+
+        return $product->id;
     }
 }

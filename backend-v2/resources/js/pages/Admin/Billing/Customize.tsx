@@ -25,10 +25,14 @@ export default function Customize({ subscription }: { subscription: Sub }) {
         custom_price_monthly: subscription.custom_price_monthly ?? '',
         billing_interval: subscription.billing_interval,
         notes: subscription.notes ?? '',
+        create_stripe_price: false,
     });
 
-    function submit(e: React.FormEvent) {
+    function submit(e: React.FormEvent, createPrice = false) {
         e.preventDefault();
+        form.setData('create_stripe_price', createPrice);
+        // Need to use transform since setData is async
+        form.transform((data) => ({ ...data, create_stripe_price: createPrice }));
         form.patch(`/admin/billing/${subscription.id}/customize`);
     }
 
@@ -127,13 +131,29 @@ export default function Customize({ subscription }: { subscription: Sub }) {
                         />
                     </div>
 
-                    <div className="flex gap-3">
+                    {subscription.stripe_price_id && (
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm dark:border-emerald-800 dark:bg-emerald-950">
+                            <p className="font-medium text-emerald-700 dark:text-emerald-400">Stripe Price active</p>
+                            <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-500 font-mono">{subscription.stripe_price_id}</p>
+                        </div>
+                    )}
+
+                    <div className="flex flex-wrap gap-3">
                         <button
                             type="submit"
                             disabled={form.processing}
+                            onClick={(e) => submit(e, false)}
+                            className="rounded-lg border border-gray-300 px-6 py-2 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:hover:bg-gray-900"
+                        >
+                            Save Overrides Only
+                        </button>
+                        <button
+                            type="button"
+                            disabled={form.processing || !form.data.custom_price_monthly}
+                            onClick={(e) => submit(e, true)}
                             className="rounded-lg bg-emerald-600 px-6 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
                         >
-                            {form.processing ? 'Saving...' : 'Save Overrides'}
+                            {form.processing ? 'Creating...' : subscription.stripe_price_id ? 'Update & Recreate Stripe Price' : 'Save & Create Stripe Price'}
                         </button>
                         <Link href="/admin/billing" className="rounded-lg border px-6 py-2 text-sm font-semibold">
                             Cancel

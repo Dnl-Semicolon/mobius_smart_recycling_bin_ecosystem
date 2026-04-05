@@ -6,12 +6,17 @@ import {
 
 type Sub = {
     plan_name: string;
-    price_monthly: string;
+    price: string;
+    billing_interval: string;
     stripe_price_id: string | null;
+    is_custom: boolean;
     status: string;
     starts_at: string | null;
     ends_at: string | null;
 };
+
+type LimitInfo = { current: number; max: number | null; reached: boolean; unlimited: boolean };
+type Limits = { bins: LimitInfo; outlets: LimitInfo; staff: LimitInfo } | null;
 
 type StripeData = {
     stripe_status: string;
@@ -46,6 +51,7 @@ export default function BrandBilling({
     hasStripeSubscription,
 }: {
     subscription: Sub | null;
+    limits: Limits;
     stripe: StripeData;
     invoices: Invoice[];
     hasStripeSubscription: boolean;
@@ -72,8 +78,11 @@ export default function BrandBilling({
                                 </Badge>
                             </div>
                             <p className="mt-1 text-2xl font-bold">
-                                RM{parseFloat(subscription.price_monthly)}<span className="text-sm font-normal text-muted-foreground">/mo</span>
+                                RM{parseFloat(subscription.price).toLocaleString()}<span className="text-sm font-normal text-muted-foreground">/{subscription.billing_interval === 'yearly' ? 'yr' : 'mo'}</span>
                             </p>
+                            {subscription.is_custom && (
+                                <p className="mt-1 text-xs text-muted-foreground">Custom arrangement set by admin. Contact admin if details are incorrect.</p>
+                            )}
 
                             {subscription.status === 'active' && subscription.starts_at && (
                                 <dl className="mt-4 space-y-2 text-sm">
@@ -131,6 +140,26 @@ export default function BrandBilling({
                                 )}
                             </div>
                         </div>
+
+                        {/* Plan Limits Card */}
+                        {limits && (
+                            <div className="rounded-xl border p-6">
+                                <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Your Plan Includes</h2>
+                                <dl className="space-y-3 text-sm">
+                                    {(['bins', 'outlets', 'staff'] as const).map((key) => {
+                                        const info = limits[key];
+                                        return (
+                                            <div key={key} className="flex justify-between">
+                                                <dt className="text-muted-foreground capitalize">{key}</dt>
+                                                <dd className="font-medium">
+                                                    {info.unlimited ? '∞ unlimited' : `${info.current} / ${info.max}`}
+                                                </dd>
+                                            </div>
+                                        );
+                                    })}
+                                </dl>
+                            </div>
+                        )}
 
                         {/* Stripe Details Card */}
                         {stripe && (

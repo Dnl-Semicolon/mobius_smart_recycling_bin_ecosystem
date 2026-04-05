@@ -369,14 +369,40 @@ Key takeaways:
 - For viva: Basic + Premium + Custom + yearly + 1-2 discount examples. Not a full campaign engine.
 
 **Build order confirmed:**
-1. plans table gets proper limit columns
-2. org_subscriptions gets override columns
-3. Helper methods compute effective limits
-4. UI shows plan entitlements
-5. Enforcement checks limits
-6. Custom subscription creation form for admin
-7. Yearly pricing
-8. 1-2 discount/campaign examples
+1. plans table gets proper limit columns ✅
+2. org_subscriptions gets override columns ✅
+3. Helper methods compute effective limits ✅
+4. UI shows plan entitlements ✅
+5. Enforcement checks limits ✅
+6. Custom subscription override form for admin ✅
+7. **Custom tier Stripe product/price flow — IN PROGRESS**
+8. Yearly pricing
+9. 1-2 discount/campaign examples
+
+---
+
+## Session 8 — 2026-04-06, ~5:00 AM MYT — Custom Tier Stripe Integration
+
+### The Problem
+
+Admin customizes a subscription (RM10,000/yr, 200/200/200 limits) but the brand owner still sees "RM0/mo, contact admin." The billing page doesn't reflect the custom arrangement because there's no Stripe price created for the custom deal.
+
+### Daniel's Proposed Flow
+1. Admin converts lead → custom subscription created (pending_payment)
+2. Admin customizes: sets limits, price, billing interval via `/admin/billing/{id}/customize`
+3. Admin clicks "Create Stripe Price" → backend calls Stripe API → creates Product + Price for this org
+4. Stripe price_id saved to `organization_subscriptions.stripe_price_id`
+5. Brand owner visits `/brand/billing` → sees custom price + "Pay via Stripe" button
+6. Brand owner pays → Stripe checkout for their exact custom price → subscription activates
+
+### Schema Change
+Add `stripe_price_id` nullable string column to `organization_subscriptions` — the org-specific Stripe price for custom deals.
+
+### Key Design Decision
+Custom orgs each get their own Stripe Product + Price. Admin creates them via our UI. This is how 3rd party integrations should work — admin stays in our app, our backend calls Stripe APIs.
+
+### Business Context
+Mobius is a real startup: RM7k seed, RM6k market access grant, 2-year incubator program, RM300k revenue target. The work must be production-quality.
 
 ---
 
