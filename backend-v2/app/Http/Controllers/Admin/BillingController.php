@@ -112,16 +112,11 @@ class BillingController extends Controller
             // Find or create the "Mobius Custom Plan" product
             $productId = $this->getOrCreateCustomProduct($stripe);
 
-            // Calculate amount in cents (MYR)
+            // Amount in cents (MYR) — custom_price_monthly is the price per billing interval
+            // If yearly, admin entered the yearly total (e.g. RM10,000/yr)
+            // If monthly, admin entered the monthly amount (e.g. RM500/mo)
             $interval = $subscription->billing_interval;
-            $amountMonthly = (int) round($subscription->custom_price_monthly * 100);
-
-            if ($interval === 'yearly') {
-                // Yearly: multiply monthly by 12
-                $amount = $amountMonthly * 12;
-            } else {
-                $amount = $amountMonthly;
-            }
+            $amount = (int) round($subscription->custom_price_monthly * 100);
 
             $price = $stripe->prices->create([
                 'product' => $productId,

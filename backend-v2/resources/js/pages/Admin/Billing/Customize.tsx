@@ -96,7 +96,7 @@ export default function Customize({ subscription }: { subscription: Sub }) {
                         </h2>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium">Custom Monthly Price (RM)</label>
+                                <label className="block text-sm font-medium">Custom Price (RM per billing interval)</label>
                                 <input
                                     type="number"
                                     step="0.01"
