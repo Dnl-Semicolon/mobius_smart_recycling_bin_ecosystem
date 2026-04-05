@@ -9,6 +9,7 @@ export default function CreateVoucher() {
         points_required: '',
         valid_from: '',
         valid_until: '',
+        quota: '',
     });
 
     function submit(e: React.FormEvent) {
@@ -108,6 +109,20 @@ export default function CreateVoucher() {
                             />
                             {form.errors.valid_until && <p className="mt-1 text-xs text-red-600">{form.errors.valid_until}</p>}
                         </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium">Quota <span className="text-muted-foreground">(optional — leave empty for always-available voucher)</span></label>
+                        <input
+                            type="number"
+                            value={form.data.quota}
+                            onChange={(e) => form.setData('quota', e.target.value)}
+                            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                            placeholder="e.g. 500 (first come first serve)"
+                        />
+                        <p className="mt-1 text-xs text-muted-foreground">
+                            {form.data.quota ? `Promotional: ${form.data.quota} vouchers, first come first serve` : 'Normal: always available, no limit'}
+                        </p>
                     </div>
 
                     <div className="flex gap-3">

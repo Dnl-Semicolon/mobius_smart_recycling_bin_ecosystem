@@ -11,6 +11,9 @@ type Voucher = {
     points_required: number;
     valid_until: string;
     can_afford: boolean;
+    is_promo: boolean;
+    remaining: number | null;
+    sold_out: boolean;
 };
 
 type Claim = {
@@ -77,7 +80,14 @@ export default function PublicVouchers({
                                             <p className="text-xs text-muted-foreground">{v.brand}</p>
                                             <h3 className="text-lg font-semibold">{v.name}</h3>
                                         </div>
-                                        <Badge variant="secondary">{typeLabels[v.type] ?? v.type}</Badge>
+                                        <div className="flex gap-1">
+                                            {v.is_promo && (
+                                                <Badge variant={v.sold_out ? 'destructive' : 'default'}>
+                                                    {v.sold_out ? 'Sold out' : `${v.remaining} left`}
+                                                </Badge>
+                                            )}
+                                            <Badge variant="secondary">{typeLabels[v.type] ?? v.type}</Badge>
+                                        </div>
                                     </div>
                                     {v.description && (
                                         <p className="mt-1 text-sm text-muted-foreground">{v.description}</p>
@@ -91,14 +101,16 @@ export default function PublicVouchers({
                                     </p>
                                     <button
                                         onClick={() => handleClaim(v.id, v.name, v.points_required)}
-                                        disabled={!v.can_afford}
+                                        disabled={!v.can_afford || v.sold_out}
                                         className={`mt-4 w-full rounded-lg py-2 text-sm font-semibold ${
-                                            v.can_afford
-                                                ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                                                : 'border text-muted-foreground cursor-not-allowed'
+                                            v.sold_out
+                                                ? 'border text-muted-foreground cursor-not-allowed'
+                                                : v.can_afford
+                                                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                                    : 'border text-muted-foreground cursor-not-allowed'
                                         }`}
                                     >
-                                        {v.can_afford ? `Claim for ${v.points_required} pts` : `Need ${v.points_required - pointsBalance} more pts`}
+                                        {v.sold_out ? 'Sold Out' : v.can_afford ? `Claim for ${v.points_required} pts` : `Need ${v.points_required - pointsBalance} more pts`}
                                     </button>
                                 </div>
                             ))}

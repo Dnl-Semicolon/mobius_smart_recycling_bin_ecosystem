@@ -34,6 +34,9 @@ class VoucherController extends Controller
                 'points_required' => $v->points_required,
                 'valid_until' => $v->valid_until->format('Y-m-d'),
                 'can_afford' => $user->points_balance >= $v->points_required,
+                'is_promo' => $v->isPromo(),
+                'remaining' => $v->remainingQuota(),
+                'sold_out' => $v->isPromo() && ! $v->hasQuotaRemaining(),
             ]);
 
         $myClaims = VoucherClaim::where('user_id', $user->id)
@@ -71,9 +74,18 @@ class VoucherController extends Controller
             return back()->withErrors(['voucher' => 'Not enough points. You need '.$template->points_required.' points.']);
         }
 
+        if ($template->isPromo() && ! $template->hasQuotaRemaining()) {
+            return back()->withErrors(['voucher' => 'This promotional voucher is sold out.']);
+        }
+
         DB::transaction(function () use ($user, $template) {
             // Deduct points
             $user->decrement('points_balance', $template->points_required);
+
+            // Increment claimed count (for promo vouchers)
+            if ($template->isPromo()) {
+                $template->increment('claimed_count');
+            }
 
             // Create transaction record
             RecyclingTransaction::create([

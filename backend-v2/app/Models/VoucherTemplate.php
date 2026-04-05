@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'brand_id', 'name', 'description', 'type', 'value',
-    'points_required', 'valid_from', 'valid_until', 'is_active',
+    'points_required', 'valid_from', 'valid_until',
+    'quota', 'claimed_count', 'is_active',
 ])]
 class VoucherTemplate extends Model
 {
@@ -44,5 +45,28 @@ class VoucherTemplate extends Model
         return $this->is_active
             && $this->valid_from <= now()
             && $this->valid_until >= now();
+    }
+
+    public function isPromo(): bool
+    {
+        return $this->quota !== null;
+    }
+
+    public function hasQuotaRemaining(): bool
+    {
+        if ($this->quota === null) {
+            return true;
+        }
+
+        return $this->claimed_count < $this->quota;
+    }
+
+    public function remainingQuota(): ?int
+    {
+        if ($this->quota === null) {
+            return null;
+        }
+
+        return max(0, $this->quota - $this->claimed_count);
     }
 }

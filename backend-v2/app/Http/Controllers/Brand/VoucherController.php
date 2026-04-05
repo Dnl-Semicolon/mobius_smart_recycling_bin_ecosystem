@@ -62,6 +62,7 @@ class VoucherController extends Controller
             'points_required' => ['required', 'integer', 'min:1'],
             'valid_from' => ['required', 'date'],
             'valid_until' => ['required', 'date', 'after:valid_from'],
+            'quota' => ['nullable', 'integer', 'min:1'],
         ]);
 
         VoucherTemplate::create([

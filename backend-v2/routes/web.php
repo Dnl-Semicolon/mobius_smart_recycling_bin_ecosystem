@@ -9,6 +9,7 @@ use App\Http\Controllers\Brand\DashboardController;
 use App\Http\Controllers\Brand\StaffController;
 use App\Http\Controllers\Brand\VoucherController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\Store\RedemptionController;
 use App\Models\Plan;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -59,6 +60,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::get('/bins', [BinController::class, 'index'])->name('bins.index');
     Route::get('/bins/create', [BinController::class, 'create'])->name('bins.create');
     Route::post('/bins', [BinController::class, 'store'])->name('bins.store');
+    Route::get('/vouchers', [App\Http\Controllers\Admin\VoucherController::class, 'index'])->name('vouchers.index');
     Route::get('/billing', [App\Http\Controllers\Admin\BillingController::class, 'index'])->name('billing');
     Route::post('/billing/{subscription}/activate', [App\Http\Controllers\Admin\BillingController::class, 'activate'])->name('billing.activate');
     Route::get('/billing/{subscription}/customize', [App\Http\Controllers\Admin\BillingController::class, 'customize'])->name('billing.customize');
@@ -91,6 +93,9 @@ Route::prefix('brand')->name('brand.')->middleware(['auth', 'verified', 'role:br
 // =============================================
 Route::prefix('store')->name('store.')->middleware(['auth', 'verified', 'role:store_owner'])->group(function () {
     Route::get('/', fn () => Inertia::render('Store/Dashboard'))->name('dashboard');
+    Route::get('/redeem', [RedemptionController::class, 'index'])->name('redeem');
+    Route::post('/redeem/lookup', [RedemptionController::class, 'lookup'])->name('redeem.lookup');
+    Route::post('/redeem/confirm', [RedemptionController::class, 'redeem'])->name('redeem.confirm');
 });
 
 // =============================================

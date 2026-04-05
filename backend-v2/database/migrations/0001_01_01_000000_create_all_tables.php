@@ -364,6 +364,10 @@ return new class extends Migration
             $table->unsignedInteger('points_required');
             $table->timestamp('valid_from');
             $table->timestamp('valid_until');
+            // Promo quota (null = normal voucher, unlimited)
+            $table->unsignedInteger('quota')->nullable()->comment('null = unlimited, set = first come first serve');
+            $table->unsignedInteger('claimed_count')->default(0);
+
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
