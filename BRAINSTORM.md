@@ -173,6 +173,66 @@ Flow for Custom:
 2. For Custom plans: admin manually activates, or do we need something more?
 3. Do we build email notifications tonight or is that a "later" thing?
 
+---
+
+## Session 5 — 2026-04-06, ~12:15 AM MYT — Billing Reality Check
+
+### What Daniel said
+> "The subscription story is solid now" bruh no it's not. We haven't done anything for solidifying the two different tiers with constraints and help/error messages, nor tested Custom plans, nor solidified Stripe integration. Stripe has so many features, APIs — we need to make sure every Stripe feature or data can be seen via our app IF we can't properly configure a manage-via-stripe functionality. Viewing invoices, receipts, storing PDFs. The billing page has to be solid for brand owners and admins. We should see everything. Only with all the data to our disposal, we can enforce shit. Make it real world.
+
+### The Root Problem
+
+We have TWO subscription systems that don't talk to each other:
+
+1. **`organization_subscriptions`** — Our table. Tracks org → plan relationship, status, dates. Created during lead conversion.
+2. **Cashier's `subscriptions`** — Stripe's table. Created when user pays via Stripe Checkout. Tracks stripe_id, stripe_status, stripe_price.
+
+After `migrate:fresh --seed`, the Cashier table is empty but our org_subscriptions exist. After Stripe payment, Cashier creates a record but our system might not sync. This drift is the source of every bug.
+
+### What "Solid Billing" Actually Looks Like
+
+For the brand owner, `/brand/billing` should show:
+- Current plan name + price
+- Subscription status (synced with Stripe, not our own flag)
+- Next billing date (from Stripe)
+- Payment method on file (last 4 digits)
+- Invoice history (from Stripe — date, amount, status, PDF link)
+- "Manage Subscription" button → Stripe billing portal (change plan, cancel, update payment)
+
+For admin, `/admin/billing` should show:
+- All org subscriptions in a table
+- Each row: org name, plan, status, last payment date, next billing date
+- Click into detail: see that org's invoice history
+- For Custom plans: manual activation + ability to send Stripe invoice
+
+### What Stripe Billing Portal Gives Us For Free
+
+Stripe's hosted billing portal (accessed via `$user->redirectToBillingPortal()`) lets the customer:
+- View invoices and download PDFs
+- Update payment method
+- Cancel subscription
+- View upcoming invoice
+
+**If we make the billing portal work, we get 80% of "solid billing" for free.** We don't need to build invoice views, receipt downloads, etc. Stripe handles it.
+
+### What We Actually Need to Build
+
+1. **Single source of truth:** Use Cashier's `$user->subscribed('default')` as THE subscription check. Our `org_subscription` is just the business contract — Stripe is the payment reality.
+2. **Billing page enrichment:** Pull data from Cashier/Stripe — next billing date, payment method, recent invoices.
+3. **Billing portal must work:** The "Manage via Stripe" button needs to redirect to Stripe's portal.
+4. **Custom plans:** Admin creates a Stripe Invoice manually (in Stripe dashboard for now), sends to brand. Brand pays via Stripe-hosted invoice page.
+5. **Plan constraints:** If Basic allows 3 bins, enforce it when admin tries to pair a 4th bin.
+
+### Priority for viva (remaining hours)
+
+| # | What | Why | Time |
+|---|------|-----|------|
+| 1 | Make billing portal work + enrich billing page with Stripe data | This IS the subscription story | 45 min |
+| 2 | Plan constraints (bin limits, feature gates) | Shows real business logic | 30 min |
+| 3 | Landing page is done ✓ | Already has perks |  |
+| 4 | Vouchers | Lecturer flagged this | 1-2 hrs |
+| 5 | Everything else | After viva | - |
+
 ### Daniel's answers
 1. **Stripe owns billing cycle.** Ticket it — use Stripe simulation for demo. Our system syncs with Stripe, not the other way.
 2. **Custom tier STILL goes through Stripe.** Admin creates a Stripe product/invoice for the custom deal, brand owner pays it through Stripe billing portal. Everything tracked in Stripe.
