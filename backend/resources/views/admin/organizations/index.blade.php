@@ -101,7 +101,7 @@
                             default => 'bg-gray-100 text-gray-600',
                         };
                     @endphp
-                    <x-card class="p-5">
+                    <a href="{{ route('admin.registration-requests.show', $regRequest) }}" class="block bg-white rounded-xl border border-gray-200 shadow-sm hover:border-gray-300 hover:shadow transition-all p-5">
                         <div class="flex items-start justify-between gap-4">
                             <div class="flex items-start gap-3 min-w-0">
                                 <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center shrink-0 mt-0.5">
@@ -115,12 +115,35 @@
                                         </span>
                                     </h2>
                                     <p class="text-sm text-gray-500 mt-0.5">
-                                        {{ $regRequest->contact_name }} &middot; {{ $regRequest->contact_email }}
+                                        {{ $regRequest->contact_name }} &middot; {{ $regRequest->contact_email }} &middot; {{ $regRequest->contact_phone }}
                                     </p>
-                                    <p class="text-xs text-gray-400 mt-0.5">
+                                    <p class="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
                                         {{ ucfirst(str_replace('_', ' ', $regRequest->type)) }}
-                                        <span class="text-gray-300 mx-0.5">&middot;</span>
+                                        <span class="text-gray-300">&middot;</span>
                                         {{ $regRequest->created_at->diffForHumans() }}
+                                        <span class="text-gray-300">&middot;</span>
+                                        @if ($regRequest->phone_verified_at)
+                                            <span class="inline-flex items-center gap-0.5 text-emerald-600">
+                                                <x-heroicon-s-check-circle class="w-3 h-3" />
+                                                Phone
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-0.5 text-amber-600">
+                                                <x-heroicon-s-exclamation-triangle class="w-3 h-3" />
+                                                Phone
+                                            </span>
+                                        @endif
+                                        @if ($regRequest->email_verified_at)
+                                            <span class="inline-flex items-center gap-0.5 text-emerald-600">
+                                                <x-heroicon-s-check-circle class="w-3 h-3" />
+                                                Email
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-0.5 text-amber-600">
+                                                <x-heroicon-s-exclamation-triangle class="w-3 h-3" />
+                                                Email
+                                            </span>
+                                        @endif
                                     </p>
                                     @if ($regRequest->description)
                                         <p class="text-xs text-gray-500 mt-2 line-clamp-2">{{ $regRequest->description }}</p>
@@ -128,50 +151,16 @@
                                 </div>
                             </div>
 
-                            {{-- Approve / Reject actions (only for pending) --}}
-                            @if ($regRequest->isPending())
-                                <div class="shrink-0 flex items-center gap-2" x-data="{ showReject: false }">
-                                    <form action="{{ route('admin.registration-requests.approve', $regRequest) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 text-white hover:bg-emerald-700 transition-colors cursor-pointer">
-                                            <x-heroicon-o-check class="w-3.5 h-3.5" />
-                                            Approve
-                                        </button>
-                                    </form>
-                                    <button
-                                        type="button"
-                                        @click="showReject = !showReject"
-                                        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors cursor-pointer"
-                                    >
-                                        <x-heroicon-o-x-mark class="w-3.5 h-3.5" />
-                                        Reject
-                                    </button>
-
-                                    {{-- Reject form (expandable) --}}
-                                    <div x-show="showReject" x-cloak x-transition class="absolute right-0 top-full mt-2 z-10 w-72 bg-white rounded-xl border border-gray-200 shadow-lg p-4">
-                                        <form action="{{ route('admin.registration-requests.reject', $regRequest) }}" method="POST">
-                                            @csrf
-                                            <label class="block text-xs font-medium text-gray-700 mb-1.5">Reason for rejection</label>
-                                            <textarea name="admin_notes" rows="3" required class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-red-400 focus:ring-2 focus:ring-red-500/10" placeholder="Explain why this request is being rejected..."></textarea>
-                                            <div class="flex justify-end gap-2 mt-2">
-                                                <button type="button" @click="showReject = false" class="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-100 cursor-pointer">Cancel</button>
-                                                <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-600 text-white hover:bg-red-700 cursor-pointer">Confirm Reject</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            @else
-                                <div class="shrink-0 text-right">
-                                    <span class="text-xs font-medium rounded-full px-2 py-0.5 {{ $statusColor }}">
-                                        {{ ucfirst($regRequest->status) }}
-                                    </span>
-                                    @if ($regRequest->reviewer)
-                                        <p class="text-[10px] text-gray-400 mt-1">by {{ $regRequest->reviewer->name }}</p>
-                                    @endif
-                                </div>
-                            @endif
+                            <div class="shrink-0 text-right">
+                                <span class="text-xs font-medium rounded-full px-2 py-0.5 {{ $statusColor }}">
+                                    {{ ucfirst($regRequest->status) }}
+                                </span>
+                                @if ($regRequest->reviewer)
+                                    <p class="text-[10px] text-gray-400 mt-1">by {{ $regRequest->reviewer->name }}</p>
+                                @endif
+                            </div>
                         </div>
-                    </x-card>
+                    </a>
                 @endforeach
             </div>
 

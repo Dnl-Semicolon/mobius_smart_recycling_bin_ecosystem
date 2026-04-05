@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Registration;
 
 use App\Http\Controllers\Controller;
+use App\Mail\RegistrationVerificationMail;
 use App\Models\RegistrationRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class BrandRegistrationController extends Controller
@@ -99,13 +102,43 @@ class BrandRegistrationController extends Controller
             return redirect()->back()->with('error', 'Verification failed: '.$e->getMessage());
         }
 
-        // OTP verified — create the registration request
+        // OTP verified — create the registration request with email verification token
+        $data['phone_verified_at'] = now();
+        $data['email_verification_token'] = Str::uuid();
         $data['status'] = 'pending';
-        $data['admin_notes'] = 'Phone verified via OTP';
-        RegistrationRequest::create($data);
+        $data['admin_notes'] = 'Phone verified via OTP. Awaiting email verification.';
+
+        $registrationRequest = RegistrationRequest::create($data);
         $request->session()->forget('registration_data');
 
+        // Send email verification mail
+        Mail::to($registrationRequest->contact_email)
+            ->send(new RegistrationVerificationMail($registrationRequest));
+
         return redirect()->route('registration.success')
-            ->with('success', 'Phone verified and application submitted!');
+            ->with('success', 'Phone verified! Check your inbox to verify your email.');
+    }
+
+    public function verifyEmail(string $token): RedirectResponse
+    {
+        $registrationRequest = RegistrationRequest::where('email_verification_token', $token)->first();
+
+        if (! $registrationRequest) {
+            return redirect()->route('registration.success')
+                ->with('error', 'Invalid or expired verification link.');
+        }
+
+        if ($registrationRequest->email_verified_at) {
+            return redirect()->route('registration.success')
+                ->with('error', 'This email has already been verified.');
+        }
+
+        $registrationRequest->update([
+            'email_verified_at' => now(),
+            'admin_notes' => 'Phone and email verified',
+        ]);
+
+        return redirect()->route('registration.success')
+            ->with('success', 'Email verified! Your application is now under review.');
     }
 }

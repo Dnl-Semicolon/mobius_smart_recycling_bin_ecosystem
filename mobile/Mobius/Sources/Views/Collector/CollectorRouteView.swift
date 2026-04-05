@@ -83,6 +83,10 @@ struct CollectorRouteView: View {
         .task {
             locationManager.requestPermission()
             await routeService.fetchRoutes()
+            // Fetch full detail for the first/active route (list only has summary)
+            if let route = routeService.activeRoute ?? routeService.routes.first {
+                _ = await routeService.fetchRouteDetail(route.id)
+            }
         }
         .onChange(of: route?.status) { _, newStatus in
             if newStatus == .completed { showCompletion = true }

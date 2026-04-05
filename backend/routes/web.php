@@ -110,6 +110,7 @@ Route::prefix('register')->name('registration.')->group(function () {
     Route::post('brand', [BrandRegistrationController::class, 'store'])->name('brand.store');
     Route::get('verify-phone', [BrandRegistrationController::class, 'verifyPhone'])->name('verify-phone');
     Route::post('confirm-phone', [BrandRegistrationController::class, 'confirmPhone'])->name('confirm-phone');
+    Route::get('verify-email/{token}', [BrandRegistrationController::class, 'verifyEmail'])->name('verify-email');
     Route::get('agency', [AgencyRegistrationController::class, 'create'])->name('agency.create');
     Route::post('agency', [AgencyRegistrationController::class, 'store'])->name('agency.store');
     Route::get('success', fn () => view('registration.success'))->name('success');
@@ -240,6 +241,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     // Organizations + Registration Requests
     Route::get('organizations', [OrganizationManagementController::class, 'index'])->name('organizations.index');
     Route::get('organizations/{organization}', [OrganizationManagementController::class, 'show'])->name('organizations.show');
+    Route::get('registration-requests/{registrationRequest}', [OrganizationManagementController::class, 'showRequest'])->name('registration-requests.show');
     Route::post('registration-requests/{registrationRequest}/approve', [OrganizationManagementController::class, 'approveRequest'])->name('registration-requests.approve');
     Route::post('registration-requests/{registrationRequest}/reject', [OrganizationManagementController::class, 'rejectRequest'])->name('registration-requests.reject');
 

@@ -21,12 +21,17 @@ class RegistrationRequest extends Model
         'admin_notes',
         'reviewed_by',
         'reviewed_at',
+        'phone_verified_at',
+        'email_verified_at',
+        'email_verification_token',
     ];
 
     protected function casts(): array
     {
         return [
             'reviewed_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
+            'email_verified_at' => 'datetime',
         ];
     }
 
