@@ -50,6 +50,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::post('/leads/{lead}/convert', [App\Http\Controllers\Admin\LeadController::class, 'convert'])->name('leads.convert');
     Route::post('/leads/{lead}/reject', [App\Http\Controllers\Admin\LeadController::class, 'reject'])->name('leads.reject');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/outlets', [OutletController::class, 'index'])->name('outlets.index');
     Route::get('/outlets/create', [OutletController::class, 'create'])->name('outlets.create');
     Route::post('/outlets', [OutletController::class, 'store'])->name('outlets.store');
@@ -105,5 +107,8 @@ Route::prefix('agency')->name('agency.')->middleware(['auth', 'verified', 'role:
 Route::prefix('public')->name('public.')->middleware(['auth', 'verified', 'role:public_user'])->group(function () {
     Route::get('/', fn () => Inertia::render('Public/Dashboard'))->name('dashboard');
 });
+
+// Dev test routes
+Route::inertia('/dev/places-test', 'Dev/PlacesTest')->name('dev.places-test');
 
 require __DIR__.'/settings.php';

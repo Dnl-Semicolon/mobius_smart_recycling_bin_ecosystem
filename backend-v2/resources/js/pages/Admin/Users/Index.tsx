@@ -1,12 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 
 type User = {
@@ -15,29 +10,42 @@ type User = {
     email: string;
     phone: string | null;
     roles: string[];
-    organization_id: number | null;
+    organization: string | null;
     points_balance: number;
     created_at: string;
 };
 
 type PaginatedUsers = {
     data: User[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
     total: number;
+    last_page: number;
     links: { url: string | null; label: string; active: boolean }[];
 };
 
 export default function UsersIndex({ users }: { users: PaginatedUsers }) {
+    const { flash } = usePage<{ flash: { generated_password?: string } }>().props;
+
     return (
         <>
             <Head title="Users" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold">Users</h1>
-                    <p className="text-sm text-muted-foreground">{users.total} total</p>
+                    <Link
+                        href="/admin/users/create"
+                        className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                    >
+                        Create User
+                    </Link>
                 </div>
+
+                {flash?.generated_password && (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950">
+                        <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+                            User created. Generated password: <span className="font-mono">{flash.generated_password}</span>
+                        </p>
+                    </div>
+                )}
 
                 <div className="rounded-xl border">
                     <Table>
@@ -47,6 +55,7 @@ export default function UsersIndex({ users }: { users: PaginatedUsers }) {
                                 <TableHead>Name</TableHead>
                                 <TableHead>Email</TableHead>
                                 <TableHead>Phone</TableHead>
+                                <TableHead>Organization</TableHead>
                                 <TableHead>Roles</TableHead>
                                 <TableHead className="text-right">Points</TableHead>
                                 <TableHead>Joined</TableHead>
@@ -59,11 +68,12 @@ export default function UsersIndex({ users }: { users: PaginatedUsers }) {
                                     <TableCell className="font-medium">{user.name}</TableCell>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{user.phone ?? '-'}</TableCell>
+                                    <TableCell>{user.organization ?? '-'}</TableCell>
                                     <TableCell>
                                         <div className="flex gap-1">
                                             {user.roles.map((role) => (
                                                 <Badge key={role} variant="secondary">
-                                                    {role.replace('_', ' ')}
+                                                    {role.replace(/_/g, ' ')}
                                                 </Badge>
                                             ))}
                                         </div>

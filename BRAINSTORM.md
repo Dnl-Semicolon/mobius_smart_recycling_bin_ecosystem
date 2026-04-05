@@ -233,6 +233,36 @@ Stripe's hosted billing portal (accessed via `$user->redirectToBillingPortal()`)
 | 4 | Vouchers | Lecturer flagged this | 1-2 hrs |
 | 5 | Everything else | After viva | - |
 
+---
+
+## Session 6 — 2026-04-06, ~2:00 AM MYT — Pricing Model
+
+### What Daniel said
+> We should get back to pricing model. Stripe is mostly done. But no custom tier yet, no actual constraints or a page to show what brand owners can do in their tier. Schema must be uplifted before UI can be uplifted. All must flow through Stripe.
+
+### Current state of pricing
+- Landing page: Basic (RM49/mo), Premium (RM149/mo), Custom (Let's Talk)
+- Plan features in DB but not enforced anywhere
+- No constraints (e.g., Basic allows 3 bins but nothing stops creating 10)
+- Custom tier has no Stripe flow — admin manually activates
+- No page showing brand owners what their plan includes/limits
+
+### What "pricing model" means for the viva
+
+The lecturer wants to see:
+1. **Clear differentiation** between tiers — not just price, but what you GET
+2. **Enforcement** — if you're on Basic, you can't exceed your bin limit
+3. **Upgrade path** — brand owner can see they're hitting limits and upgrade
+4. **Custom flow** — enterprise deals handled professionally
+
+### Questions to figure out
+1. What are the actual feature differences between Basic/Premium/Custom?
+2. Where do we enforce limits? (bin creation? outlet creation? features hidden?)
+3. Does the brand owner see a "your plan" page showing what's included vs locked?
+4. Can they upgrade from Basic to Premium themselves via Stripe?
+
+*Waiting for Daniel's input on the pricing model.*
+
 ### Daniel's answers
 1. **Stripe owns billing cycle.** Ticket it — use Stripe simulation for demo. Our system syncs with Stripe, not the other way.
 2. **Custom tier STILL goes through Stripe.** Admin creates a Stripe product/invoice for the custom deal, brand owner pays it through Stripe billing portal. Everything tracked in Stripe.

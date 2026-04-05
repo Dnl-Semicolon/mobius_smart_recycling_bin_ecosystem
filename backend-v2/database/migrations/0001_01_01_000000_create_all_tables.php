@@ -196,7 +196,12 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->comment('store owner');
             $table->foreignId('brand_id')->constrained();
             $table->string('name');
-            $table->text('address');
+            $table->string('address')->nullable()->comment('full formatted address from Google');
+            $table->string('street')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('postcode', 10)->nullable();
+            $table->string('country')->nullable()->default('Malaysia');
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
             $table->boolean('is_active')->default(true);
