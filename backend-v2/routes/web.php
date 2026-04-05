@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BinController;
 use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Brand\DashboardController;
+use App\Http\Controllers\Brand\StaffController;
 use App\Http\Controllers\LeadController;
 use App\Models\Plan;
 use Illuminate\Support\Facades\Route;
@@ -65,6 +66,9 @@ Route::prefix('brand')->name('brand.')->middleware(['auth', 'verified', 'role:br
     Route::get('/outlets', [App\Http\Controllers\Brand\OutletController::class, 'index'])->name('outlets.index');
     Route::get('/outlets/create', [App\Http\Controllers\Brand\OutletController::class, 'create'])->name('outlets.create');
     Route::post('/outlets', [App\Http\Controllers\Brand\OutletController::class, 'store'])->name('outlets.store');
+    Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+    Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
+    Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
     Route::inertia('/billing', 'Brand/Billing')->name('billing');
 });
 
