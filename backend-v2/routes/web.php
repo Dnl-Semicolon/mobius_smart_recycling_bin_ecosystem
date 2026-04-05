@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Brand\BillingController;
 use App\Http\Controllers\Brand\DashboardController;
 use App\Http\Controllers\Brand\StaffController;
+use App\Http\Controllers\Brand\VoucherController;
 use App\Http\Controllers\LeadController;
 use App\Models\Plan;
 use Illuminate\Support\Facades\Route;
@@ -75,6 +76,9 @@ Route::prefix('brand')->name('brand.')->middleware(['auth', 'verified', 'role:br
     Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
     Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
     Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+    Route::get('/vouchers', [VoucherController::class, 'index'])->name('vouchers.index');
+    Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('vouchers.create');
+    Route::post('/vouchers', [VoucherController::class, 'store'])->name('vouchers.store');
     Route::get('/billing', [BillingController::class, 'index'])->name('billing');
     Route::post('/billing/checkout', [BillingController::class, 'checkout'])->name('billing.checkout');
     Route::get('/billing/success', [BillingController::class, 'success'])->name('billing.success');
@@ -108,6 +112,8 @@ Route::prefix('agency')->name('agency.')->middleware(['auth', 'verified', 'role:
 // =============================================
 Route::prefix('public')->name('public.')->middleware(['auth', 'verified', 'role:public_user'])->group(function () {
     Route::get('/', fn () => Inertia::render('Public/Dashboard'))->name('dashboard');
+    Route::get('/vouchers', [App\Http\Controllers\PublicUser\VoucherController::class, 'index'])->name('vouchers');
+    Route::post('/vouchers/{template}/claim', [App\Http\Controllers\PublicUser\VoucherController::class, 'claim'])->name('vouchers.claim');
 });
 
 // Dev test routes

@@ -388,10 +388,11 @@ return new class extends Migration
         Schema::create('voucher_claims', function (Blueprint $table) {
             $table->id();
             $table->foreignId('voucher_template_id')->constrained();
-            $table->foreignId('voucher_allocation_id')->constrained();
+            $table->foreignId('voucher_allocation_id')->nullable()->constrained()->comment('null for normal vouchers');
             $table->foreignId('user_id')->constrained();
             $table->unsignedInteger('points_spent');
             $table->enum('status', ['claimed', 'redeemed', 'expired'])->default('claimed');
+            $table->string('qr_code')->unique()->nullable()->comment('unique QR for redemption scanning');
             $table->timestamp('claimed_at');
             $table->timestamp('expires_at');
             $table->timestamp('redeemed_at')->nullable();
