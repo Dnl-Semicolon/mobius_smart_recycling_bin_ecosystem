@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { login, register } from '@/routes';
-import { Check } from 'lucide-react';
+// import { Check } from 'lucide-react'; // re-enable when features are designed
 
 type Plan = {
     id: number;
@@ -42,30 +42,13 @@ export default function Welcome({
                             <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
                                 How It Works
                             </a>
-                            {auth.user ? (
+                            {auth.user && (
                                 <Link
                                     href="/dashboard"
                                     className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
                                 >
                                     Dashboard
                                 </Link>
-                            ) : (
-                                <>
-                                    <Link
-                                        href={login()}
-                                        className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                                    >
-                                        Sign In
-                                    </Link>
-                                    {canRegister && (
-                                        <Link
-                                            href={register()}
-                                            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
-                                        >
-                                            Get Started
-                                        </Link>
-                                    )}
-                                </>
                             )}
                         </nav>
                     </div>
@@ -126,27 +109,12 @@ export default function Welcome({
                     <div className="mx-auto max-w-6xl px-6">
                         <h2 className="mb-4 text-center text-3xl font-bold">Plans & Pricing</h2>
                         <p className="mb-12 text-center text-gray-600 dark:text-gray-400">
-                            First year at 20% off. All plans include bin hardware, installation, and AI detection.
+                            Choose the right plan for your brand.
                         </p>
                         <div className="grid gap-8 md:grid-cols-3">
                             {plans.map((plan) => {
-                                const features = plan.features as Record<string, unknown>;
                                 const monthly = parseFloat(plan.price_monthly);
                                 const isCustom = monthly === 0;
-                                const discountPct = features.first_year_discount ? Number(features.first_year_discount) : 0;
-                                const firstYearMonthly = discountPct > 0 ? Math.round(monthly * (1 - discountPct / 100)) : monthly;
-
-                                const featureLabels: { key: string; label: string }[] = [
-                                    { key: 'bin_limit', label: features.bin_limit === 'unlimited' ? 'Unlimited bins' : `Up to ${features.bin_limit} bins` },
-                                    { key: 'analytics', label: `${String(features.analytics ?? '').charAt(0).toUpperCase()}${String(features.analytics ?? '').slice(1)} analytics` },
-                                    { key: 'support', label: `${String(features.support ?? '').charAt(0).toUpperCase()}${String(features.support ?? '').slice(1)} support` },
-                                    { key: 'brand_detection', label: 'Brand detection AI' },
-                                    { key: 'route_optimization', label: 'Route optimization' },
-                                    { key: 'voucher_system', label: 'Voucher & rewards system' },
-                                    { key: 'api_access', label: 'API access' },
-                                    { key: 'custom_integrations', label: 'Custom integrations' },
-                                    { key: 'sla', label: 'SLA & uptime guarantees' },
-                                ];
 
                                 return (
                                     <div
@@ -163,29 +131,14 @@ export default function Welcome({
                                             {isCustom ? (
                                                 <span className="text-4xl font-bold">Let's Talk</span>
                                             ) : (
-                                                <>
-                                                    <div className="flex items-baseline gap-1">
-                                                        <span className="text-4xl font-bold">RM{firstYearMonthly}</span>
-                                                        <span className="text-sm text-gray-500">/mo</span>
-                                                    </div>
-                                                    {discountPct > 0 && (
-                                                        <p className="mt-1 text-xs text-gray-500">
-                                                            <span className="line-through">RM{monthly}</span> &mdash; {discountPct}% off first year
-                                                        </p>
-                                                    )}
-                                                </>
+                                                <div className="flex items-baseline gap-1">
+                                                    <span className="text-4xl font-bold">RM{monthly}</span>
+                                                    <span className="text-sm text-gray-500">/mo</span>
+                                                </div>
                                             )}
                                         </div>
-                                        <ul className="mt-8 flex flex-1 flex-col gap-3 text-sm">
-                                            {featureLabels
-                                                .filter(({ key }) => features[key])
-                                                .map(({ key, label }) => (
-                                                    <li key={key} className="flex items-center gap-2">
-                                                        <Check className="h-4 w-4 text-emerald-500" />
-                                                        {label}
-                                                    </li>
-                                                ))}
-                                        </ul>
+                                        {/* Features list — to be designed */}
+                                        <div className="mt-8 flex-1" />
                                         <button
                                             type="button"
                                             className="mt-8 block w-full cursor-default rounded-lg border border-gray-300 py-3 text-center text-sm font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300"
@@ -202,8 +155,14 @@ export default function Welcome({
 
                 {/* Footer */}
                 <footer className="border-t border-gray-200 py-12 dark:border-gray-800">
-                    <div className="mx-auto max-w-6xl px-6 text-center text-sm text-gray-500 dark:text-gray-400">
-                        Mobius Smart Recycling Ecosystem &copy; {new Date().getFullYear()}
+                    <div className="mx-auto flex max-w-6xl items-center justify-between px-6 text-sm text-gray-500 dark:text-gray-400">
+                        <span>Mobius Smart Recycling Bin Ecosystem for Beverage Stores &copy; {new Date().getFullYear()}</span>
+                        <Link
+                            href={login()}
+                            className="text-gray-400 hover:text-gray-600 dark:text-gray-600 dark:hover:text-gray-400"
+                        >
+                            Sign In
+                        </Link>
                     </div>
                 </footer>
             </div>

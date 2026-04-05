@@ -9,7 +9,7 @@ use Laravel\Fortify\Features;
 
 // Landing page (public, no auth)
 Route::get('/', function () {
-    $plans = Plan::where('is_active', true)->orderBy('price_monthly')->get();
+    $plans = Plan::where('is_active', true)->orderByRaw('price_monthly = 0, price_monthly')->get();
 
     return Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
