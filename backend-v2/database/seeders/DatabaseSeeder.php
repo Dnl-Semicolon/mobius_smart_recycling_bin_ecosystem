@@ -11,28 +11,28 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // =============================================
-        // PLANS (drives the pricing page)
+        // PLANS (prices match Stripe sandbox)
         // =============================================
 
         DB::table('plans')->insert([
             'name' => 'Basic',
             'description' => 'For single-outlet brands getting started with smart recycling',
-            'price_monthly' => 199.00,
-            'price_yearly' => 1990.00,
+            'price_monthly' => 49.00,
+            'price_yearly' => 490.00,
             'features' => json_encode([]),
-            'stripe_price_id' => env('STRIPE_PRICE_BASIC'),
+            'stripe_price_id' => 'price_1THxnGPdFnIiZZ0SiAdiATkW',
             'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         DB::table('plans')->insert([
-            'name' => 'Pro',
+            'name' => 'Premium',
             'description' => 'For brands scaling across multiple outlets',
-            'price_monthly' => 499.00,
-            'price_yearly' => 4990.00,
+            'price_monthly' => 149.00,
+            'price_yearly' => 1490.00,
             'features' => json_encode([]),
-            'stripe_price_id' => env('STRIPE_PRICE_PREMIUM'),
+            'stripe_price_id' => 'price_1THxnaPdFnIiZZ0SLL6GxwWs',
             'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
@@ -66,34 +66,6 @@ class DatabaseSeeder extends Seeder
             'longest_streak' => 0,
             'created_at' => now(),
             'updated_at' => now(),
-        ]);
-
-        // =============================================
-        // LEADS (submitted via landing page)
-        // =============================================
-
-        DB::table('registration_requests')->insert([
-            'selected_plan_id' => 1,
-            'company_name' => 'Berjaya Starbucks Coffee Company Sdn Bhd',
-            'contact_name' => 'Brand Owner Name',
-            'contact_email' => 'brand1@brand.com',
-            'contact_phone' => '01124120654',
-            'type' => 'beverage_company',
-            'status' => 'pending',
-            'created_at' => '2026-04-05 20:06:01',
-            'updated_at' => '2026-04-05 20:06:01',
-        ]);
-
-        DB::table('registration_requests')->insert([
-            'selected_plan_id' => 2,
-            'company_name' => 'Zuspresso (M) Sdn Bhd',
-            'contact_name' => 'Brand Owner 2',
-            'contact_email' => 'brand2@brandtwo.com',
-            'contact_phone' => '01124120655',
-            'type' => 'beverage_company',
-            'status' => 'pending',
-            'created_at' => '2026-04-05 20:06:55',
-            'updated_at' => '2026-04-05 20:06:55',
         ]);
     }
 }

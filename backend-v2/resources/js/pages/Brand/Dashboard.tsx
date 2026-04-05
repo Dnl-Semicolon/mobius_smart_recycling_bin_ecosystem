@@ -53,27 +53,34 @@ export default function BrandDashboard({
                             <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Subscription</h2>
                             <div className="flex items-center gap-2">
                                 <p className="text-lg font-medium">{subscription.plan} Plan</p>
-                                <Badge variant={subscription.status === 'active' ? 'default' : 'destructive'}>
-                                    {subscription.status}
+                                <Badge variant={subscription.status === 'active' ? 'default' : 'outline'}>
+                                    {subscription.status.replace(/_/g, ' ')}
                                 </Badge>
                             </div>
                             <p className="mt-1 text-sm text-muted-foreground">
                                 RM{parseFloat(subscription.price_monthly)}/mo
                             </p>
-                            <dl className="mt-4 space-y-1 text-sm">
-                                <div className="flex justify-between">
-                                    <dt className="text-muted-foreground">Started</dt>
-                                    <dd>{subscription.starts_at}</dd>
+                            {subscription.status === 'pending_payment' && (
+                                <div className="mt-4">
+                                    <a href="/brand/billing" className="text-sm font-medium text-emerald-600 hover:text-emerald-700">
+                                        Complete payment to activate →
+                                    </a>
                                 </div>
-                                <div className="flex justify-between">
-                                    <dt className="text-muted-foreground">Ends</dt>
-                                    <dd>{subscription.ends_at}</dd>
-                                </div>
-                                <div className="flex justify-between">
-                                    <dt className="text-muted-foreground">Renews</dt>
-                                    <dd>{subscription.renews_at}</dd>
-                                </div>
-                            </dl>
+                            )}
+                            {subscription.status === 'active' && subscription.starts_at && (
+                                <dl className="mt-4 space-y-1 text-sm">
+                                    <div className="flex justify-between">
+                                        <dt className="text-muted-foreground">Started</dt>
+                                        <dd>{subscription.starts_at}</dd>
+                                    </div>
+                                    {subscription.ends_at && (
+                                        <div className="flex justify-between">
+                                            <dt className="text-muted-foreground">Ends</dt>
+                                            <dd>{subscription.ends_at}</dd>
+                                        </div>
+                                    )}
+                                </dl>
+                            )}
                         </div>
                     ) : (
                         <div className="rounded-xl border border-dashed p-6">

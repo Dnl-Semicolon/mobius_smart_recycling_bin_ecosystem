@@ -41,4 +41,37 @@ Living document. Daniel talks, Claude responds, decisions get logged.
 
 ---
 
-*Waiting for Daniel's next prompt.*
+---
+
+## Session 2 — 2026-04-05, ~10:00 PM MYT
+
+### What Daniel said
+> Very weird. When I fill in the form, convert the lead, login as brand owner, go to billing — I see "Custom plan — contact admin for payment arrangements." Why can't I see Pay Now? Why is it auto-set to one year? Why doesn't the flow have a back and forth? My Stripe sandbox has prices at RM49 and RM149 (Basic and Premium). Find the gaps, lay it on me.
+
+### Gaps Identified
+
+1. **stripe_price_id is NULL in DB** — seeder used `env()` which returns null when config is cached. All 3 plans have no Stripe price mapped → billing page always shows "contact admin."
+
+2. **Price mismatch** — Stripe dashboard: Basic=RM49/mo, Premium=RM149/mo. Landing page: Basic=RM199/mo, Pro=RM499/mo. Completely different numbers. Which is truth?
+
+3. **Subscription instantly "active"** — Convert action sets status='active' + ends_at=now()+1year. No "pending payment" state. Brand owner gets full access without paying.
+
+4. **No payment gate** — Even if Stripe worked, paying doesn't change our org_subscription status. There's no "paid" vs "unpaid" distinction.
+
+5. **Hardcoded 1-year dates** — Arbitrary, not tied to plan billing cycle or actual payment.
+
+6. **No back-and-forth** — Conversion is one click. Should be: convert → pending_payment → brand sees "pay now" → pays via Stripe → subscription activates.
+
+### Decisions Made
+- **Prices:** Use Stripe prices — RM49/mo (Basic), RM149/mo (Premium). Update landing page + seeder to match.
+- **Lifecycle:** Convert creates subscription as `pending_payment`. Only flips to `active` after Stripe payment succeeds.
+- **Flow:** Convert → pending_payment → brand sees "Pay Now" → Stripe Checkout → success → status=active.
+
+### What needs to change
+1. Seeder: hardcode stripe_price_id values (not env()), update prices to RM49/RM149
+2. Landing page: reflect RM49/RM149
+3. Convert action: set status='pending_payment' instead of 'active'
+4. Add 'pending_payment' to subscription status enum in migration
+5. Billing page: show "Pay Now" when status=pending_payment
+6. Billing success handler: update org_subscription status to 'active', set dates based on Stripe
+7. Plan names: Basic and Premium (matching Stripe)

@@ -33,9 +33,8 @@ class DashboardController extends Controller
                 'plan' => $subscription->plan->name,
                 'price_monthly' => $subscription->plan->price_monthly,
                 'status' => $subscription->status,
-                'starts_at' => $subscription->starts_at->format('Y-m-d'),
-                'ends_at' => $subscription->ends_at->format('Y-m-d'),
-                'renews_at' => $subscription->renews_at->format('Y-m-d'),
+                'starts_at' => $subscription->starts_at?->format('Y-m-d'),
+                'ends_at' => $subscription->ends_at?->format('Y-m-d'),
             ] : null,
             'outlets' => $outlets->map(fn ($o) => [
                 'id' => $o->id,

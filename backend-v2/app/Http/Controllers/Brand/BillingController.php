@@ -7,6 +7,7 @@ use App\Models\Subscription;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
+use Laravel\Cashier\Checkout;
 
 class BillingController extends Controller
 {
@@ -22,15 +23,14 @@ class BillingController extends Controller
                 'price_monthly' => $orgSub->plan->price_monthly,
                 'stripe_price_id' => $orgSub->plan->stripe_price_id,
                 'status' => $orgSub->status,
-                'starts_at' => $orgSub->starts_at->format('Y-m-d'),
-                'ends_at' => $orgSub->ends_at->format('Y-m-d'),
+                'starts_at' => $orgSub->starts_at?->format('Y-m-d'),
+                'ends_at' => $orgSub->ends_at?->format('Y-m-d'),
             ] : null,
             'hasStripeSubscription' => $user->subscribed('default'),
-            'stripeKey' => config('cashier.key'),
         ]);
     }
 
-    public function checkout(): RedirectResponse
+    public function checkout(): Checkout|RedirectResponse
     {
         $user = auth()->user();
         $org = $user->organization;
@@ -40,23 +40,37 @@ class BillingController extends Controller
             return back();
         }
 
-        $checkout = $user->newSubscription('default', $orgSub->plan->stripe_price_id)
+        return $user->newSubscription('default', $orgSub->plan->stripe_price_id)
             ->checkout([
                 'success_url' => route('brand.billing.success').'?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('brand.billing.cancel'),
             ]);
-
-        return $checkout;
     }
 
     public function success(): Response
     {
+        // Activate the org subscription now that payment succeeded
+        $user = auth()->user();
+        $org = $user->organization;
+
+        if ($org) {
+            $orgSub = Subscription::where('organization_id', $org->id)->first();
+            if ($orgSub && $orgSub->status === 'pending_payment') {
+                $orgSub->update([
+                    'status' => 'active',
+                    'starts_at' => now(),
+                    'ends_at' => now()->addYear(),
+                    'renews_at' => now()->addYear()->subMonth(),
+                ]);
+            }
+        }
+
         return Inertia::render('Brand/BillingSuccess');
     }
 
     public function cancel(): RedirectResponse
     {
-        return redirect()->route('brand.billing')->with('status', 'Payment cancelled.');
+        return redirect()->route('brand.billing');
     }
 
     public function portal(): RedirectResponse

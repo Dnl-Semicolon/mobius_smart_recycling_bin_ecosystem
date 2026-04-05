@@ -108,10 +108,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('organization_id')->constrained();
             $table->foreignId('plan_id')->constrained();
-            $table->enum('status', ['active', 'past_due', 'cancelled', 'expired'])->default('active');
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
-            $table->timestamp('renews_at');
+            $table->enum('status', ['pending_payment', 'active', 'past_due', 'cancelled', 'expired'])->default('pending_payment');
+            $table->timestamp('starts_at')->nullable();
+            $table->timestamp('ends_at')->nullable();
+            $table->timestamp('renews_at')->nullable();
             $table->timestamps();
         });
 

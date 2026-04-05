@@ -99,10 +99,7 @@ class LeadController extends Controller
                 $subscription = Subscription::create([
                     'organization_id' => $org->id,
                     'plan_id' => $lead->selected_plan_id,
-                    'status' => 'active',
-                    'starts_at' => now(),
-                    'ends_at' => now()->addYear(),
-                    'renews_at' => now()->addYear()->subMonth(),
+                    'status' => 'pending_payment',
                 ]);
             }
 
