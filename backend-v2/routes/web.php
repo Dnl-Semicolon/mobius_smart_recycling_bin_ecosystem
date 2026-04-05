@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Http\Controllers\Admin\BinController;
+use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Brand\DashboardController;
 use App\Http\Controllers\LeadController;
@@ -40,12 +42,19 @@ Route::get('dashboard', function () {
 // ADMIN
 // =============================================
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:admin'])->group(function () {
-    Route::get('/', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
+    Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/leads', [App\Http\Controllers\Admin\LeadController::class, 'index'])->name('leads.index');
     Route::get('/leads/{lead}', [App\Http\Controllers\Admin\LeadController::class, 'show'])->name('leads.show');
     Route::post('/leads/{lead}/convert', [App\Http\Controllers\Admin\LeadController::class, 'convert'])->name('leads.convert');
     Route::post('/leads/{lead}/reject', [App\Http\Controllers\Admin\LeadController::class, 'reject'])->name('leads.reject');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/outlets', [OutletController::class, 'index'])->name('outlets.index');
+    Route::get('/outlets/create', [OutletController::class, 'create'])->name('outlets.create');
+    Route::post('/outlets', [OutletController::class, 'store'])->name('outlets.store');
+    Route::get('/bins', [BinController::class, 'index'])->name('bins.index');
+    Route::get('/bins/create', [BinController::class, 'create'])->name('bins.create');
+    Route::post('/bins', [BinController::class, 'store'])->name('bins.store');
+    Route::inertia('/billing', 'Admin/Billing')->name('billing');
 });
 
 // =============================================
@@ -53,6 +62,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
 // =============================================
 Route::prefix('brand')->name('brand.')->middleware(['auth', 'verified', 'role:brand_owner'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::inertia('/billing', 'Brand/Billing')->name('billing');
 });
 
 // =============================================

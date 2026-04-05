@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['user_id', 'brand_id', 'name', 'address', 'latitude', 'longitude', 'is_active'])]
 class Outlet extends Model
@@ -26,5 +27,10 @@ class Outlet extends Model
     public function storeOwner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function bins(): HasMany
+    {
+        return $this->hasMany(Bin::class);
     }
 }
