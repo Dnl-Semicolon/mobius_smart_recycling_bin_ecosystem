@@ -303,12 +303,173 @@ Two realistic options for the viva:
 
 Option A is cleaner and keeps everything in Stripe. For the viva demo: admin can show they'd create a custom Stripe price, assign it, and the brand pays through the same flow.
 
-### Decisions needed
-1. Are the tier limits above right? (bins, outlets, staff counts)
-2. Both hard limits + feature gates?
-3. Custom: Stripe price created by admin, or manual activation?
+### Daniel's Corrections (Final Tier Breakdown)
 
-*Waiting for Daniel.*
+| Feature | Basic (RM49) | Premium (RM149) | Custom |
+|---------|-------------|----------------|--------|
+| Bins | 3 | 15 | Negotiated |
+| Outlets | 3 | 15 | Unlimited |
+| Staff | 3 | 10 | Unlimited |
+| AI detection | Yes | Yes | Yes |
+| Brand detection | Yes | Yes | Yes |
+| Route optimization | Yes | Yes | Yes |
+| Vouchers | Yes | Yes | Yes |
+| API access (ERP integration) | No | No | Yes |
+
+**Daniel's reasoning:**
+- Basic shouldn't be cruel — 3 bins in 1 outlet is stupid, make it 3 outlets
+- Brand detection YES on all — prevents dumping competitor cups (negative multiplier), core to the ecosystem
+- Route optimization YES on all — it's a collector concern, not a brand concern, included by default
+- Vouchers YES on all — if users earn points they MUST be able to cash out, no exceptions
+- API access = ERP integration for large custom clients, makes sense as custom-only
+
+**Enforcement decisions:**
+- Hard limits: bin count, outlet count, staff count — checked BEFORE the create page loads (not just at submit). Show the limit with upgrade prompt on the page itself.
+- Feature gates: NOT on sidebar. Everyone sees everything. Only API access is gated (custom only).
+- Route monitoring: brand owners and store owners should see routes relevant to their bins/outlets in a read-only view
+
+**Custom pricing decision:**
+- Start with admin using Stripe dashboard to create custom price → assign price_id to plan
+- If it works, later build in-app Stripe API integration so admin can create prices without leaving the app
+- "That's how 3rd party integrations should work"
+
+**Route visibility insight (new):**
+- Store owner can see: "Assigned collector is doing pickup at ZUS Coffee, ETA 20min to Starbucks Hillside"
+- Scoped to their bins/outlets but aware of the collector's full route context
+- This is a future build but the schema supports it (collection_routes + route_stops + outlet relationships)
+
+### Daniel's follow-up — deeper thinking needed
+
+> What does seeder features JSON have to do with anything? No need to edit schema?
+> Go into hard planning mode. Think twice on everything.
+> When enforcement is done, we need to complete custom tier.
+> Then dynamic pricing: yearly subscriptions, loyalty discounts (1 year = cheaper next year), admin-mutable campaigns (20% off first year for new brands, early adopter 10% extra), monthly vs yearly toggle.
+> Lecturer must feel like this can attract people.
+
+**Daniel is right — this needs schema work, not just seeder changes.** The `features` JSON on plans is not enough. We need:
+
+1. **Plan limits table** or structured columns — not loose JSON. Schema must enforce what each plan allows.
+2. **Pricing model flexibility** — monthly vs yearly, promotional pricing, campaign discounts, loyalty pricing
+3. **Coupons/promotions** — Stripe has native coupon/promotion code support. We should use it.
+4. **Custom tier completion** — admin creates custom Stripe prices via our app, not Stripe dashboard
+
+This is a full planning session, not a quick fix.
+
+---
+
+## Session 7 — 2026-04-06, ~3:30 AM MYT — Custom Tier & Schema Design
+
+### Daniel's Thinking
+
+> If database columns are source of truth, good. But what about custom tier? Wouldn't loosely typed JSON be better?
+> Custom = unlimited, but how unlimited? Starbucks (nationwide, every state) vs Luckin (KL only) — both custom tier but wildly different scale and price.
+> They won't pay the same custom price after negotiation.
+
+### The Real Insight
+
+Daniel is right. The problem isn't "columns vs JSON" — it's that **Custom is not a fixed plan. It's a per-org negotiation.**
+
+Basic and Premium are products on a shelf — fixed price, fixed limits, same for everyone.
+Custom is a contract — negotiated price, negotiated limits, unique per org.
+
+So the question becomes: **do we model Custom as a plan at all, or as something else?**
+
+### Analysis
+
+**Option A: Custom is a plan with overridable limits**
+
+The `plans` table has columns for limits (bin_limit, outlet_limit, staff_limit). Basic and Premium have fixed values. Custom has NULL for all limits (meaning unlimited by default).
+
+BUT — when admin negotiates with Starbucks (500 bins, 200 outlets, RM2000/mo) vs Luckin (50 bins, 15 outlets, RM500/mo), those specifics need to live somewhere.
+
+Where? On the `organization_subscriptions` table as **overrides**:
+- `org_subscriptions.custom_bin_limit` — if set, overrides plan's bin_limit
+- `org_subscriptions.custom_outlet_limit` — same
+- `org_subscriptions.custom_staff_limit` — same
+- The Stripe price is already per-org (admin creates a custom Stripe price for each deal)
+
+So the enforcement logic becomes:
+```
+effective_bin_limit = org_subscription.custom_bin_limit ?? plan.bin_limit ?? unlimited
+```
+
+This is clean: fixed plans have fixed limits, custom plans have per-org overrides.
+
+**Option B: All limits live on org_subscriptions (no plan columns)**
+
+Every org's limits are set when the subscription is created. Basic creates with (3, 3, 3). Premium with (15, 15, 10). Custom with whatever admin sets.
+
+Downside: if we change Basic's bin limit from 3 to 5, we'd have to update every existing Basic org_subscription. With plan columns, we just change the plan and everyone gets it.
+
+**Option C: Plans have defaults, org_subscriptions have overrides (hybrid)**
+
+Best of both:
+- `plans` table: `bin_limit`, `outlet_limit`, `staff_limit` — the defaults
+- `organization_subscriptions` table: `custom_bin_limit`, `custom_outlet_limit`, `custom_staff_limit` — nullable overrides
+- Enforcement: `override ?? plan_default ?? unlimited`
+
+This means:
+- Basic orgs: limits come from plan (3, 3, 3)
+- Premium orgs: limits come from plan (15, 15, 10)
+- Custom Starbucks: overrides (500, 200, 50)
+- Custom Luckin: overrides (50, 15, 10)
+- If we raise Basic bin limit to 5, all Basic orgs get it automatically
+
+### Recommendation: Option C (Hybrid)
+
+**Schema changes needed:**
+
+`plans` table — add columns:
+- `bin_limit` INT nullable (null = unlimited)
+- `outlet_limit` INT nullable
+- `staff_limit` INT nullable
+
+`organization_subscriptions` table — add columns:
+- `custom_bin_limit` INT nullable (overrides plan if set)
+- `custom_outlet_limit` INT nullable
+- `custom_staff_limit` INT nullable
+- `custom_price_monthly` DECIMAL nullable (for display — actual charge is in Stripe)
+
+Keep `features` JSON for boolean feature flags (api_access, etc.) that aren't numeric limits.
+
+**Enforcement helper:**
+```php
+// On Organization model
+public function getEffectiveLimit(string $key): ?int
+{
+    $sub = $this->subscription;
+    $override = $sub?->{"custom_{$key}"};
+    if ($override !== null) return $override;
+    return $sub?->plan?->{$key}; // null = unlimited
+}
+```
+
+### Dynamic Pricing (Stripe-native)
+
+For campaigns, discounts, loyalty pricing — Stripe handles all of this:
+
+| Feature | Stripe concept | How it works |
+|---------|---------------|-------------|
+| Monthly vs yearly | Two Stripe Prices per product | Toggle at checkout |
+| First year 20% off | Stripe Coupon (duration: once, percent_off: 20) | Applied at checkout |
+| Early adopter 10% extra | Stripe Coupon (stackable) | Applied by admin |
+| Loyalty (year 2 cheaper) | Stripe Subscription Schedule | Auto-applies after first period |
+| Custom pricing | Stripe Price (per-org) | Admin creates in dashboard or via API |
+
+We don't need to build a pricing engine — Stripe IS the pricing engine. Our job is to:
+1. Let admin create/manage coupons via our app (using Stripe API)
+2. Apply coupons during checkout
+3. Display the effective price to the brand owner
+
+### What to build for the viva
+
+Priority order:
+1. Add limit columns to plans + override columns to org_subscriptions
+2. Build enforcement helper on Organization model
+3. Add limit checks to create pages (show "X of Y used")
+4. Admin can set custom limits when activating a custom subscription
+5. Stripe coupons: admin creates a coupon, applies it during conversion
+6. Monthly/yearly toggle on pricing page + checkout
 
 ### Daniel's answers
 1. **Stripe owns billing cycle.** Ticket it — use Stripe simulation for demo. Our system syncs with Stripe, not the other way.
