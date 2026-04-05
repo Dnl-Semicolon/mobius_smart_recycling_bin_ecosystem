@@ -62,6 +62,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
 // =============================================
 Route::prefix('brand')->name('brand.')->middleware(['auth', 'verified', 'role:brand_owner'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/outlets', [App\Http\Controllers\Brand\OutletController::class, 'index'])->name('outlets.index');
+    Route::get('/outlets/create', [App\Http\Controllers\Brand\OutletController::class, 'create'])->name('outlets.create');
+    Route::post('/outlets', [App\Http\Controllers\Brand\OutletController::class, 'store'])->name('outlets.store');
     Route::inertia('/billing', 'Brand/Billing')->name('billing');
 });
 

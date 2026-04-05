@@ -1,8 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 
-type BrandOption = { id: number; name: string; organization_id: number };
-type UserOption = { id: number; name: string; organization_id: number };
+type UserOption = { id: number; name: string };
 
 declare global {
     interface Window {
@@ -10,15 +9,8 @@ declare global {
     }
 }
 
-export default function CreateOutlet({
-    brands,
-    users,
-}: {
-    brands: BrandOption[];
-    users: UserOption[];
-}) {
+export default function CreateBrandOutlet({ users }: { users: UserOption[] }) {
     const form = useForm({
-        brand_id: '',
         user_id: '',
         name: '',
         address: '',
@@ -28,7 +20,6 @@ export default function CreateOutlet({
 
     const addressRef = useRef<HTMLInputElement>(null);
 
-    // Google Places Autocomplete
     useEffect(() => {
         if (!addressRef.current || !window.google?.maps?.places) return;
 
@@ -50,21 +41,9 @@ export default function CreateOutlet({
         });
     }, []);
 
-    // Scope owners to selected brand's organization
-    const selectedBrand = brands.find((b) => String(b.id) === form.data.brand_id);
-    const scopedUsers = useMemo(() => {
-        if (!selectedBrand) return [];
-        return users.filter((u) => u.organization_id === selectedBrand.organization_id);
-    }, [selectedBrand, users]);
-
-    // Reset user when brand changes
-    useEffect(() => {
-        form.setData('user_id', '');
-    }, [form.data.brand_id]);
-
     function submit(e: React.FormEvent) {
         e.preventDefault();
-        form.post('/admin/outlets');
+        form.post('/brand/outlets');
     }
 
     return (
@@ -75,30 +54,14 @@ export default function CreateOutlet({
 
                 <form onSubmit={submit} className="max-w-xl space-y-4">
                     <div>
-                        <label className="block text-sm font-medium">Brand</label>
-                        <select
-                            value={form.data.brand_id}
-                            onChange={(e) => form.setData('brand_id', e.target.value)}
-                            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                        >
-                            <option value="">Select brand...</option>
-                            {brands.map((b) => (
-                                <option key={b.id} value={b.id}>{b.name}</option>
-                            ))}
-                        </select>
-                        {form.errors.brand_id && <p className="mt-1 text-xs text-red-600">{form.errors.brand_id}</p>}
-                    </div>
-
-                    <div>
                         <label className="block text-sm font-medium">Outlet Manager</label>
                         <select
                             value={form.data.user_id}
                             onChange={(e) => form.setData('user_id', e.target.value)}
-                            disabled={!form.data.brand_id}
-                            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                         >
-                            <option value="">{form.data.brand_id ? 'Select manager...' : 'Select a brand first'}</option>
-                            {scopedUsers.map((u) => (
+                            <option value="">Select manager...</option>
+                            {users.map((u) => (
                                 <option key={u.id} value={u.id}>{u.name}</option>
                             ))}
                         </select>
@@ -138,7 +101,7 @@ export default function CreateOutlet({
                                 value={form.data.latitude}
                                 readOnly
                                 className="mt-1 block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400"
-                                placeholder="Auto-filled from address"
+                                placeholder="Auto-filled"
                             />
                         </div>
                         <div>
@@ -148,7 +111,7 @@ export default function CreateOutlet({
                                 value={form.data.longitude}
                                 readOnly
                                 className="mt-1 block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400"
-                                placeholder="Auto-filled from address"
+                                placeholder="Auto-filled"
                             />
                         </div>
                     </div>
@@ -161,7 +124,7 @@ export default function CreateOutlet({
                         >
                             {form.processing ? 'Creating...' : 'Create Outlet'}
                         </button>
-                        <Link href="/admin/outlets" className="rounded-lg border px-6 py-2 text-sm font-semibold">
+                        <Link href="/brand/outlets" className="rounded-lg border px-6 py-2 text-sm font-semibold">
                             Cancel
                         </Link>
                     </div>
@@ -171,10 +134,10 @@ export default function CreateOutlet({
     );
 }
 
-CreateOutlet.layout = {
+CreateBrandOutlet.layout = {
     breadcrumbs: [
-        { title: 'Admin Dashboard', href: '/admin' },
-        { title: 'Outlets', href: '/admin/outlets' },
-        { title: 'Create', href: '/admin/outlets/create' },
+        { title: 'Brand Dashboard', href: '/brand' },
+        { title: 'Outlets', href: '/brand/outlets' },
+        { title: 'Create', href: '/brand/outlets/create' },
     ],
 };

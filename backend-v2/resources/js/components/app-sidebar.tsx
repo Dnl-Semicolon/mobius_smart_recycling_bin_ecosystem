@@ -31,6 +31,7 @@ function getNavItemsForRole(roles: string[]): NavItem[] {
         case 'brand_owner':
             return [
                 { title: 'Dashboard', href: '/brand', icon: LayoutGrid },
+                { title: 'Outlets', href: '/brand/outlets', icon: Store },
                 { title: 'Billing', href: '/brand/billing', icon: CreditCard },
             ];
         case 'store_owner':

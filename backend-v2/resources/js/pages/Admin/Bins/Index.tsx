@@ -10,7 +10,6 @@ type BinRow = {
     outlet: string;
     status: string;
     fill_level: number;
-    capacity_liters: string;
     paired_at: string | null;
 };
 
@@ -51,7 +50,6 @@ export default function BinsIndex({ bins }: { bins: Paginated }) {
                                 <TableHead>Outlet</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Fill Level</TableHead>
-                                <TableHead>Capacity</TableHead>
                                 <TableHead>Paired</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -66,13 +64,12 @@ export default function BinsIndex({ bins }: { bins: Paginated }) {
                                         </Badge>
                                     </TableCell>
                                     <TableCell>{bin.fill_level}%</TableCell>
-                                    <TableCell>{bin.capacity_liters}L</TableCell>
                                     <TableCell>{bin.paired_at ?? '-'}</TableCell>
                                 </TableRow>
                             ))}
                             {bins.data.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                                    <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                                         No bins yet.
                                     </TableCell>
                                 </TableRow>

@@ -24,7 +24,6 @@ class BinController extends Controller
                 'outlet' => $bin->outlet?->name ?? 'Unpaired',
                 'status' => $bin->status,
                 'fill_level' => $bin->fill_level,
-                'capacity_liters' => $bin->capacity_liters,
                 'paired_at' => $bin->paired_at?->format('Y-m-d'),
             ]);
 
@@ -51,26 +50,26 @@ class BinController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'serial_number' => ['required', 'string', 'max:50', 'unique:bins,serial_number'],
             'outlet_id' => ['required', 'exists:outlets,id'],
-            'capacity_liters' => ['required', 'numeric', 'min:1'],
-            'latitude' => ['nullable', 'numeric'],
-            'longitude' => ['nullable', 'numeric'],
         ]);
 
         $outlet = Outlet::find($validated['outlet_id']);
 
-        Bin::create([
-            ...$validated,
+        $bin = Bin::create([
+            'outlet_id' => $validated['outlet_id'],
+            'serial_number' => 'MBS-TEMP',
             'api_token' => bin2hex(random_bytes(32)),
             'status' => 'active',
             'fill_level' => 0,
             'weight_grams' => 0,
+            'capacity_liters' => 20.00,
             'sensor_levels' => ['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false],
-            'latitude' => $validated['latitude'] ?? $outlet->latitude,
-            'longitude' => $validated['longitude'] ?? $outlet->longitude,
+            'latitude' => $outlet->latitude,
+            'longitude' => $outlet->longitude,
             'paired_at' => now(),
         ]);
+
+        $bin->update(['serial_number' => 'MBS-'.str_pad((string) $bin->id, 4, '0', STR_PAD_LEFT)]);
 
         return redirect()->route('admin.bins.index');
     }

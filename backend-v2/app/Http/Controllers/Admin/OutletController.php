@@ -37,13 +37,14 @@ class OutletController extends Controller
 
     public function create(): Response
     {
-        $brands = Brand::where('is_active', true)->get(['id', 'name']);
-        $storeOwners = User::whereJsonContains('roles', 'store_owner')->get(['id', 'name']);
-        $brandOwners = User::whereJsonContains('roles', 'brand_owner')->get(['id', 'name']);
+        $brands = Brand::where('is_active', true)->get(['id', 'name', 'organization_id']);
+
+        $users = User::whereIn('organization_id', $brands->pluck('organization_id')->unique())
+            ->get(['id', 'name', 'organization_id']);
 
         return Inertia::render('Admin/Outlets/Create', [
             'brands' => $brands,
-            'owners' => $storeOwners->merge($brandOwners)->unique('id')->values(),
+            'users' => $users,
         ]);
     }
 
