@@ -13,11 +13,14 @@ import { send } from '@/routes/verification';
 export default function Profile({
     mustVerifyEmail,
     status,
+    organizationName,
 }: {
     mustVerifyEmail: boolean;
     status?: string;
+    organizationName?: string;
 }) {
-    const { auth } = usePage().props;
+    const { auth } = usePage<{ auth: { user: Record<string, unknown> } }>().props;
+    const user = auth.user;
 
     return (
         <>
@@ -47,7 +50,7 @@ export default function Profile({
                                 <Input
                                     id="name"
                                     className="mt-1 block w-full"
-                                    defaultValue={auth.user.name}
+                                    defaultValue={user.name as string}
                                     name="name"
                                     required
                                     autoComplete="name"
@@ -67,7 +70,7 @@ export default function Profile({
                                     id="email"
                                     type="email"
                                     className="mt-1 block w-full"
-                                    defaultValue={auth.user.email}
+                                    defaultValue={user.email as string}
                                     name="email"
                                     required
                                     autoComplete="username"
@@ -80,8 +83,27 @@ export default function Profile({
                                 />
                             </div>
 
+                            <div className="grid gap-2">
+                                <Label htmlFor="phone">Phone</Label>
+
+                                <Input
+                                    id="phone"
+                                    type="text"
+                                    className="mt-1 block w-full"
+                                    defaultValue={(user.phone as string) ?? ''}
+                                    name="phone"
+                                    autoComplete="tel"
+                                    placeholder="Phone number"
+                                />
+
+                                <InputError
+                                    className="mt-2"
+                                    message={errors.phone}
+                                />
+                            </div>
+
                             {mustVerifyEmail &&
-                                auth.user.email_verified_at === null && (
+                                user.email_verified_at === null && (
                                     <div>
                                         <p className="-mt-4 text-sm text-muted-foreground">
                                             Your email address is unverified.{' '}
@@ -128,6 +150,38 @@ export default function Profile({
                         </>
                     )}
                 </Form>
+            </div>
+
+            {/* Read-only account info */}
+            <div className="space-y-6 border-t pt-6">
+                <Heading
+                    variant="small"
+                    title="Account information"
+                    description="Read-only details about your account"
+                />
+
+                <dl className="grid gap-4 text-sm md:grid-cols-2">
+                    {organizationName && (
+                        <div>
+                            <dt className="text-muted-foreground">Organization</dt>
+                            <dd className="mt-1 font-medium">{organizationName}</dd>
+                        </div>
+                    )}
+                    <div>
+                        <dt className="text-muted-foreground">Role</dt>
+                        <dd className="mt-1 font-medium">
+                            {((user.roles as string[]) ?? []).map((r: string) => r.replace(/_/g, ' ')).join(', ')}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt className="text-muted-foreground">Points Balance</dt>
+                        <dd className="mt-1 font-medium">{String(user.points_balance ?? 0)}</dd>
+                    </div>
+                    <div>
+                        <dt className="text-muted-foreground">Current Streak</dt>
+                        <dd className="mt-1 font-medium">{String(user.current_streak ?? 0)}</dd>
+                    </div>
+                </dl>
             </div>
 
             <DeleteUser />

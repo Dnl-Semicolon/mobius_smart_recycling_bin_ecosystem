@@ -61,7 +61,7 @@ export default function LeadsIndex({ leads }: { leads: PaginatedLeads }) {
                         </TableHeader>
                         <TableBody>
                             {leads.data.map((lead) => (
-                                <TableRow key={lead.id}>
+                                <TableRow key={lead.id} className="cursor-pointer" onClick={() => window.location.href = `/admin/leads/${lead.id}`}>
                                     <TableCell className="font-mono text-sm">{lead.id}</TableCell>
                                     <TableCell className="font-medium">{lead.company_name}</TableCell>
                                     <TableCell>{lead.contact_name}</TableCell>

@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Brand\DashboardController;
 use App\Http\Controllers\LeadController;
 use App\Models\Plan;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,9 @@ Route::get('dashboard', function () {
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
     Route::get('/leads', [App\Http\Controllers\Admin\LeadController::class, 'index'])->name('leads.index');
+    Route::get('/leads/{lead}', [App\Http\Controllers\Admin\LeadController::class, 'show'])->name('leads.show');
+    Route::post('/leads/{lead}/convert', [App\Http\Controllers\Admin\LeadController::class, 'convert'])->name('leads.convert');
+    Route::post('/leads/{lead}/reject', [App\Http\Controllers\Admin\LeadController::class, 'reject'])->name('leads.reject');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
 });
 
@@ -48,7 +52,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
 // BRAND OWNER
 // =============================================
 Route::prefix('brand')->name('brand.')->middleware(['auth', 'verified', 'role:brand_owner'])->group(function () {
-    Route::get('/', fn () => Inertia::render('Brand/Dashboard'))->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 // =============================================
