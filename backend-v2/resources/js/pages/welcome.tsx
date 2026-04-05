@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { login, register } from '@/routes';
-// import { Check } from 'lucide-react'; // re-enable when features are designed
+import { Check } from 'lucide-react';
 
 type Plan = {
     id: number;
@@ -115,6 +115,7 @@ export default function Welcome({
                             {plans.map((plan) => {
                                 const monthly = parseFloat(plan.price_monthly);
                                 const isCustom = monthly === 0;
+                                const features = (plan.features ?? {}) as Record<string, unknown>;
 
                                 return (
                                     <div
@@ -137,8 +138,68 @@ export default function Welcome({
                                                 </div>
                                             )}
                                         </div>
-                                        {/* Features list — to be designed */}
-                                        <div className="mt-8 flex-1" />
+                                        <ul className="mt-6 flex flex-1 flex-col gap-2 text-sm">
+                                            {features.bin_limit && (
+                                                <li className="flex items-center gap-2">
+                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                    {features.bin_limit === 'unlimited' ? 'Unlimited bins' : `Up to ${features.bin_limit} bins`}
+                                                </li>
+                                            )}
+                                            {features.analytics && (
+                                                <li className="flex items-center gap-2">
+                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                    {String(features.analytics).charAt(0).toUpperCase() + String(features.analytics).slice(1)} analytics
+                                                </li>
+                                            )}
+                                            {features.support && (
+                                                <li className="flex items-center gap-2">
+                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                    {String(features.support).charAt(0).toUpperCase() + String(features.support).slice(1)} support
+                                                </li>
+                                            )}
+                                            {features.ai_detection && (
+                                                <li className="flex items-center gap-2">
+                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                    AI waste detection
+                                                </li>
+                                            )}
+                                            {features.brand_detection && (
+                                                <li className="flex items-center gap-2">
+                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                    Brand detection
+                                                </li>
+                                            )}
+                                            {features.route_optimization && (
+                                                <li className="flex items-center gap-2">
+                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                    Route optimization
+                                                </li>
+                                            )}
+                                            {features.voucher_system && (
+                                                <li className="flex items-center gap-2">
+                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                    Voucher &amp; rewards
+                                                </li>
+                                            )}
+                                            {features.api_access && (
+                                                <li className="flex items-center gap-2">
+                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                    API access
+                                                </li>
+                                            )}
+                                            {features.custom_integrations && (
+                                                <li className="flex items-center gap-2">
+                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                    Custom integrations
+                                                </li>
+                                            )}
+                                            {features.sla && (
+                                                <li className="flex items-center gap-2">
+                                                    <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                    SLA &amp; uptime guarantee
+                                                </li>
+                                            )}
+                                        </ul>
                                         <Link
                                             href={`/get-started?plan=${plan.id}`}
                                             className="mt-8 block w-full rounded-lg border border-gray-300 py-3 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-900"

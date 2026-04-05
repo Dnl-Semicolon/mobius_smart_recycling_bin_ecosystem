@@ -49,18 +49,19 @@ class BillingController extends Controller
 
     public function success(): Response
     {
-        // Activate the org subscription now that payment succeeded
         $user = auth()->user();
         $org = $user->organization;
 
         if ($org) {
             $orgSub = Subscription::where('organization_id', $org->id)->first();
             if ($orgSub && $orgSub->status === 'pending_payment') {
+                // Sync dates from Stripe via Cashier
+                $stripeSub = $user->subscription('default');
+
                 $orgSub->update([
                     'status' => 'active',
                     'starts_at' => now(),
-                    'ends_at' => now()->addYear(),
-                    'renews_at' => now()->addYear()->subMonth(),
+                    'ends_at' => $stripeSub?->ends_at,
                 ]);
             }
         }

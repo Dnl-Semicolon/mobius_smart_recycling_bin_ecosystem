@@ -56,7 +56,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::get('/bins', [BinController::class, 'index'])->name('bins.index');
     Route::get('/bins/create', [BinController::class, 'create'])->name('bins.create');
     Route::post('/bins', [BinController::class, 'store'])->name('bins.store');
-    Route::inertia('/billing', 'Admin/Billing')->name('billing');
+    Route::get('/billing', [App\Http\Controllers\Admin\BillingController::class, 'index'])->name('billing');
+    Route::post('/billing/{subscription}/activate', [App\Http\Controllers\Admin\BillingController::class, 'activate'])->name('billing.activate');
 });
 
 // =============================================
