@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Brand;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Rules\MalaysianMobilePhone;
+use App\Rules\UniqueNormalizedEmail;
 use App\Rules\UniqueNormalizedPhone;
 use App\Support\EmailNormalizer;
 use App\Support\PhoneNormalizer;
@@ -17,6 +18,8 @@ use Inertia\Response;
 
 class StaffController extends Controller
 {
+    private const LEAD_CONFLICT_MESSAGE = 'Please contact admin to continue with this existing lead.';
+
     public function index(): Response
     {
         $user = auth()->user();
@@ -62,8 +65,33 @@ class StaffController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'bail', 'string', 'max:20', new MalaysianMobilePhone, new UniqueNormalizedPhone('users')],
+            'email' => [
+                'bail',
+                'required',
+                'email',
+                'max:255',
+                'unique:users,email',
+                new UniqueNormalizedEmail(
+                    'registration_requests',
+                    column: 'contact_email',
+                    scope: fn ($query) => $query->where('status', '!=', 'rejected'),
+                    message: self::LEAD_CONFLICT_MESSAGE,
+                ),
+            ],
+            'phone' => [
+                'nullable',
+                'bail',
+                'string',
+                'max:20',
+                new MalaysianMobilePhone,
+                new UniqueNormalizedPhone('users'),
+                new UniqueNormalizedPhone(
+                    'registration_requests',
+                    column: 'contact_phone',
+                    scope: fn ($query) => $query->where('status', '!=', 'rejected'),
+                    message: self::LEAD_CONFLICT_MESSAGE,
+                ),
+            ],
         ]);
 
         $password = Str::random(12);

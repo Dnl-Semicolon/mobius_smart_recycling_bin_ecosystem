@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Organization;
 use App\Models\User;
 use App\Rules\MalaysianMobilePhone;
+use App\Rules\UniqueNormalizedEmail;
 use App\Rules\UniqueNormalizedPhone;
 use App\Support\EmailNormalizer;
 use App\Support\PhoneNormalizer;
@@ -18,6 +19,8 @@ use Inertia\Response;
 
 class UserController extends Controller
 {
+    private const LEAD_CONFLICT_MESSAGE = 'This exists as a lead.';
+
     public function index(): Response
     {
         $users = User::query()
@@ -57,8 +60,33 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'bail', 'string', 'max:20', new MalaysianMobilePhone, new UniqueNormalizedPhone('users')],
+            'email' => [
+                'bail',
+                'required',
+                'email',
+                'max:255',
+                'unique:users,email',
+                new UniqueNormalizedEmail(
+                    'registration_requests',
+                    column: 'contact_email',
+                    scope: fn ($query) => $query->where('status', '!=', 'rejected'),
+                    message: self::LEAD_CONFLICT_MESSAGE,
+                ),
+            ],
+            'phone' => [
+                'nullable',
+                'bail',
+                'string',
+                'max:20',
+                new MalaysianMobilePhone,
+                new UniqueNormalizedPhone('users'),
+                new UniqueNormalizedPhone(
+                    'registration_requests',
+                    column: 'contact_phone',
+                    scope: fn ($query) => $query->where('status', '!=', 'rejected'),
+                    message: self::LEAD_CONFLICT_MESSAGE,
+                ),
+            ],
             'role' => ['required', 'in:brand_owner,store_owner,collector,public_user'],
             'organization_id' => ['nullable', 'exists:organizations,id'],
         ]);

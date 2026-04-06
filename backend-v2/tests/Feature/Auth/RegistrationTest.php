@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Mail\RegisterEmailOtpMail;
+use App\Models\RegistrationRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -64,6 +65,34 @@ test('registration rejects duplicate canonical phone numbers', function () {
     $response
         ->assertRedirect(route('register'))
         ->assertSessionHasErrors('phone');
+});
+
+test('registration rejects contact details that already exist as a lead', function () {
+    RegistrationRequest::create([
+        'company_name' => 'Existing Lead Co',
+        'contact_name' => 'Lead Owner',
+        'contact_email' => 'lead@example.com',
+        'contact_phone' => '+60123456789',
+        'type' => 'beverage_company',
+        'status' => 'pending',
+    ]);
+
+    $response = $this
+        ->from(route('register'))
+        ->post(route('register.store'), [
+            'name' => 'Test User',
+            'email' => 'Lead@Example.COM ',
+            'phone' => '012-345 6789',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+    $response
+        ->assertRedirect(route('register'))
+        ->assertSessionHasErrors([
+            'email' => 'Please contact admin to continue with this existing lead.',
+            'phone' => 'Please contact admin to continue with this existing lead.',
+        ]);
 });
 
 test('registered users can verify email otp', function () {

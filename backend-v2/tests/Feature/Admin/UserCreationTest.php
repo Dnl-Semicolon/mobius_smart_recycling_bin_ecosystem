@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Models\Organization;
+use App\Models\RegistrationRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -61,4 +62,37 @@ test('admin user creation rejects duplicate canonical phone numbers', function (
     $response
         ->assertRedirect(route('admin.users.create'))
         ->assertSessionHasErrors('phone');
+});
+
+test('admin user creation rejects contact details that already exist as a lead', function () {
+    $admin = User::factory()->create([
+        'roles' => [UserRole::Admin->value],
+    ]);
+
+    RegistrationRequest::create([
+        'company_name' => 'Existing Lead Co',
+        'contact_name' => 'Lead Owner',
+        'contact_email' => 'lead@example.com',
+        'contact_phone' => '+60123456789',
+        'type' => 'beverage_company',
+        'status' => 'pending',
+    ]);
+
+    $response = $this
+        ->actingAs($admin)
+        ->from(route('admin.users.create'))
+        ->post(route('admin.users.store'), [
+            'name' => 'Duplicate Lead User',
+            'email' => 'Lead@Example.COM ',
+            'phone' => '012-345 6789',
+            'role' => UserRole::PublicUser->value,
+            'organization_id' => '',
+        ]);
+
+    $response
+        ->assertRedirect(route('admin.users.create'))
+        ->assertSessionHasErrors([
+            'email' => 'This exists as a lead.',
+            'phone' => 'This exists as a lead.',
+        ]);
 });
