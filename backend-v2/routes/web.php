@@ -133,6 +133,7 @@ Route::prefix('agency')->name('agency.')->middleware(['auth', 'verified', 'role:
 // =============================================
 Route::prefix('public')->name('public.')->middleware(['auth', 'verified', 'role:public_user'])->group(function () {
     Route::get('/', [App\Http\Controllers\PublicUser\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/qr', [App\Http\Controllers\PublicUser\DashboardController::class, 'qrCode'])->name('qr');
     Route::get('/vouchers', [App\Http\Controllers\PublicUser\VoucherController::class, 'index'])->name('vouchers');
     Route::post('/vouchers/{template}/claim', [App\Http\Controllers\PublicUser\VoucherController::class, 'claim'])->name('vouchers.claim');
 });

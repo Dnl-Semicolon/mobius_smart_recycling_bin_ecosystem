@@ -1,7 +1,7 @@
 import { Head, router } from '@inertiajs/react';
-import { Badge } from '@/components/ui/badge';
 import { QRCodeSVG } from 'qrcode.react';
-import { useState, useRef, useCallback } from 'react';
+import { useRef, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 type Voucher = {
     id: number;
@@ -35,12 +35,6 @@ const typeLabels: Record<string, string> = {
     cashback: 'Cashback',
 };
 
-const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-    claimed: 'outline',
-    redeemed: 'default',
-    expired: 'destructive',
-};
-
 export default function PublicVouchers({
     vouchers,
     myClaims,
@@ -50,19 +44,24 @@ export default function PublicVouchers({
     myClaims: Claim[];
     pointsBalance: number;
 }) {
+    const [tab, setTab] = useState<'available' | 'claimed'>('available');
     const [qrModal, setQrModal] = useState<{ code: string; name: string } | null>(null);
     const qrRef = useRef<HTMLDivElement>(null);
+
+    function handleClaim(id: number, name: string, points: number) {
+        if (confirm(`Claim "${name}" for ${points} points?`)) {
+            router.post(`/public/vouchers/${id}/claim`);
+        }
+    }
 
     function downloadQr() {
         if (!qrRef.current) return;
         const svg = qrRef.current.querySelector('svg');
         if (!svg) return;
         const canvas = document.createElement('canvas');
-        canvas.width = 512;
-        canvas.height = 512;
+        canvas.width = 512; canvas.height = 512;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
-        const data = new XMLSerializer().serializeToString(svg);
         const img = new Image();
         img.onload = () => {
             ctx.fillStyle = 'white';
@@ -73,151 +72,147 @@ export default function PublicVouchers({
             a.href = canvas.toDataURL('image/png');
             a.click();
         };
-        img.src = 'data:image/svg+xml;base64,' + btoa(data);
-    }
-
-    function handleClaim(id: number, name: string, points: number) {
-        if (confirm(`Claim "${name}" for ${points} points? This will deduct from your balance.`)) {
-            router.post(`/public/vouchers/${id}/claim`);
-        }
+        img.src = 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg));
     }
 
     return (
         <>
             <Head title="Vouchers" />
-            <div className="flex h-full flex-1 flex-col gap-6 rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold">Vouchers</h1>
-                        <p className="text-sm text-muted-foreground">Browse and claim rewards with your recycling points.</p>
-                    </div>
-                    <div className="rounded-lg border px-4 py-2 text-sm">
-                        Your Points: <span className="font-bold text-emerald-600">{pointsBalance}</span>
-                    </div>
+            <div className="flex flex-col gap-4 p-4">
+
+                {/* Balance pill */}
+                <div className="flex items-center justify-between rounded-2xl bg-emerald-600 px-4 py-3 text-white">
+                    <p className="text-sm font-medium">Your points</p>
+                    <p className="text-2xl font-bold">{pointsBalance}</p>
                 </div>
 
-                {/* Available Vouchers */}
-                <div>
-                    <h2 className="mb-3 text-lg font-semibold">Available Vouchers</h2>
-                    {vouchers.length > 0 ? (
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            {vouchers.map((v) => (
-                                <div key={v.id} className="flex flex-col rounded-xl border p-5">
-                                    <div className="flex items-start justify-between">
-                                        <div>
-                                            <p className="text-xs text-muted-foreground">{v.brand}</p>
-                                            <h3 className="text-lg font-semibold">{v.name}</h3>
-                                        </div>
-                                        <div className="flex gap-1">
-                                            {v.is_promo && (
-                                                <Badge variant={v.sold_out ? 'destructive' : 'default'}>
-                                                    {v.sold_out ? 'Sold out' : `${v.remaining} left`}
-                                                </Badge>
-                                            )}
-                                            <Badge variant="secondary">{typeLabels[v.type] ?? v.type}</Badge>
-                                        </div>
+                {/* Tabs */}
+                <div className="flex rounded-xl border p-1 bg-muted">
+                    {(['available', 'claimed'] as const).map((t) => (
+                        <button
+                            key={t}
+                            onClick={() => setTab(t)}
+                            className={`flex-1 rounded-lg py-1.5 text-sm font-medium transition-colors ${
+                                tab === t
+                                    ? 'bg-background shadow-sm text-foreground'
+                                    : 'text-muted-foreground'
+                            }`}
+                        >
+                            {t === 'available' ? 'Available' : `My Vouchers (${myClaims.length})`}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Available vouchers */}
+                {tab === 'available' && (
+                    <div className="flex flex-col gap-3">
+                        {vouchers.length === 0 && (
+                            <p className="py-8 text-center text-sm text-muted-foreground">No vouchers available right now.</p>
+                        )}
+                        {vouchers.map((v) => (
+                            <div key={v.id} className="rounded-2xl border bg-card p-4 shadow-sm">
+                                <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                        <p className="text-xs text-muted-foreground">{v.brand}</p>
+                                        <p className="font-semibold leading-tight">{v.name}</p>
+                                        {v.description && <p className="mt-0.5 text-xs text-muted-foreground">{v.description}</p>}
                                     </div>
-                                    {v.description && (
-                                        <p className="mt-1 text-sm text-muted-foreground">{v.description}</p>
-                                    )}
-                                    <div className="mt-3 flex items-baseline gap-1">
-                                        <span className="text-2xl font-bold text-emerald-600">RM{parseFloat(v.value)}</span>
-                                        <span className="text-sm text-muted-foreground">off</span>
+                                    <div className="flex flex-col items-end gap-1">
+                                        <Badge variant="secondary">{typeLabels[v.type] ?? v.type}</Badge>
+                                        {v.is_promo && (
+                                            <Badge variant={v.sold_out ? 'destructive' : 'outline'}>
+                                                {v.sold_out ? 'Sold out' : `${v.remaining} left`}
+                                            </Badge>
+                                        )}
                                     </div>
-                                    <p className="mt-1 text-xs text-muted-foreground">
-                                        {v.points_required} points required · Valid until {v.valid_until}
-                                    </p>
+                                </div>
+
+                                <div className="mt-3 flex items-end justify-between">
+                                    <div>
+                                        <p className="text-2xl font-bold text-emerald-600">RM{parseFloat(v.value)}</p>
+                                        <p className="text-xs text-muted-foreground">Valid until {v.valid_until}</p>
+                                    </div>
                                     <button
                                         onClick={() => handleClaim(v.id, v.name, v.points_required)}
                                         disabled={!v.can_afford || v.sold_out}
-                                        className={`mt-4 w-full rounded-lg py-2 text-sm font-semibold ${
+                                        className={`rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
                                             v.sold_out
-                                                ? 'border text-muted-foreground cursor-not-allowed'
+                                                ? 'cursor-not-allowed bg-muted text-muted-foreground'
                                                 : v.can_afford
-                                                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                                                    : 'border text-muted-foreground cursor-not-allowed'
+                                                    ? 'bg-emerald-600 text-white active:bg-emerald-700'
+                                                    : 'cursor-not-allowed bg-muted text-muted-foreground'
                                         }`}
                                     >
-                                        {v.sold_out ? 'Sold Out' : v.can_afford ? `Claim for ${v.points_required} pts` : `Need ${v.points_required - pointsBalance} more pts`}
+                                        {v.sold_out
+                                            ? 'Sold Out'
+                                            : v.can_afford
+                                                ? `${v.points_required} pts`
+                                                : `Need ${v.points_required - pointsBalance} more`}
                                     </button>
                                 </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-sm text-muted-foreground">No vouchers available right now.</p>
-                    )}
-                </div>
-
-                {/* My Claims */}
-                {myClaims.length > 0 && (
-                    <div>
-                        <h2 className="mb-3 text-lg font-semibold">My Claimed Vouchers</h2>
-                        <div className="grid gap-4 md:grid-cols-2">
-                            {myClaims.map((c) => (
-                                <div key={c.id} className="flex items-center gap-4 rounded-xl border p-4">
-                                    <button
-                                        onClick={() => c.status === 'claimed' ? setQrModal({ code: c.qr_code, name: c.voucher_name }) : null}
-                                        className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-white p-1 ${c.status === 'claimed' ? 'cursor-pointer hover:ring-2 hover:ring-emerald-500' : ''}`}
-                                    >
-                                        {c.status === 'claimed' ? (
-                                            <QRCodeSVG value={c.qr_code} size={56} />
-                                        ) : (
-                                            <span className="text-xs text-muted-foreground">{c.status}</span>
-                                        )}
-                                    </button>
-                                    <div className="flex-1">
-                                        <p className="font-medium">{c.voucher_name}</p>
-                                        <p className="text-sm text-muted-foreground">
-                                            RM{parseFloat(c.voucher_value)} · {c.points_spent} pts spent
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">{c.claimed_at}</p>
-                                    </div>
-                                    <Badge variant={statusVariant[c.status] ?? 'secondary'}>
-                                        {c.status}
-                                    </Badge>
-                                </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                     </div>
                 )}
-                {/* QR Modal */}
-                {qrModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setQrModal(null)}>
-                        <div className="w-full max-w-sm rounded-xl bg-white p-6 text-center shadow-xl dark:bg-gray-900" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-bold">Voucher QR Code</h2>
-                                <button onClick={() => setQrModal(null)} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
-                            </div>
-                            <p className="text-sm text-muted-foreground mb-4">{qrModal.name}</p>
-                            <div ref={qrRef} className="flex justify-center mb-4">
-                                <QRCodeSVG value={qrModal.code} size={256} level="H" />
-                            </div>
-                            <p className="font-mono text-sm text-muted-foreground mb-4">{qrModal.code}</p>
-                            <div className="flex gap-3 justify-center">
+
+                {/* My claimed vouchers */}
+                {tab === 'claimed' && (
+                    <div className="flex flex-col gap-3">
+                        {myClaims.length === 0 && (
+                            <p className="py-8 text-center text-sm text-muted-foreground">No claimed vouchers yet.</p>
+                        )}
+                        {myClaims.map((c) => (
+                            <div key={c.id} className="flex items-center gap-4 rounded-2xl border bg-card p-4 shadow-sm">
                                 <button
-                                    onClick={downloadQr}
-                                    className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                                    onClick={() => c.status === 'claimed' ? setQrModal({ code: c.qr_code, name: c.voucher_name }) : undefined}
+                                    className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm"
                                 >
-                                    Download QR
+                                    {c.status === 'claimed'
+                                        ? <QRCodeSVG value={c.qr_code} size={52} />
+                                        : <span className="text-xs text-muted-foreground">{c.status}</span>
+                                    }
                                 </button>
-                                <button
-                                    onClick={() => setQrModal(null)}
-                                    className="rounded-lg border px-4 py-2 text-sm font-semibold"
-                                >
-                                    Close
-                                </button>
+                                <div className="flex-1 min-w-0">
+                                    <p className="truncate font-medium">{c.voucher_name}</p>
+                                    <p className="text-sm text-muted-foreground">RM{parseFloat(c.voucher_value)} · {c.points_spent} pts</p>
+                                    <p className="text-xs text-muted-foreground">{c.claimed_at}</p>
+                                </div>
+                                <Badge variant={c.status === 'redeemed' ? 'default' : c.status === 'expired' ? 'destructive' : 'outline'}>
+                                    {c.status}
+                                </Badge>
                             </div>
-                        </div>
+                        ))}
                     </div>
                 )}
             </div>
+
+            {/* QR full-screen modal */}
+            {qrModal && (
+                <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 p-6" onClick={() => setQrModal(null)}>
+                    <div className="w-full max-w-xs rounded-3xl bg-white p-6 text-center shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <p className="mb-1 text-xs text-gray-500">{qrModal.name}</p>
+                        <p className="mb-4 text-sm font-bold text-gray-800">Show at the store to redeem</p>
+                        <div ref={qrRef} className="flex justify-center">
+                            <QRCodeSVG value={qrModal.code} size={220} level="H" />
+                        </div>
+                        <p className="mt-3 font-mono text-xs text-gray-400">{qrModal.code}</p>
+                        <div className="mt-4 flex gap-2">
+                            <button
+                                onClick={downloadQr}
+                                className="flex-1 rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white"
+                            >
+                                Save QR
+                            </button>
+                            <button
+                                onClick={() => setQrModal(null)}
+                                className="flex-1 rounded-xl border py-2.5 text-sm font-semibold"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
-
-PublicVouchers.layout = {
-    breadcrumbs: [
-        { title: 'My Dashboard', href: '/public' },
-        { title: 'Vouchers', href: '/public/vouchers' },
-    ],
-};

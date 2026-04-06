@@ -10,6 +10,19 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    public function qrCode(): Response
+    {
+        $user = auth()->user();
+
+        // Encode user ID as JSON — the bin-client parses this and calls link-user API
+        $qrValue = json_encode(['uid' => $user->id]);
+
+        return Inertia::render('Public/QrCode', [
+            'qrValue' => $qrValue,
+            'userName' => $user->name,
+        ]);
+    }
+
     public function index(): Response
     {
         $user = auth()->user();
