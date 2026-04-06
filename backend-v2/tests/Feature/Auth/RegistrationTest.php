@@ -1,8 +1,10 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Mail\RegisterEmailOtpMail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Fortify\Features;
 
 uses(RefreshDatabase::class);
@@ -18,6 +20,8 @@ test('registration screen can be rendered', function () {
 });
 
 test('new users can register', function () {
+    Mail::fake();
+
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
         'email' => 'Test@Example.COM ',
@@ -27,7 +31,7 @@ test('new users can register', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertRedirect(route('register.otp.show', absolute: false));
 
     $user = User::first();
 
@@ -35,6 +39,11 @@ test('new users can register', function () {
     expect($user->email)->toBe('test@example.com');
     expect($user->phone)->toBe('+60123456789');
     expect($user->getRolesArray())->toBe([UserRole::PublicUser->value]);
+    expect($user->email_verified_at)->toBeNull();
+
+    Mail::assertSent(RegisterEmailOtpMail::class, function (RegisterEmailOtpMail $mail) use ($user) {
+        return $mail->hasTo($user->email) && $mail->user->is($user) && strlen($mail->code) === 6;
+    });
 });
 
 test('registration rejects duplicate canonical phone numbers', function () {
@@ -55,4 +64,43 @@ test('registration rejects duplicate canonical phone numbers', function () {
     $response
         ->assertRedirect(route('register'))
         ->assertSessionHasErrors('phone');
+});
+
+test('registered users can verify email otp', function () {
+    Mail::fake();
+
+    $this->post(route('register.store'), [
+        'name' => 'Test User',
+        'email' => 'Test@Example.COM ',
+        'phone' => '012-345 6789',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    $user = User::first();
+    $code = null;
+
+    Mail::assertSent(RegisterEmailOtpMail::class, function (RegisterEmailOtpMail $mail) use ($user, &$code) {
+        $code = $mail->code;
+
+        return $mail->hasTo($user->email) && $mail->user->is($user);
+    });
+
+    expect($code)->not->toBeNull();
+
+    $response = $this->post(route('register.otp.verify'), [
+        'code' => $code,
+    ]);
+
+    $response->assertRedirect(route('public.dashboard', absolute: false));
+
+    expect($user->fresh()->email_verified_at)->not->toBeNull();
+});
+
+test('public users without verified email are redirected to otp screen', function () {
+    $user = User::factory()->unverified()->create();
+
+    $response = $this->actingAs($user)->get(route('public.dashboard'));
+
+    $response->assertRedirect(route('register.otp.show', absolute: false));
 });

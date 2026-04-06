@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'selected_plan_id', 'company_name', 'contact_name', 'contact_email',
     'contact_phone', 'type', 'description', 'status', 'admin_notes',
-    'reviewed_by', 'reviewed_at',
+    'reviewed_by', 'reviewed_at', 'phone_verified_at', 'email_verified_at',
+    'email_verification_token',
 ])]
 class RegistrationRequest extends Model
 {

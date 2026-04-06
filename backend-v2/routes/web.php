@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DetectionController;
 use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\RouteController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Auth\EmailOtpController;
 use App\Http\Controllers\Brand\BillingController;
 use App\Http\Controllers\Brand\DashboardController;
 use App\Http\Controllers\Brand\StaffController;
@@ -30,10 +31,23 @@ Route::get('/', function () {
 // Lead capture (public, no auth)
 Route::get('get-started', [LeadController::class, 'create'])->name('get-started');
 Route::post('get-started', [LeadController::class, 'store'])->name('get-started.store');
+Route::get('get-started/verify/{token}', [LeadController::class, 'verifyShow'])->name('get-started.verify.show');
+Route::post('get-started/verify/{token}', [LeadController::class, 'verifyOtp'])->middleware('throttle:6,1')->name('get-started.verify.store');
+Route::post('get-started/verify/{token}/resend', [LeadController::class, 'resendOtp'])->middleware('throttle:1,1')->name('get-started.verify.resend');
 Route::get('get-started/thank-you', [LeadController::class, 'confirmation'])->name('get-started.confirmation');
+
+Route::middleware(['auth', 'role:public_user'])->group(function () {
+    Route::get('register/verify-email-otp', [EmailOtpController::class, 'show'])->name('register.otp.show');
+    Route::post('register/verify-email-otp', [EmailOtpController::class, 'verify'])->middleware('throttle:6,1')->name('register.otp.verify');
+    Route::post('register/verify-email-otp/resend', [EmailOtpController::class, 'resend'])->middleware('throttle:1,1')->name('register.otp.resend');
+});
 
 // Role router — redirects to the correct dashboard based on primary role
 Route::get('dashboard', function () {
+    if (auth()->user()->hasRole(UserRole::PublicUser) && auth()->user()->email_verified_at === null) {
+        return redirect()->route('register.otp.show');
+    }
+
     return match (auth()->user()->primaryRole()) {
         UserRole::Admin => redirect()->route('admin.dashboard'),
         UserRole::BrandOwner => redirect()->route('brand.dashboard'),
@@ -131,7 +145,7 @@ Route::prefix('agency')->name('agency.')->middleware(['auth', 'verified', 'role:
 // =============================================
 // PUBLIC USER
 // =============================================
-Route::prefix('public')->name('public.')->middleware(['auth', 'verified', 'role:public_user'])->group(function () {
+Route::prefix('public')->name('public.')->middleware(['auth', 'verified', 'role:public_user', 'public.email.verified'])->group(function () {
     Route::get('/', [App\Http\Controllers\PublicUser\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/qr', [App\Http\Controllers\PublicUser\DashboardController::class, 'qrCode'])->name('qr');
     Route::get('/vouchers', [App\Http\Controllers\PublicUser\VoucherController::class, 'index'])->name('vouchers');

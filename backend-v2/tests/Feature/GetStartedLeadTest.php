@@ -1,13 +1,17 @@
 <?php
 
+use App\Mail\LeadEmailOtpMail;
 use App\Models\Plan;
 use App\Models\RegistrationRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 
 uses(RefreshDatabase::class);
 
 test('get started submissions store normalized contact details', function () {
+    Mail::fake();
+
     $plan = Plan::create([
         'name' => 'Starter',
         'price_monthly' => 0,
@@ -28,14 +32,20 @@ test('get started submissions store normalized contact details', function () {
         'selected_plan_id' => $plan->id,
     ]);
 
-    $response->assertRedirect(route('get-started.confirmation'));
-
     $lead = RegistrationRequest::first();
+
+    $response->assertRedirect(route('get-started.verify.show', ['token' => $lead->email_verification_token], false));
 
     expect($lead)->not->toBeNull();
     expect($lead->contact_email)->toBe('sales@example.com');
     expect($lead->contact_phone)->toBe('+60123456789');
     expect($lead->status)->toBe('pending');
+    expect($lead->email_verified_at)->toBeNull();
+    expect($lead->email_verification_token)->not->toBeNull();
+
+    Mail::assertSent(LeadEmailOtpMail::class, function (LeadEmailOtpMail $mail) use ($lead) {
+        return $mail->hasTo($lead->contact_email) && $mail->lead->is($lead) && strlen($mail->code) === 6;
+    });
 });
 
 test('get started rejects contact details already used by users', function () {
@@ -69,6 +79,49 @@ test('get started rejects contact details already used by users', function () {
     $response
         ->assertRedirect(route('get-started'))
         ->assertSessionHasErrors(['contact_email', 'contact_phone']);
+});
+
+test('get started leads can verify email otp', function () {
+    Mail::fake();
+
+    $plan = Plan::create([
+        'name' => 'Starter',
+        'price_monthly' => 0,
+        'price_yearly' => 0,
+        'staff_limit' => 1,
+        'bin_limit' => 1,
+        'outlet_limit' => 1,
+        'api_access' => false,
+        'is_active' => true,
+    ]);
+
+    $this->post(route('get-started.store'), [
+        'contact_name' => 'Jane Doe',
+        'contact_email' => 'Sales@Example.COM ',
+        'contact_phone' => '012-345 6789',
+        'company_name' => 'Example Co',
+        'type' => 'beverage_company',
+        'selected_plan_id' => $plan->id,
+    ]);
+
+    $lead = RegistrationRequest::first();
+    $code = null;
+
+    Mail::assertSent(LeadEmailOtpMail::class, function (LeadEmailOtpMail $mail) use ($lead, &$code) {
+        $code = $mail->code;
+
+        return $mail->hasTo($lead->contact_email) && $mail->lead->is($lead);
+    });
+
+    expect($code)->not->toBeNull();
+
+    $response = $this->post(route('get-started.verify.store', ['token' => $lead->email_verification_token]), [
+        'code' => $code,
+    ]);
+
+    $response->assertRedirect(route('get-started.confirmation', absolute: false));
+
+    expect($lead->fresh()->email_verified_at)->not->toBeNull();
 });
 
 test('get started rejects contact details already used by pending leads', function () {

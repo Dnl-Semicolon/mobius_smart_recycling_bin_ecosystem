@@ -92,7 +92,7 @@ class LeadController extends Controller
                 'email' => EmailNormalizer::normalize($lead->contact_email),
                 'phone' => PhoneNormalizer::normalize($lead->contact_phone),
                 'password' => Hash::make($password),
-                'email_verified_at' => now(),
+                'email_verified_at' => $lead->email_verified_at ?? now(),
                 'roles' => ['brand_owner'],
             ]);
 
