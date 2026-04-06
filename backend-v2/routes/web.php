@@ -92,7 +92,7 @@ Route::prefix('brand')->name('brand.')->middleware(['auth', 'verified', 'role:br
 // STORE OWNER
 // =============================================
 Route::prefix('store')->name('store.')->middleware(['auth', 'verified', 'role:store_owner'])->group(function () {
-    Route::get('/', fn () => Inertia::render('Store/Dashboard'))->name('dashboard');
+    Route::get('/', [App\Http\Controllers\Store\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/redeem', [RedemptionController::class, 'index'])->name('redeem');
     Route::post('/redeem/lookup', [RedemptionController::class, 'lookup'])->name('redeem.lookup');
     Route::post('/redeem/confirm', [RedemptionController::class, 'redeem'])->name('redeem.confirm');

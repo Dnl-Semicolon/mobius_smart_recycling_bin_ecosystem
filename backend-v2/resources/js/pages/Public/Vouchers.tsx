@@ -1,5 +1,7 @@
 import { Head, router } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
+import { QRCodeSVG } from 'qrcode.react';
+import { useState, useRef, useCallback } from 'react';
 
 type Voucher = {
     id: number;
@@ -48,6 +50,32 @@ export default function PublicVouchers({
     myClaims: Claim[];
     pointsBalance: number;
 }) {
+    const [qrModal, setQrModal] = useState<{ code: string; name: string } | null>(null);
+    const qrRef = useRef<HTMLDivElement>(null);
+
+    function downloadQr() {
+        if (!qrRef.current) return;
+        const svg = qrRef.current.querySelector('svg');
+        if (!svg) return;
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        const data = new XMLSerializer().serializeToString(svg);
+        const img = new Image();
+        img.onload = () => {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, 512, 512);
+            ctx.drawImage(img, 0, 0, 512, 512);
+            const a = document.createElement('a');
+            a.download = `voucher-${qrModal?.code ?? 'qr'}.png`;
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+        };
+        img.src = 'data:image/svg+xml;base64,' + btoa(data);
+    }
+
     function handleClaim(id: number, name: string, points: number) {
         if (confirm(`Claim "${name}" for ${points} points? This will deduct from your balance.`)) {
             router.post(`/public/vouchers/${id}/claim`);
@@ -127,13 +155,16 @@ export default function PublicVouchers({
                         <div className="grid gap-4 md:grid-cols-2">
                             {myClaims.map((c) => (
                                 <div key={c.id} className="flex items-center gap-4 rounded-xl border p-4">
-                                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-center text-xs font-mono dark:bg-gray-800">
+                                    <button
+                                        onClick={() => c.status === 'claimed' ? setQrModal({ code: c.qr_code, name: c.voucher_name }) : null}
+                                        className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-white p-1 ${c.status === 'claimed' ? 'cursor-pointer hover:ring-2 hover:ring-emerald-500' : ''}`}
+                                    >
                                         {c.status === 'claimed' ? (
-                                            <span className="text-[8px] leading-tight break-all">{c.qr_code}</span>
+                                            <QRCodeSVG value={c.qr_code} size={56} />
                                         ) : (
-                                            <span className="text-muted-foreground">{c.status}</span>
+                                            <span className="text-xs text-muted-foreground">{c.status}</span>
                                         )}
-                                    </div>
+                                    </button>
                                     <div className="flex-1">
                                         <p className="font-medium">{c.voucher_name}</p>
                                         <p className="text-sm text-muted-foreground">
@@ -146,6 +177,36 @@ export default function PublicVouchers({
                                     </Badge>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                )}
+                {/* QR Modal */}
+                {qrModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setQrModal(null)}>
+                        <div className="w-full max-w-sm rounded-xl bg-white p-6 text-center shadow-xl dark:bg-gray-900" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-lg font-bold">Voucher QR Code</h2>
+                                <button onClick={() => setQrModal(null)} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-4">{qrModal.name}</p>
+                            <div ref={qrRef} className="flex justify-center mb-4">
+                                <QRCodeSVG value={qrModal.code} size={256} level="H" />
+                            </div>
+                            <p className="font-mono text-sm text-muted-foreground mb-4">{qrModal.code}</p>
+                            <div className="flex gap-3 justify-center">
+                                <button
+                                    onClick={downloadQr}
+                                    className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                                >
+                                    Download QR
+                                </button>
+                                <button
+                                    onClick={() => setQrModal(null)}
+                                    className="rounded-lg border px-4 py-2 text-sm font-semibold"
+                                >
+                                    Close
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
