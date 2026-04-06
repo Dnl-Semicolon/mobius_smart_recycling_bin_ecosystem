@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Brand;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Rules\MalaysianMobilePhone;
+use App\Support\EmailNormalizer;
+use App\Support\PhoneNormalizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -47,6 +50,10 @@ class StaffController extends Controller
     {
         $user = auth()->user();
 
+        $request->merge([
+            'email' => EmailNormalizer::normalize($request->input('email')),
+        ]);
+
         $org = $user->organization;
         if ($org && $org->hasReachedLimit('staff_limit')) {
             return back()->withErrors(['limit' => 'Staff limit reached for your plan. Upgrade to add more staff.']);
@@ -55,7 +62,7 @@ class StaffController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:20', new MalaysianMobilePhone],
         ]);
 
         $password = Str::random(12);
@@ -64,7 +71,7 @@ class StaffController extends Controller
             'organization_id' => $user->organization_id,
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'phone' => $validated['phone'],
+            'phone' => PhoneNormalizer::normalize($validated['phone'] ?? null),
             'password' => Hash::make($password),
             'email_verified_at' => now(),
             'roles' => ['store_owner'],

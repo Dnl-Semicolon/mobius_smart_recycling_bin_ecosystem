@@ -1,9 +1,23 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import EmailInput from '@/components/email-input';
+import InputError from '@/components/input-error';
 import LimitBanner from '@/components/limit-banner';
+import PhoneInput from '@/components/phone-input';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
-type LimitInfo = { current: number; max: number | null; reached: boolean; unlimited: boolean };
+type LimitInfo = {
+    current: number;
+    max: number | null;
+    reached: boolean;
+    unlimited: boolean;
+};
 
-export default function CreateStaff({ limitInfo }: { limitInfo: LimitInfo | null }) {
+export default function CreateStaff({
+    limitInfo,
+}: {
+    limitInfo: LimitInfo | null;
+}) {
     const form = useForm({
         name: '',
         email: '',
@@ -21,46 +35,72 @@ export default function CreateStaff({ limitInfo }: { limitInfo: LimitInfo | null
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <h1 className="text-2xl font-bold">Add Staff</h1>
                 <p className="text-sm text-muted-foreground">
-                    Create an outlet manager account. They will be assigned the store owner role within your organization. A password will be auto-generated.
+                    Create an outlet manager account. They will be assigned the
+                    store owner role within your organization. A password will
+                    be auto-generated.
                 </p>
 
                 <LimitBanner label="Staff" limitInfo={limitInfo} />
 
-                <form onSubmit={submit} className={`max-w-xl space-y-4 ${limitInfo?.reached ? 'pointer-events-none opacity-50' : ''}`}>
+                <form
+                    onSubmit={submit}
+                    className={`max-w-xl space-y-4 ${limitInfo?.reached ? 'pointer-events-none opacity-50' : ''}`}
+                >
                     <div>
-                        <label className="block text-sm font-medium">Full Name</label>
-                        <input
+                        <Label className="block text-sm font-medium">
+                            Full Name
+                        </Label>
+                        <Input
                             type="text"
                             value={form.data.name}
-                            onChange={(e) => form.setData('name', e.target.value)}
-                            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                            onChange={(e) =>
+                                form.setData('name', e.target.value)
+                            }
+                            className="mt-1"
                             placeholder="e.g. Adrian Gooi Khai Yi"
                         />
-                        {form.errors.name && <p className="mt-1 text-xs text-red-600">{form.errors.name}</p>}
+                        <InputError
+                            className="mt-1"
+                            message={form.errors.name}
+                        />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium">Email</label>
-                        <input
-                            type="email"
+                        <Label className="block text-sm font-medium">
+                            Email
+                        </Label>
+                        <EmailInput
                             value={form.data.email}
-                            onChange={(e) => form.setData('email', e.target.value)}
-                            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                            onChange={(value) => form.setData('email', value)}
+                            className="mt-1"
                             placeholder="adrian@starbucks.com.my"
+                            autoComplete="email"
+                            error={form.errors.email}
                         />
-                        {form.errors.email && <p className="mt-1 text-xs text-red-600">{form.errors.email}</p>}
+                        <InputError
+                            className="mt-1"
+                            message={form.errors.email}
+                        />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium">Phone <span className="text-muted-foreground">(optional)</span></label>
-                        <input
-                            type="text"
+                        <Label className="block text-sm font-medium">
+                            Phone{' '}
+                            <span className="text-muted-foreground">
+                                (optional)
+                            </span>
+                        </Label>
+                        <PhoneInput
                             value={form.data.phone}
-                            onChange={(e) => form.setData('phone', e.target.value)}
-                            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                            onChange={(value) => form.setData('phone', value)}
+                            className="mt-1"
                             placeholder="0121234567"
+                            error={form.errors.phone}
                         />
-                        {form.errors.phone && <p className="mt-1 text-xs text-red-600">{form.errors.phone}</p>}
+                        <InputError
+                            className="mt-1"
+                            message={form.errors.phone}
+                        />
                     </div>
 
                     <div className="flex gap-3">
@@ -71,7 +111,10 @@ export default function CreateStaff({ limitInfo }: { limitInfo: LimitInfo | null
                         >
                             {form.processing ? 'Creating...' : 'Create Account'}
                         </button>
-                        <Link href="/brand/staff" className="rounded-lg border px-6 py-2 text-sm font-semibold">
+                        <Link
+                            href="/brand/staff"
+                            className="rounded-lg border px-6 py-2 text-sm font-semibold"
+                        >
                             Cancel
                         </Link>
                     </div>

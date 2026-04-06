@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
+import { formatPhoneForDisplay } from '@/lib/phone';
 import {
     Table,
     TableBody,
@@ -29,7 +30,10 @@ type PaginatedLeads = {
     links: { url: string | null; label: string; active: boolean }[];
 };
 
-const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+const statusVariant: Record<
+    string,
+    'default' | 'secondary' | 'destructive' | 'outline'
+> = {
     pending: 'outline',
     approved: 'default',
     rejected: 'destructive',
@@ -42,7 +46,9 @@ export default function LeadsIndex({ leads }: { leads: PaginatedLeads }) {
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold">Leads</h1>
-                    <p className="text-sm text-muted-foreground">{leads.total} total</p>
+                    <p className="text-sm text-muted-foreground">
+                        {leads.total} total
+                    </p>
                 </div>
 
                 <div className="rounded-xl border">
@@ -61,15 +67,36 @@ export default function LeadsIndex({ leads }: { leads: PaginatedLeads }) {
                         </TableHeader>
                         <TableBody>
                             {leads.data.map((lead) => (
-                                <TableRow key={lead.id} className="cursor-pointer" onClick={() => window.location.href = `/admin/leads/${lead.id}`}>
-                                    <TableCell className="font-mono text-sm">{lead.id}</TableCell>
-                                    <TableCell className="font-medium">{lead.company_name}</TableCell>
+                                <TableRow
+                                    key={lead.id}
+                                    className="cursor-pointer"
+                                    onClick={() =>
+                                        (window.location.href = `/admin/leads/${lead.id}`)
+                                    }
+                                >
+                                    <TableCell className="font-mono text-sm">
+                                        {lead.id}
+                                    </TableCell>
+                                    <TableCell className="font-medium">
+                                        {lead.company_name}
+                                    </TableCell>
                                     <TableCell>{lead.contact_name}</TableCell>
                                     <TableCell>{lead.contact_email}</TableCell>
-                                    <TableCell>{lead.contact_phone}</TableCell>
-                                    <TableCell>{lead.selected_plan ?? '-'}</TableCell>
                                     <TableCell>
-                                        <Badge variant={statusVariant[lead.status] ?? 'secondary'}>
+                                        {formatPhoneForDisplay(
+                                            lead.contact_phone,
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        {lead.selected_plan ?? '-'}
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            variant={
+                                                statusVariant[lead.status] ??
+                                                'secondary'
+                                            }
+                                        >
                                             {lead.status}
                                         </Badge>
                                     </TableCell>
@@ -78,7 +105,10 @@ export default function LeadsIndex({ leads }: { leads: PaginatedLeads }) {
                             ))}
                             {leads.data.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                                    <TableCell
+                                        colSpan={8}
+                                        className="py-8 text-center text-muted-foreground"
+                                    >
                                         No leads yet.
                                     </TableCell>
                                 </TableRow>
@@ -94,7 +124,9 @@ export default function LeadsIndex({ leads }: { leads: PaginatedLeads }) {
                                 key={i}
                                 href={link.url ?? '#'}
                                 className={`rounded-md border px-3 py-1 text-sm ${
-                                    link.active ? 'bg-primary text-primary-foreground' : ''
+                                    link.active
+                                        ? 'bg-primary text-primary-foreground'
+                                        : ''
                                 } ${!link.url ? 'pointer-events-none opacity-50' : ''}`}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                 preserveState

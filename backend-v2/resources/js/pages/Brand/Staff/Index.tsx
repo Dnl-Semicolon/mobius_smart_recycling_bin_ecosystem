@@ -1,7 +1,13 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
+import { formatPhoneForDisplay } from '@/lib/phone';
 import {
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from '@/components/ui/table';
 
 type StaffMember = {
@@ -14,7 +20,8 @@ type StaffMember = {
 };
 
 export default function StaffIndex({ staff }: { staff: StaffMember[] }) {
-    const { flash } = usePage<{ flash: { generated_password?: string } }>().props;
+    const { flash } = usePage<{ flash: { generated_password?: string } }>()
+        .props;
 
     return (
         <>
@@ -33,10 +40,14 @@ export default function StaffIndex({ staff }: { staff: StaffMember[] }) {
                 {flash?.generated_password && (
                     <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950">
                         <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-                            Staff account created. Generated password: <span className="font-mono">{flash.generated_password}</span>
+                            Staff account created. Generated password:{' '}
+                            <span className="font-mono">
+                                {flash.generated_password}
+                            </span>
                         </p>
                         <p className="mt-1 text-xs text-amber-600 dark:text-amber-500">
-                            Share this with the staff member. They can change it after first login.
+                            Share this with the staff member. They can change it
+                            after first login.
                         </p>
                     </div>
                 )}
@@ -55,13 +66,22 @@ export default function StaffIndex({ staff }: { staff: StaffMember[] }) {
                         <TableBody>
                             {staff.map((s) => (
                                 <TableRow key={s.id}>
-                                    <TableCell className="font-medium">{s.name}</TableCell>
+                                    <TableCell className="font-medium">
+                                        {s.name}
+                                    </TableCell>
                                     <TableCell>{s.email}</TableCell>
-                                    <TableCell>{s.phone ?? '-'}</TableCell>
+                                    <TableCell>
+                                        {formatPhoneForDisplay(s.phone)}
+                                    </TableCell>
                                     <TableCell>
                                         <div className="flex gap-1">
                                             {s.roles.map((r) => (
-                                                <Badge key={r} variant="secondary">{r.replace(/_/g, ' ')}</Badge>
+                                                <Badge
+                                                    key={r}
+                                                    variant="secondary"
+                                                >
+                                                    {r.replace(/_/g, ' ')}
+                                                </Badge>
                                             ))}
                                         </div>
                                     </TableCell>
@@ -70,8 +90,12 @@ export default function StaffIndex({ staff }: { staff: StaffMember[] }) {
                             ))}
                             {staff.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
-                                        No staff yet. Add your first outlet manager.
+                                    <TableCell
+                                        colSpan={5}
+                                        className="py-8 text-center text-muted-foreground"
+                                    >
+                                        No staff yet. Add your first outlet
+                                        manager.
                                     </TableCell>
                                 </TableRow>
                             )}

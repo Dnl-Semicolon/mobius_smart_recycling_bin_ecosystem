@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Organization;
 use App\Models\User;
+use App\Rules\MalaysianMobilePhone;
+use App\Support\EmailNormalizer;
+use App\Support\PhoneNormalizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -47,10 +50,14 @@ class UserController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $request->merge([
+            'email' => EmailNormalizer::normalize($request->input('email')),
+        ]);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:20', new MalaysianMobilePhone],
             'role' => ['required', 'in:brand_owner,store_owner,collector,public_user'],
             'organization_id' => ['nullable', 'exists:organizations,id'],
         ]);
@@ -60,7 +67,7 @@ class UserController extends Controller
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'phone' => $validated['phone'],
+            'phone' => PhoneNormalizer::normalize($validated['phone'] ?? null),
             'organization_id' => $validated['organization_id'],
             'password' => Hash::make($password),
             'email_verified_at' => now(),

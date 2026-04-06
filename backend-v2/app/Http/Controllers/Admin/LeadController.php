@@ -8,6 +8,8 @@ use App\Models\Organization;
 use App\Models\RegistrationRequest;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Support\EmailNormalizer;
+use App\Support\PhoneNormalizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -87,8 +89,8 @@ class LeadController extends Controller
             $user = User::create([
                 'organization_id' => $org->id,
                 'name' => $lead->contact_name,
-                'email' => $lead->contact_email,
-                'phone' => $lead->contact_phone,
+                'email' => EmailNormalizer::normalize($lead->contact_email),
+                'phone' => PhoneNormalizer::normalize($lead->contact_phone),
                 'password' => Hash::make($password),
                 'email_verified_at' => now(),
                 'roles' => ['brand_owner'],

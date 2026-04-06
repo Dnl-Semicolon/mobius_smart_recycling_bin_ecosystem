@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreLeadRequest;
 use App\Models\Plan;
 use App\Models\RegistrationRequest;
+use App\Support\PhoneNormalizer;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,8 +25,11 @@ class LeadController extends Controller
 
     public function store(StoreLeadRequest $request)
     {
+        $validated = $request->validated();
+
         RegistrationRequest::create([
-            ...$request->validated(),
+            ...$validated,
+            'contact_phone' => PhoneNormalizer::normalize($validated['contact_phone']),
             'status' => 'pending',
         ]);
 

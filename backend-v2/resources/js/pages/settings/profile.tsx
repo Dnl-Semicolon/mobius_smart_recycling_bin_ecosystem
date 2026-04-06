@@ -1,9 +1,11 @@
 import { Transition } from '@headlessui/react';
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
+import EmailInput from '@/components/email-input';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import PhoneInput from '@/components/phone-input';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,8 +19,22 @@ export default function Profile({
     mustVerifyEmail: boolean;
     status?: string;
 }) {
-    const { auth } = usePage<{ auth: { user: Record<string, unknown> } }>().props;
+    const { auth } = usePage<{ auth: { user: Record<string, unknown> } }>()
+        .props;
     const user = auth.user;
+    const form = useForm({
+        name: (user.name as string) ?? '',
+        email: (user.email as string) ?? '',
+        phone: (user.phone as string | null) ?? '',
+    });
+
+    function submit(event: React.FormEvent<HTMLFormElement>): void {
+        event.preventDefault();
+
+        form.patch(ProfileController.update.url(), {
+            preserveScroll: true,
+        });
+    }
 
     return (
         <>
@@ -33,121 +49,107 @@ export default function Profile({
                     description="Update your name and email address"
                 />
 
-                <Form
-                    {...ProfileController.update.form()}
-                    options={{
-                        preserveScroll: true,
-                    }}
-                    className="space-y-6"
-                >
-                    {({ processing, recentlySuccessful, errors }) => (
-                        <>
-                            <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                <form className="space-y-6" onSubmit={submit}>
+                    <div className="grid gap-2">
+                        <Label htmlFor="name">Name</Label>
 
-                                <Input
-                                    id="name"
-                                    className="mt-1 block w-full"
-                                    defaultValue={user.name as string}
-                                    name="name"
-                                    required
-                                    autoComplete="name"
-                                    placeholder="Full name"
-                                />
+                        <Input
+                            id="name"
+                            className="mt-1 block w-full"
+                            value={form.data.name}
+                            onChange={(event) =>
+                                form.setData('name', event.target.value)
+                            }
+                            required
+                            autoComplete="name"
+                            placeholder="Full name"
+                        />
 
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.name}
-                                />
-                            </div>
+                        <InputError
+                            className="mt-2"
+                            message={form.errors.name}
+                        />
+                    </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                    <div className="grid gap-2">
+                        <Label htmlFor="email">Email address</Label>
 
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    className="mt-1 block w-full"
-                                    defaultValue={user.email as string}
-                                    name="email"
-                                    required
-                                    autoComplete="username"
-                                    placeholder="Email address"
-                                />
+                        <EmailInput
+                            id="email"
+                            className="mt-1 block w-full"
+                            value={form.data.email}
+                            onChange={(value) => form.setData('email', value)}
+                            required
+                            autoComplete="username"
+                            placeholder="Email address"
+                            error={form.errors.email}
+                        />
 
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.email}
-                                />
-                            </div>
+                        <InputError
+                            className="mt-2"
+                            message={form.errors.email}
+                        />
+                    </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="phone">Phone</Label>
+                    <div className="grid gap-2">
+                        <Label htmlFor="phone">Phone</Label>
 
-                                <Input
-                                    id="phone"
-                                    type="text"
-                                    className="mt-1 block w-full"
-                                    defaultValue={(user.phone as string) ?? ''}
-                                    name="phone"
-                                    autoComplete="tel"
-                                    placeholder="Phone number"
-                                />
+                        <PhoneInput
+                            id="phone"
+                            className="mt-1 block w-full"
+                            value={form.data.phone}
+                            onChange={(value) => form.setData('phone', value)}
+                            placeholder="Phone number"
+                            error={form.errors.phone}
+                        />
 
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.phone}
-                                />
-                            </div>
+                        <InputError
+                            className="mt-2"
+                            message={form.errors.phone}
+                        />
+                    </div>
 
-                            {mustVerifyEmail &&
-                                user.email_verified_at === null && (
-                                    <div>
-                                        <p className="-mt-4 text-sm text-muted-foreground">
-                                            Your email address is unverified.{' '}
-                                            <Link
-                                                href={send()}
-                                                as="button"
-                                                className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                                            >
-                                                Click here to resend the
-                                                verification email.
-                                            </Link>
-                                        </p>
-
-                                        {status ===
-                                            'verification-link-sent' && (
-                                            <div className="mt-2 text-sm font-medium text-green-600">
-                                                A new verification link has been
-                                                sent to your email address.
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                            <div className="flex items-center gap-4">
-                                <Button
-                                    disabled={processing}
-                                    data-test="update-profile-button"
+                    {mustVerifyEmail && user.email_verified_at === null && (
+                        <div>
+                            <p className="-mt-4 text-sm text-muted-foreground">
+                                Your email address is unverified.{' '}
+                                <Link
+                                    href={send()}
+                                    as="button"
+                                    className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                                 >
-                                    Save
-                                </Button>
+                                    Click here to resend the verification email.
+                                </Link>
+                            </p>
 
-                                <Transition
-                                    show={recentlySuccessful}
-                                    enter="transition ease-in-out"
-                                    enterFrom="opacity-0"
-                                    leave="transition ease-in-out"
-                                    leaveTo="opacity-0"
-                                >
-                                    <p className="text-sm text-neutral-600">
-                                        Saved
-                                    </p>
-                                </Transition>
-                            </div>
-                        </>
+                            {status === 'verification-link-sent' && (
+                                <div className="mt-2 text-sm font-medium text-green-600">
+                                    A new verification link has been sent to
+                                    your email address.
+                                </div>
+                            )}
+                        </div>
                     )}
-                </Form>
+
+                    <div className="flex items-center gap-4">
+                        <Button
+                            disabled={form.processing}
+                            data-test="update-profile-button"
+                        >
+                            Save
+                        </Button>
+
+                        <Transition
+                            show={form.recentlySuccessful}
+                            enter="transition ease-in-out"
+                            enterFrom="opacity-0"
+                            leave="transition ease-in-out"
+                            leaveTo="opacity-0"
+                        >
+                            <p className="text-sm text-neutral-600">Saved</p>
+                        </Transition>
+                    </div>
+                </form>
             </div>
 
             <DeleteUser />
