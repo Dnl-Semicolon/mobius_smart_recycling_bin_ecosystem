@@ -31,6 +31,17 @@ interface SessionSummary {
   user_linked: boolean
 }
 
+// Parse either {"uid": 123} JSON or legacy mobius:user:123 format
+function parseUserQR(raw: string): number | null {
+  try {
+    const parsed = JSON.parse(raw)
+    if (parsed && typeof parsed.uid === 'number') return parsed.uid
+  } catch { /* not JSON */ }
+  const match = raw.match(/mobius:user:(\d+)/)
+  if (match) return parseInt(match[1])
+  return null
+}
+
 export default function App() {
   const { videoRef, canvasRef, isReady, error, captureFrame, startCamera, stopCamera } = useWebcam()
   const { scanForQR } = useQRScanner()
@@ -48,7 +59,10 @@ export default function App() {
   const [detecting, setDetecting] = useState(false)
   const [lastResult, setLastResult] = useState<string | null>(null)
   const [showBinTooltip, setShowBinTooltip] = useState(false)
+  const [scanningQR, setScanningQR] = useState(false)
+  const [qrScanError, setQrScanError] = useState<string | null>(null)
   const qrIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const qrScanIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Load bins on mount
   useEffect(() => {
@@ -87,17 +101,16 @@ export default function App() {
     setState('idle')
   }
 
-  // Background QR scanning
+  // Background passive QR scan (every 1s, only when NOT in dedicated scan mode)
   useEffect(() => {
-    if (state !== 'active' || !isReady || linkedUser) return
+    if (state !== 'active' || !isReady || linkedUser || scanningQR) return
 
     qrIntervalRef.current = setInterval(() => {
       if (!videoRef.current || !canvasRef.current) return
       const qrData = scanForQR(videoRef.current, canvasRef.current)
-      if (qrData) {
-        const match = qrData.match(/mobius:user:(\d+)/)
-        if (match && sessionId) {
-          const userId = parseInt(match[1])
+      if (qrData && sessionId) {
+        const userId = parseUserQR(qrData)
+        if (userId) {
           api.linkUser(serial, sessionId, userId).then((res) => {
             if (res.user) setLinkedUser(res.user.name)
           })
@@ -106,7 +119,49 @@ export default function App() {
     }, 1000)
 
     return () => { if (qrIntervalRef.current) clearInterval(qrIntervalRef.current) }
-  }, [state, isReady, linkedUser, sessionId, serial, scanForQR, videoRef, canvasRef])
+  }, [state, isReady, linkedUser, sessionId, serial, scanningQR, scanForQR, videoRef, canvasRef])
+
+  // Dedicated QR scan mode — fast 250ms loop
+  useEffect(() => {
+    if (!scanningQR || !isReady || !sessionId) return
+
+    qrScanIntervalRef.current = setInterval(() => {
+      if (!videoRef.current || !canvasRef.current) return
+      const qrData = scanForQR(videoRef.current, canvasRef.current)
+      if (qrData) {
+        const userId = parseUserQR(qrData)
+        if (userId) {
+          clearInterval(qrScanIntervalRef.current!)
+          api.linkUser(serial, sessionId, userId).then((res) => {
+            if (res.user) {
+              setLinkedUser(res.user.name)
+              setScanningQR(false)
+              setQrScanError(null)
+            } else {
+              setQrScanError('User not found. Please register first.')
+            }
+          }).catch(() => {
+            setQrScanError('Failed to link user. Try again.')
+          })
+        } else {
+          setQrScanError('Invalid QR code. Show your Mobius app QR.')
+        }
+      }
+    }, 250)
+
+    return () => { if (qrScanIntervalRef.current) clearInterval(qrScanIntervalRef.current) }
+  }, [scanningQR, isReady, sessionId, serial, scanForQR, videoRef, canvasRef])
+
+  const startQRScan = () => {
+    setQrScanError(null)
+    setScanningQR(true)
+  }
+
+  const cancelQRScan = () => {
+    setScanningQR(false)
+    setQrScanError(null)
+    if (qrScanIntervalRef.current) clearInterval(qrScanIntervalRef.current)
+  }
 
   const startSession = async () => {
     const res = await api.startSession(serial)
@@ -118,6 +173,7 @@ export default function App() {
       setLinkedUser(null)
       setSummary(null)
       setLastResult(null)
+      setScanningQR(false)
       setState('active')
     }
   }
@@ -173,6 +229,7 @@ export default function App() {
     setLinkedUser(null)
     setSummary(null)
     setLastResult(null)
+    setScanningQR(false)
   }
 
   const goToSelect = () => {
@@ -304,7 +361,45 @@ export default function App() {
             <div className="absolute inset-0 flex items-center justify-center bg-black/80 text-white text-lg">{error}</div>
           )}
 
-          {lastResult && state === 'active' && (
+          {/* QR Scan Mode Overlay */}
+          {scanningQR && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70">
+              {/* Guide frame */}
+              <div className="relative mb-6">
+                <div className="w-56 h-56 border-2 border-white/30 rounded-lg relative">
+                  {/* Corner accents */}
+                  <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-teal-400 rounded-tl-lg" />
+                  <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-teal-400 rounded-tr-lg" />
+                  <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-teal-400 rounded-bl-lg" />
+                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-teal-400 rounded-br-lg" />
+                  {/* Scanning line */}
+                  <div className="absolute inset-x-0 top-1/2 h-0.5 bg-teal-400/60 animate-pulse" />
+                </div>
+              </div>
+
+              {/* Guide text */}
+              <div className="text-center px-6 max-w-xs">
+                <p className="text-white text-lg font-semibold mb-1">Scan your QR code</p>
+                <p className="text-white/70 text-sm mb-3">Hold your Mobius app QR within the frame</p>
+                {qrScanError ? (
+                  <p className="text-red-300 text-sm mb-3">{qrScanError}</p>
+                ) : (
+                  <p className="text-white/50 text-xs mb-3">
+                    Don't have an account?{' '}
+                    <span className="text-teal-300 font-medium">Register at mobius.app</span>
+                  </p>
+                )}
+                <button
+                  onClick={cancelQRScan}
+                  className="bg-white/20 hover:bg-white/30 text-white border border-white/30 rounded-xl px-6 py-2.5 text-sm font-medium transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {lastResult && state === 'active' && !scanningQR && (
             <div className="absolute top-4 left-4 right-4 bg-white/90 rounded-lg p-3 text-center font-medium">{lastResult}</div>
           )}
 
@@ -357,8 +452,27 @@ export default function App() {
                   <span className="text-lg">✓</span><span className="font-medium">{linkedUser}</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-amber-700 bg-amber-50 rounded-lg p-3">
-                  <span className="text-lg">📱</span><span className="text-sm">Scan QR code to earn points</span>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2 text-amber-700 bg-amber-50 rounded-lg p-3">
+                    <span className="text-lg">📱</span>
+                    <span className="text-sm">{scanningQR ? 'Scanning for QR code...' : 'Scan QR to earn points'}</span>
+                  </div>
+                  {!scanningQR && (
+                    <button
+                      onClick={startQRScan}
+                      className="w-full bg-teal-600 hover:bg-teal-700 text-white rounded-lg py-2.5 text-sm font-semibold transition flex items-center justify-center gap-2"
+                    >
+                      <span>📷</span> Scan User QR
+                    </button>
+                  )}
+                  {scanningQR && (
+                    <button
+                      onClick={cancelQRScan}
+                      className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg py-2.5 text-sm font-semibold transition"
+                    >
+                      Cancel Scan
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -395,7 +509,7 @@ export default function App() {
 
             {/* Detect Button */}
             <div className="p-4 border-b shrink-0">
-              <button onClick={detectItem} disabled={detecting} className="w-full bg-teal-600 hover:bg-teal-700 text-white py-4 rounded-xl text-lg font-semibold disabled:opacity-50">
+              <button onClick={detectItem} disabled={detecting || scanningQR} className="w-full bg-teal-600 hover:bg-teal-700 text-white py-4 rounded-xl text-lg font-semibold disabled:opacity-50">
                 {detecting ? 'Detecting...' : '📸 Capture & Detect'}
               </button>
             </div>
