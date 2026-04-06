@@ -36,4 +36,9 @@ class RouteStop extends Model
     {
         return $this->belongsTo(Bin::class);
     }
+
+    public function pickupRequest(): BelongsTo
+    {
+        return $this->belongsTo(PickupRequest::class);
+    }
 }

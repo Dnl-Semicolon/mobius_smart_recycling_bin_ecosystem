@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Collector;
 
 use App\Http\Controllers\Controller;
+use App\Models\BinCollectionLog;
 use App\Models\CollectionRoute;
 use App\Models\RouteStop;
 use Illuminate\Http\RedirectResponse;
@@ -87,7 +88,9 @@ class RouteController extends Controller
 
     public function completeStop(Request $request, CollectionRoute $route, int $stopOrder): RedirectResponse
     {
-        $stop = $route->stops()->where('stop_order', $stopOrder)->firstOrFail();
+        $stop = $route->stops()->where('stop_order', $stopOrder)->with('bin')->firstOrFail();
+        $bin = $stop->bin;
+        $collectorId = auth()->id();
 
         $stop->update([
             'status' => 'completed',
@@ -96,7 +99,35 @@ class RouteController extends Controller
             'completed_longitude' => $request->input('lng'),
         ]);
 
-        // Check if all stops are complete
+        // Log the collection before resetting
+        BinCollectionLog::create([
+            'bin_id' => $bin->id,
+            'collector_id' => $collectorId,
+            'route_stop_id' => $stop->id,
+            'pickup_request_id' => $stop->pickup_request_id,
+            'fill_level_before' => $bin->fill_level,
+            'collected_latitude' => $request->input('lat'),
+            'collected_longitude' => $request->input('lng'),
+        ]);
+
+        // Reset the bin
+        $bin->update([
+            'fill_level' => 0,
+            'weight_grams' => 0,
+            'sensor_levels' => ['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false],
+            'last_pickup_at' => now(),
+        ]);
+
+        // Mark the pickup request as completed
+        if ($stop->pickup_request_id) {
+            $stop->pickupRequest?->update([
+                'status' => 'completed',
+                'assigned_to' => $collectorId,
+                'completed_at' => now(),
+            ]);
+        }
+
+        // Check if all stops are complete → close the route
         $allComplete = $route->stops()->where('status', '!=', 'completed')->doesntExist();
         if ($allComplete) {
             $route->update(['status' => 'completed', 'completed_at' => now()]);
