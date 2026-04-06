@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-#[Fillable(['organization_id', 'name', 'slug', 'logo_path', 'description', 'website', 'point_multiplier', 'is_active'])]
+#[Fillable(['organization_id', 'name', 'slug', 'ai_slug', 'logo_path', 'description', 'website', 'point_multiplier', 'is_active'])]
 class Brand extends Model
 {
     protected function casts(): array

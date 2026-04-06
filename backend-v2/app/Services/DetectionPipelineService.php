@@ -40,7 +40,7 @@ class DetectionPipelineService
             $openaiResponse = $brandSlug;
 
             if ($brandSlug && $brandSlug !== 'unknown') {
-                $brandId = Brand::where('slug', $brandSlug)->value('id');
+                $brandId = Brand::where('ai_slug', $brandSlug)->value('id');
             }
         }
 

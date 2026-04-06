@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Admin\BinController;
+use App\Http\Controllers\Admin\DetectionController;
 use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\RouteController;
 use App\Http\Controllers\Admin\UserController;
@@ -65,6 +66,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::get('/routes', [RouteController::class, 'index'])->name('routes.index');
     Route::get('/routes/generate', [RouteController::class, 'generate'])->name('routes.generate');
     Route::post('/routes', [RouteController::class, 'store'])->name('routes.store');
+    Route::get('/detections', [DetectionController::class, 'index'])->name('detections.index');
     Route::get('/billing', [App\Http\Controllers\Admin\BillingController::class, 'index'])->name('billing');
     Route::post('/billing/{subscription}/activate', [App\Http\Controllers\Admin\BillingController::class, 'activate'])->name('billing.activate');
     Route::get('/billing/{subscription}/customize', [App\Http\Controllers\Admin\BillingController::class, 'customize'])->name('billing.customize');
@@ -86,6 +88,7 @@ Route::prefix('brand')->name('brand.')->middleware(['auth', 'verified', 'role:br
     Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('vouchers.create');
     Route::post('/vouchers', [VoucherController::class, 'store'])->name('vouchers.store');
     Route::get('/bins', [App\Http\Controllers\Brand\BinController::class, 'index'])->name('bins.index');
+    Route::get('/detections', [App\Http\Controllers\Brand\DetectionController::class, 'index'])->name('detections.index');
     Route::get('/billing', [BillingController::class, 'index'])->name('billing');
     Route::post('/billing/checkout', [BillingController::class, 'checkout'])->name('billing.checkout');
     Route::get('/billing/success', [BillingController::class, 'success'])->name('billing.success');
@@ -100,6 +103,7 @@ Route::prefix('store')->name('store.')->middleware(['auth', 'verified', 'role:st
     Route::get('/', [App\Http\Controllers\Store\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/bins', [App\Http\Controllers\Store\BinController::class, 'index'])->name('bins.index');
     Route::post('/bins/{bin}/request-pickup', [App\Http\Controllers\Store\BinController::class, 'requestPickup'])->name('bins.requestPickup');
+    Route::get('/detections', [App\Http\Controllers\Store\DetectionController::class, 'index'])->name('detections.index');
     Route::get('/redeem', [RedemptionController::class, 'index'])->name('redeem');
     Route::post('/redeem/lookup', [RedemptionController::class, 'lookup'])->name('redeem.lookup');
     Route::post('/redeem/confirm', [RedemptionController::class, 'redeem'])->name('redeem.confirm');

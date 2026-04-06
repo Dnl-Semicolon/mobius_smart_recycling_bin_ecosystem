@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ClipboardList, CreditCard, LayoutGrid, Map, Store, Ticket, Trash2, Users } from 'lucide-react';
+import { Activity, ClipboardList, CreditCard, LayoutGrid, Map, Store, Ticket, Trash2, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -26,6 +26,7 @@ function getNavItemsForRole(roles: string[]): NavItem[] {
                 { title: 'Users', href: '/admin/users', icon: Users },
                 { title: 'Outlets', href: '/admin/outlets', icon: Store },
                 { title: 'Bins', href: '/admin/bins', icon: Trash2 },
+                { title: 'Detections', href: '/admin/detections', icon: Activity },
                 { title: 'Routes', href: '/admin/routes', icon: Map },
                 { title: 'Vouchers', href: '/admin/vouchers', icon: Ticket },
                 { title: 'Billing', href: '/admin/billing', icon: CreditCard },
@@ -36,6 +37,7 @@ function getNavItemsForRole(roles: string[]): NavItem[] {
                 { title: 'Staff', href: '/brand/staff', icon: Users },
                 { title: 'Outlets', href: '/brand/outlets', icon: Store },
                 { title: 'Bin Monitor', href: '/brand/bins', icon: Trash2 },
+                { title: 'Detections', href: '/brand/detections', icon: Activity },
                 { title: 'Vouchers', href: '/brand/vouchers', icon: Ticket },
                 { title: 'Billing', href: '/brand/billing', icon: CreditCard },
             ];
@@ -43,6 +45,7 @@ function getNavItemsForRole(roles: string[]): NavItem[] {
             return [
                 { title: 'Dashboard', href: '/store', icon: LayoutGrid },
                 { title: 'Bins', href: '/store/bins', icon: Trash2 },
+                { title: 'Detections', href: '/store/detections', icon: Activity },
                 { title: 'Redeem Voucher', href: '/store/redeem', icon: Ticket },
             ];
         case 'collector':
