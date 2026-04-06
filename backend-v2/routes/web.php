@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\Admin\BinController;
 use App\Http\Controllers\Admin\OutletController;
+use App\Http\Controllers\Admin\RouteController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Brand\BillingController;
 use App\Http\Controllers\Brand\DashboardController;
@@ -61,6 +62,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::get('/bins/create', [BinController::class, 'create'])->name('bins.create');
     Route::post('/bins', [BinController::class, 'store'])->name('bins.store');
     Route::get('/vouchers', [App\Http\Controllers\Admin\VoucherController::class, 'index'])->name('vouchers.index');
+    Route::get('/routes', [RouteController::class, 'index'])->name('routes.index');
+    Route::get('/routes/generate', [RouteController::class, 'generate'])->name('routes.generate');
+    Route::post('/routes', [RouteController::class, 'store'])->name('routes.store');
     Route::get('/billing', [App\Http\Controllers\Admin\BillingController::class, 'index'])->name('billing');
     Route::post('/billing/{subscription}/activate', [App\Http\Controllers\Admin\BillingController::class, 'activate'])->name('billing.activate');
     Route::get('/billing/{subscription}/customize', [App\Http\Controllers\Admin\BillingController::class, 'customize'])->name('billing.customize');
@@ -103,6 +107,11 @@ Route::prefix('store')->name('store.')->middleware(['auth', 'verified', 'role:st
 // =============================================
 Route::prefix('collector')->name('collector.')->middleware(['auth', 'verified', 'role:collector'])->group(function () {
     Route::get('/', fn () => Inertia::render('Collector/Dashboard'))->name('dashboard');
+    Route::get('/routes', [App\Http\Controllers\Collector\RouteController::class, 'index'])->name('routes.index');
+    Route::get('/routes/{route}', [App\Http\Controllers\Collector\RouteController::class, 'show'])->name('routes.show');
+    Route::post('/routes/{route}/accept', [App\Http\Controllers\Collector\RouteController::class, 'accept'])->name('routes.accept');
+    Route::post('/routes/{route}/start', [App\Http\Controllers\Collector\RouteController::class, 'start'])->name('routes.start');
+    Route::post('/routes/{route}/stops/{stopOrder}/complete', [App\Http\Controllers\Collector\RouteController::class, 'completeStop'])->name('routes.stops.complete');
 });
 
 // =============================================
