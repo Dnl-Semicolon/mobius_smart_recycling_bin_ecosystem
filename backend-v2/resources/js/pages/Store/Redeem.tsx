@@ -109,23 +109,21 @@ export default function StoreRedeem({
 
                 {/* QR Scanner */}
                 <div className="max-w-md">
-                    {!scanning ? (
+                    <div id={scannerContainerId} className={`mb-3 overflow-hidden rounded-lg ${scanning ? '' : 'hidden'}`} />
+                    {scanning ? (
+                        <button
+                            onClick={stopScanner}
+                            className="w-full rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-gray-50"
+                        >
+                            Close Scanner
+                        </button>
+                    ) : (
                         <button
                             onClick={startScanner}
                             className="w-full rounded-lg bg-gray-900 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
                         >
                             Open Camera Scanner
                         </button>
-                    ) : (
-                        <div>
-                            <div id={scannerContainerId} className="mb-3 overflow-hidden rounded-lg" />
-                            <button
-                                onClick={stopScanner}
-                                className="w-full rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-gray-50"
-                            >
-                                Close Scanner
-                            </button>
-                        </div>
                     )}
                 </div>
 
