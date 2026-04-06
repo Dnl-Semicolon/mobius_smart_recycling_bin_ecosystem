@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ClipboardList, CreditCard, LayoutGrid, Store, Ticket, Trash2, Users } from 'lucide-react';
+import { ClipboardList, CreditCard, LayoutGrid, Map, Store, Ticket, Trash2, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -26,6 +26,7 @@ function getNavItemsForRole(roles: string[]): NavItem[] {
                 { title: 'Users', href: '/admin/users', icon: Users },
                 { title: 'Outlets', href: '/admin/outlets', icon: Store },
                 { title: 'Bins', href: '/admin/bins', icon: Trash2 },
+                { title: 'Routes', href: '/admin/routes', icon: Map },
                 { title: 'Vouchers', href: '/admin/vouchers', icon: Ticket },
                 { title: 'Billing', href: '/admin/billing', icon: CreditCard },
             ];
@@ -45,6 +46,7 @@ function getNavItemsForRole(roles: string[]): NavItem[] {
         case 'collector':
             return [
                 { title: 'Dashboard', href: '/collector', icon: LayoutGrid },
+                { title: 'Routes', href: '/collector/routes', icon: Map },
             ];
         case 'agency_admin':
             return [
