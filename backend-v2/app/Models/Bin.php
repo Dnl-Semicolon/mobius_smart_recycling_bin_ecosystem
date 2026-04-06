@@ -37,4 +37,14 @@ class Bin extends Model
     {
         return $this->hasMany(PickupRequest::class);
     }
+
+    public function binSessions(): HasMany
+    {
+        return $this->hasMany(BinSession::class);
+    }
+
+    public function isReadyForPickup(): bool
+    {
+        return $this->fill_level >= 75;
+    }
 }

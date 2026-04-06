@@ -20,4 +20,9 @@ class RecyclingTransaction extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function binSession(): BelongsTo
+    {
+        return $this->belongsTo(BinSession::class);
+    }
 }
