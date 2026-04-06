@@ -55,6 +55,27 @@ test('email verification status is unchanged when the email address is unchanged
     expect($user->refresh()->email_verified_at)->not->toBeNull();
 });
 
+test('profile update rejects duplicate canonical phone numbers', function () {
+    User::factory()->create([
+        'phone' => '+60123456789',
+    ]);
+
+    $user = User::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->from(route('profile.edit'))
+        ->patch(route('profile.update'), [
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => '012-345 6789',
+        ]);
+
+    $response
+        ->assertRedirect(route('profile.edit'))
+        ->assertSessionHasErrors('phone');
+});
+
 test('user can delete their account', function () {
     $user = User::factory()->create();
 

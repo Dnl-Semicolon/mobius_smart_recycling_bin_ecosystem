@@ -37,3 +37,28 @@ test('admin user creation normalizes email and phone', function () {
     expect($user->email_verified_at)->not->toBeNull();
     expect($user->getRolesArray())->toBe([UserRole::PublicUser->value]);
 });
+
+test('admin user creation rejects duplicate canonical phone numbers', function () {
+    $admin = User::factory()->create([
+        'roles' => [UserRole::Admin->value],
+    ]);
+
+    User::factory()->create([
+        'phone' => '+60123456789',
+    ]);
+
+    $response = $this
+        ->actingAs($admin)
+        ->from(route('admin.users.create'))
+        ->post(route('admin.users.store'), [
+            'name' => 'Duplicate User',
+            'email' => 'duplicate@example.com',
+            'phone' => '012-345 6789',
+            'role' => UserRole::PublicUser->value,
+            'organization_id' => '',
+        ]);
+
+    $response
+        ->assertRedirect(route('admin.users.create'))
+        ->assertSessionHasErrors('phone');
+});

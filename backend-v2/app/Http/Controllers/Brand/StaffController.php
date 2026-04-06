@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Brand;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Rules\MalaysianMobilePhone;
+use App\Rules\UniqueNormalizedPhone;
 use App\Support\EmailNormalizer;
 use App\Support\PhoneNormalizer;
 use Illuminate\Http\RedirectResponse;
@@ -62,7 +63,7 @@ class StaffController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:20', new MalaysianMobilePhone],
+            'phone' => ['nullable', 'bail', 'string', 'max:20', new MalaysianMobilePhone, new UniqueNormalizedPhone('users')],
         ]);
 
         $password = Str::random(12);

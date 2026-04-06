@@ -4,6 +4,7 @@ namespace App\Concerns;
 
 use App\Models\User;
 use App\Rules\MalaysianMobilePhone;
+use App\Rules\UniqueNormalizedPhone;
 use Illuminate\Validation\Rule;
 
 trait ProfileValidationRules
@@ -18,7 +19,7 @@ trait ProfileValidationRules
         return [
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
-            'phone' => ['nullable', 'string', 'max:20', new MalaysianMobilePhone],
+            'phone' => ['nullable', 'bail', 'string', 'max:20', new MalaysianMobilePhone, new UniqueNormalizedPhone('users', ignoreId: $userId)],
         ];
     }
 
