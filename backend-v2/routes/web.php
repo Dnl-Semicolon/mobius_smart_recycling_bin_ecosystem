@@ -85,6 +85,7 @@ Route::prefix('brand')->name('brand.')->middleware(['auth', 'verified', 'role:br
     Route::get('/vouchers', [VoucherController::class, 'index'])->name('vouchers.index');
     Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('vouchers.create');
     Route::post('/vouchers', [VoucherController::class, 'store'])->name('vouchers.store');
+    Route::get('/bins', [App\Http\Controllers\Brand\BinController::class, 'index'])->name('bins.index');
     Route::get('/billing', [BillingController::class, 'index'])->name('billing');
     Route::post('/billing/checkout', [BillingController::class, 'checkout'])->name('billing.checkout');
     Route::get('/billing/success', [BillingController::class, 'success'])->name('billing.success');
@@ -97,6 +98,8 @@ Route::prefix('brand')->name('brand.')->middleware(['auth', 'verified', 'role:br
 // =============================================
 Route::prefix('store')->name('store.')->middleware(['auth', 'verified', 'role:store_owner'])->group(function () {
     Route::get('/', [App\Http\Controllers\Store\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/bins', [App\Http\Controllers\Store\BinController::class, 'index'])->name('bins.index');
+    Route::post('/bins/{bin}/request-pickup', [App\Http\Controllers\Store\BinController::class, 'requestPickup'])->name('bins.requestPickup');
     Route::get('/redeem', [RedemptionController::class, 'index'])->name('redeem');
     Route::post('/redeem/lookup', [RedemptionController::class, 'lookup'])->name('redeem.lookup');
     Route::post('/redeem/confirm', [RedemptionController::class, 'redeem'])->name('redeem.confirm');

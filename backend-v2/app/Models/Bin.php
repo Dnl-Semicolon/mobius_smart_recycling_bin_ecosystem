@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'outlet_id', 'serial_number', 'api_token', 'status', 'fill_level',
@@ -30,5 +31,10 @@ class Bin extends Model
     public function outlet(): BelongsTo
     {
         return $this->belongsTo(Outlet::class);
+    }
+
+    public function pickupRequests(): HasMany
+    {
+        return $this->hasMany(PickupRequest::class);
     }
 }

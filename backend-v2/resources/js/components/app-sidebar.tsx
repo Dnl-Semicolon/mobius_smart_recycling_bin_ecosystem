@@ -35,12 +35,14 @@ function getNavItemsForRole(roles: string[]): NavItem[] {
                 { title: 'Dashboard', href: '/brand', icon: LayoutGrid },
                 { title: 'Staff', href: '/brand/staff', icon: Users },
                 { title: 'Outlets', href: '/brand/outlets', icon: Store },
+                { title: 'Bin Monitor', href: '/brand/bins', icon: Trash2 },
                 { title: 'Vouchers', href: '/brand/vouchers', icon: Ticket },
                 { title: 'Billing', href: '/brand/billing', icon: CreditCard },
             ];
         case 'store_owner':
             return [
                 { title: 'Dashboard', href: '/store', icon: LayoutGrid },
+                { title: 'Bins', href: '/store/bins', icon: Trash2 },
                 { title: 'Redeem Voucher', href: '/store/redeem', icon: Ticket },
             ];
         case 'collector':
