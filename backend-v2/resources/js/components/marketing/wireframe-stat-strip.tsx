@@ -37,15 +37,15 @@ export function WireframeStatStrip() {
             <h2 id="stat-strip-heading" className="sr-only">
                 Sector context
             </h2>
-            <div className="mx-auto max-w-[1280px] px-8 py-16">
-                <p className="mb-10 text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+            <div className="mx-auto max-w-[1280px] px-5 py-12 md:px-8 md:py-16">
+                <p className="mb-8 text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground md:mb-10">
                     Sector context · placeholder figures
                 </p>
-                <dl className="grid grid-cols-2 gap-x-12 gap-y-10 md:grid-cols-4">
+                <dl className="grid grid-cols-2 gap-x-8 gap-y-8 md:grid-cols-2 md:gap-x-12 md:gap-y-10 lg:grid-cols-4">
                     {WIREFRAME_STATS.map((stat) => (
-                        <div key={stat.figure} className="flex flex-col gap-3">
+                        <div key={stat.figure} className="flex flex-col gap-2 md:gap-3">
                             <dt
-                                className="text-3xl font-semibold tracking-tight text-foreground tabular-nums lg:text-4xl"
+                                className="text-2xl font-semibold tracking-tight text-foreground tabular-nums md:text-3xl lg:text-4xl"
                                 style={{ fontVariantNumeric: 'tabular-nums' }}
                             >
                                 {stat.figure}

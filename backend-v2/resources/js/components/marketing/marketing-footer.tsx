@@ -6,7 +6,7 @@ export function MarketingFooter() {
 
     return (
         <footer className="border-t border-border bg-background">
-            <div className="mx-auto flex max-w-[1280px] flex-col gap-4 px-8 py-10 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
+            <div className="mx-auto flex max-w-[1280px] flex-col gap-4 px-5 py-8 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between md:px-8 md:py-10">
                 <span>Mobius. Recycling infrastructure for beverage brands. © {year}.</span>
                 <Link
                     href={login.url()}
