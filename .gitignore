@@ -21,3 +21,10 @@ Thumbs.db
 *~
 mock_bin/models/*.pt
 backend/database/seed_data.sql
+EETPIX_Mobius_Poster/
+
+# Large artifacts (exceed GitHub 100MB push limit)
+report/
+*.zip
+weights.pt
+

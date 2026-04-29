@@ -1,73 +1,60 @@
-# React + TypeScript + Vite
+# Mobius Smart Recycling Bin - Bin Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The React 19 application that runs on the screen mounted at the physical
+recycling bin. Captures the disposal image, sends it to the Laravel server for
+classification and points calculation, and displays the result to the user.
 
-Currently, two official plugins are available:
+This is a standalone Vite project. It does not share a build with the Laravel
+backend; it is deployed independently to the bin-mounted screen and reaches the
+backend over HTTP on the same Wi-Fi network.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+- React 19
+- TypeScript
+- Vite 8
+- Tailwind CSS
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## First-time setup
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+npm install
+cp .env.example .env
+# then edit .env and set VITE_API_URL to the Laravel server's local IP and port
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+`VITE_API_URL` should point at the Laravel API root. When the Laravel server is
+started with `php artisan serve --host 0.0.0.0 --port 8000`, the value is the
+host machine's local Wi-Fi IP, for example:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+VITE_API_URL=http://192.168.1.50:8000/api/v1
+```
+
+## Running
+
+```sh
+# development with hot module replacement
+npm run dev
+
+# production build, output in ./dist
+npm run build
+
+# preview the built output locally
+npm run preview
+```
+
+## Deployment to the bin screen
+
+1. Run `npm run build` on the development machine.
+2. Copy the `dist/` folder to the bin screen, or point a static web server at it.
+3. Open the index page in fullscreen kiosk mode in the browser on the bin
+   screen.
+4. Confirm that the bin screen and the Laravel server share the same Wi-Fi
+   network and that the bin screen can reach `VITE_API_URL` from its browser.
+
+## Notes
+
+- The bin client is light by design. All business logic, including the points
+  calculation rule and the two-stage detection pipeline, lives on the Laravel
+  server. The bin client only captures, posts, and displays.
