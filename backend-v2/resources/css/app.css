@@ -157,6 +157,44 @@
  * still inherit the root-resolved color token. To override, redeclare the
  * --color-* tokens directly in the scope.
  */
+[data-theme="calm-infra"] {
+    --background: oklch(0.985 0.008 220);
+    --foreground: oklch(0.22 0.02 220);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.22 0.02 220);
+    --muted: oklch(0.95 0.012 220);
+    --muted-foreground: oklch(0.42 0.025 220);
+    --accent: oklch(0.92 0.03 220);
+    --accent-foreground: oklch(0.22 0.02 220);
+    --border: oklch(0.88 0.012 220);
+    --input: oklch(0.88 0.012 220);
+    --primary: oklch(0.55 0.08 220);
+    --primary-foreground: oklch(0.985 0.008 220);
+    --ring: oklch(0.55 0.08 220);
+    --font-sans:
+        "Public Sans", ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-serif:
+        "Source Serif 4", "Source Serif Pro", ui-serif, Georgia,
+        "Times New Roman", serif;
+
+    --color-background: oklch(0.985 0.008 220);
+    --color-foreground: oklch(0.22 0.02 220);
+    --color-card: oklch(1 0 0);
+    --color-card-foreground: oklch(0.22 0.02 220);
+    --color-muted: oklch(0.95 0.012 220);
+    --color-muted-foreground: oklch(0.42 0.025 220);
+    --color-accent: oklch(0.92 0.03 220);
+    --color-accent-foreground: oklch(0.22 0.02 220);
+    --color-border: oklch(0.88 0.012 220);
+    --color-input: oklch(0.88 0.012 220);
+    --color-primary: oklch(0.55 0.08 220);
+    --color-primary-foreground: oklch(0.985 0.008 220);
+    --color-ring: oklch(0.55 0.08 220);
+
+    color-scheme: light;
+}
+
 [data-theme="wireframe"] {
     --background: oklch(0.98 0.005 240);
     --foreground: oklch(0.18 0.005 240);
