@@ -7,7 +7,7 @@ import { MarketingNav } from '@/components/marketing/marketing-nav';
 import { PricingTeaser } from '@/components/marketing/sharp-future/pricing-teaser';
 import { RouteAndIot } from '@/components/marketing/sharp-future/route-and-iot';
 import { SharpFutureHero } from '@/components/marketing/sharp-future/sharp-future-hero';
-import { WireframeDeferredSections } from '@/components/marketing/wireframe-deferred-sections';
+import { TeamAndCta } from '@/components/marketing/sharp-future/team-and-cta';
 
 type Plan = {
     id: number;
@@ -43,7 +43,7 @@ export default function Welcome({ plans = [] }: { plans?: Plan[] }) {
                     <AudienceProof />
                     <RouteAndIot />
                     <PricingTeaser plans={plans} />
-                    <WireframeDeferredSections />
+                    <TeamAndCta />
                 </main>
                 <MarketingFooter />
             </div>

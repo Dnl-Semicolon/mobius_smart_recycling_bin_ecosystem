@@ -1,0 +1,118 @@
+import { Link } from '@inertiajs/react';
+import { motion, useReducedMotion } from 'motion/react';
+import { getStarted } from '@/routes';
+
+const PRINCIPLES = [
+    {
+        figure: '01',
+        title: 'We operate. We do not vend.',
+        body: 'Every Mobius bin in the field is monitored, serviced, and improved by the same team that designed it. There is no second-tier vendor between you and the operation.',
+    },
+    {
+        figure: '02',
+        title: 'Hardware, AI, and software are one product.',
+        body: 'The bin, the detector, the rewards layer, and the route engine are built and deployed together. No integration tax, no finger-pointing when something fails.',
+    },
+    {
+        figure: '03',
+        title: 'Local first. Global later.',
+        body: 'Mobius is built for Malaysian beverage outlets and Malaysian councils first. Hardware is tooled here. Compliance is local. Expansion follows operating proof, not roadmaps.',
+    },
+];
+
+export function TeamAndCta() {
+    const prefersReducedMotion = useReducedMotion();
+    const fadeInitial = prefersReducedMotion ? false : { opacity: 0, y: 16 };
+
+    return (
+        <section
+            id="team"
+            aria-labelledby="team-heading"
+            className="relative border-b border-border bg-background"
+        >
+            <div className="mx-auto max-w-[1280px] px-5 pt-24 pb-24 md:px-8 md:pt-28 md:pb-28 lg:pt-32 lg:pb-32">
+                <motion.header
+                    initial={fadeInitial}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-80px' }}
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    className="grid grid-cols-1 gap-x-8 gap-y-6 lg:grid-cols-12"
+                >
+                    <div className="lg:col-span-7">
+                        <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">
+                            The team behind it
+                        </p>
+                        <h2
+                            id="team-heading"
+                            className="mt-5 text-[clamp(2rem,4.5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground"
+                            style={{ textWrap: 'balance' }}
+                        >
+                            Built by operators. Run by the same people who built it.
+                        </h2>
+                    </div>
+                    <p className="max-w-[55ch] text-base leading-relaxed text-muted-foreground md:text-lg lg:col-span-5">
+                        Mobius is a Malaysian-registered operating company (Mobius Vision Enterprise, 202503229755). Hardware, AI models, mobile, dashboard, and route engine are designed and shipped in-house. We answer the support tickets ourselves.
+                    </p>
+                </motion.header>
+
+                <div className="mt-16 grid grid-cols-1 gap-6 md:gap-8 lg:mt-20 lg:grid-cols-3">
+                    {PRINCIPLES.map((p, i) => (
+                        <motion.article
+                            key={p.figure}
+                            initial={fadeInitial}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: '-60px' }}
+                            transition={{
+                                delay: i * 0.08,
+                                duration: 0.55,
+                                ease: [0.22, 1, 0.36, 1],
+                            }}
+                            className="flex flex-col border-t border-border pt-8"
+                        >
+                            <span className="font-mono text-xs font-medium tabular-nums text-primary">
+                                {p.figure}
+                            </span>
+                            <h3 className="mt-4 text-lg font-semibold leading-[1.25] tracking-tight text-foreground md:text-xl">
+                                {p.title}
+                            </h3>
+                            <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+                                {p.body}
+                            </p>
+                        </motion.article>
+                    ))}
+                </div>
+            </div>
+
+            <div className="border-t border-border bg-card/40">
+                <div className="mx-auto flex max-w-[1280px] flex-col items-start gap-8 px-5 py-16 md:px-8 md:py-20 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+                    <div className="max-w-[55ch]">
+                        <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">
+                            Talk to us
+                        </p>
+                        <h2 className="mt-4 text-[clamp(1.75rem,3.5vw,2.75rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground">
+                            Bring Mobius to your outlets.
+                        </h2>
+                        <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
+                            Partner brands, agencies, and councils. Tell us where your cups are going, we will tell you what happens after Mobius arrives.
+                        </p>
+                    </div>
+                    <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-5">
+                        <Link
+                            href={getStarted().url}
+                            className="rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
+                        >
+                            Become a partner
+                        </Link>
+                        <a
+                            href="#procurement"
+                            className="text-sm font-semibold text-foreground underline-offset-4 hover:underline"
+                        >
+                            Request the procurement deck
+                            <span aria-hidden className="ml-2 text-primary">→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
