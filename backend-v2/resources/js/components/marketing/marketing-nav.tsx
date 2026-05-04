@@ -1,4 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
+import { useMotionValueEvent, useScroll } from 'motion/react';
+import { useState } from 'react';
 import { getStarted } from '@/routes';
 
 type NavAnchor = {
@@ -12,11 +14,22 @@ const ANCHORS: NavAnchor[] = [
     { label: 'Pricing', href: '#pricing' },
 ];
 
+const SCROLL_TRANSITION_PX = 200;
+
 export function MarketingNav() {
     const { auth } = usePage().props as { auth: { user: { id: number } | null } };
+    const [scrolled, setScrolled] = useState(false);
+    const { scrollY } = useScroll();
+
+    useMotionValueEvent(scrollY, 'change', (latest) => {
+        setScrolled(latest > SCROLL_TRANSITION_PX);
+    });
 
     return (
-        <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur">
+        <header
+            data-scrolled={scrolled || undefined}
+            className="sticky top-0 z-50 border-b border-transparent bg-background/30 backdrop-blur-md transition-[background-color,border-color] duration-300 data-[scrolled]:border-border data-[scrolled]:bg-background/95"
+        >
             <div className="mx-auto flex max-w-[1280px] items-center justify-between gap-4 px-5 py-4 md:px-8 md:py-5">
                 <Link
                     href="/"
