@@ -4,11 +4,26 @@ import { AudienceProof } from '@/components/marketing/sharp-future/audience-proo
 import { HowItWorks } from '@/components/marketing/sharp-future/how-it-works';
 import { MarketingFooter } from '@/components/marketing/marketing-footer';
 import { MarketingNav } from '@/components/marketing/marketing-nav';
+import { PricingTeaser } from '@/components/marketing/sharp-future/pricing-teaser';
 import { RouteAndIot } from '@/components/marketing/sharp-future/route-and-iot';
 import { SharpFutureHero } from '@/components/marketing/sharp-future/sharp-future-hero';
 import { WireframeDeferredSections } from '@/components/marketing/wireframe-deferred-sections';
 
-export default function Welcome() {
+type Plan = {
+    id: number;
+    name: string;
+    description: string;
+    price_monthly: string;
+    price_yearly: string;
+    bin_limit: number | null;
+    outlet_limit: number | null;
+    staff_limit: number | null;
+    api_access: boolean;
+    features: Record<string, unknown>;
+    is_active: boolean;
+};
+
+export default function Welcome({ plans = [] }: { plans?: Plan[] }) {
     return (
         <>
             <Head title="Recycling infrastructure for beverage brands">
@@ -27,6 +42,7 @@ export default function Welcome() {
                     <HowItWorks />
                     <AudienceProof />
                     <RouteAndIot />
+                    <PricingTeaser plans={plans} />
                     <WireframeDeferredSections />
                 </main>
                 <MarketingFooter />

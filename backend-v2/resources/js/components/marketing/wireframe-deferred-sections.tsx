@@ -6,12 +6,6 @@ type DeferredSection = {
 
 const DEFERRED: DeferredSection[] = [
     {
-        id: 'pricing',
-        label: '05 · Pricing and partnership tiers',
-        summary:
-            'Either an in-page section or a dedicated /pricing route depending on the spin. Carries Basic, Premium, and Custom tiers from the existing Plan model. Shape brief pending.',
-    },
-    {
         id: 'team',
         label: '06 · Team',
         summary:
