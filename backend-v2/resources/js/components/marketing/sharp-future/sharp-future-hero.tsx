@@ -27,11 +27,11 @@ export function SharpFutureHero() {
         <section className="relative overflow-hidden border-b border-border" aria-labelledby="hero-heading">
             <HeroAurora />
 
-            <div className="relative mx-auto grid max-w-[1280px] grid-cols-1 gap-y-12 px-5 pt-24 pb-32 md:px-8 md:pt-28 md:pb-40 lg:grid-cols-12 lg:pt-36 lg:pb-48">
+            <div className="relative mx-auto grid min-h-[calc(100vh-180px)] max-w-[1280px] grid-cols-1 content-center gap-y-10 px-5 py-16 md:px-8 md:py-20 lg:grid-cols-12 lg:py-12">
                 <div className="lg:col-span-9">
                     <h1
                         id="hero-heading"
-                        className="text-[clamp(2.75rem,7vw,6rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-foreground"
+                        className="text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-foreground"
                         style={{ textWrap: 'balance' }}
                     >
                         {HEADLINE_WORDS.map((word, i) => (
