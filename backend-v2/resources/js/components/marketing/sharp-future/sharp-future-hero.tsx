@@ -6,7 +6,7 @@ import { HeroAurora } from './hero-aurora';
 
 const HEADLINE_WORDS = [
     'Recycling',
-    'infrastructure',
+    'ecosystem',
     'for',
     'beverage',
     'brands.',
@@ -31,7 +31,7 @@ export function SharpFutureHero() {
                 <div className="lg:col-span-9">
                     <h1
                         id="hero-heading"
-                        className="text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-foreground"
+                        className="text-[clamp(2.75rem,6.5vw,5.5rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-foreground"
                         style={{ textWrap: 'balance' }}
                     >
                         {HEADLINE_WORDS.map((word, i) => (

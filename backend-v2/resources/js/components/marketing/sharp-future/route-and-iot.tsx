@@ -1,12 +1,8 @@
 import { motion, useReducedMotion } from 'motion/react';
 
-import { RouteNetwork } from './route-network';
-
 const IOT_SPECS = [
-    { figure: '4G', label: 'cellular uplink', detail: 'sim swap supported' },
-    { figure: '12ms', label: 'edge inference', detail: 'no cloud round-trip' },
-    { figure: '24h', label: 'solar buffer', detail: 'mains optional' },
-    { figure: 'A2', label: 'brand panel', detail: 'tooled, swappable' },
+    { figure: '4G', label: 'cellular uplink', detail: 'with sim swap supported' },
+    { figure: 'Cloud', label: 'classifier and ledger', detail: 'bin runs as the client' },
 ];
 
 export function RouteAndIot() {
@@ -46,8 +42,28 @@ export function RouteAndIot() {
             </div>
 
             <div className="border-y border-border bg-card/30">
-                <div className="mx-auto max-w-[1440px]">
-                    <RouteNetwork />
+                <div className="mx-auto flex max-w-[1440px] flex-col items-stretch gap-y-6 px-5 py-14 md:flex-row md:gap-x-10 md:gap-y-0 md:px-8 md:py-16 lg:gap-x-16 lg:py-20">
+                    <div className="md:w-1/3 lg:w-2/5">
+                        <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                            Map placeholder · Penang pilot
+                        </p>
+                        <h3 className="mt-3 text-lg font-semibold leading-snug text-foreground md:text-xl">
+                            A real Penang Island overlay drops in here once the GeoJSON refinement lands.
+                        </h3>
+                        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                            The visual will show pilot bins along the east-coast urban corridor, an active optimised collection route between full bins, and the candidate routes the engine rejected. Bin coordinates are already real lat/lng captured during the previous pass.
+                        </p>
+                    </div>
+                    <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border bg-card/40 p-10">
+                        <div className="text-center">
+                            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground/80">
+                                Section 04 · map overlay pending
+                            </p>
+                            <p className="mt-3 max-w-[36ch] text-xs leading-relaxed text-muted-foreground">
+                                Real Penang Island GeoJSON, projected via d3-geo, with bin nodes and route lines drawn over a tinted-card surface. Aspect retained at roughly 4:3 so this placeholder does not shift layout when the real asset replaces it.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -55,7 +71,7 @@ export function RouteAndIot() {
                 <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
                     Inside the bin
                 </p>
-                <dl className="mt-6 grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
+                <dl className="mt-6 grid grid-cols-1 gap-x-12 gap-y-8 md:grid-cols-2">
                     {IOT_SPECS.map((spec, i) => (
                         <motion.div
                             key={spec.figure}
