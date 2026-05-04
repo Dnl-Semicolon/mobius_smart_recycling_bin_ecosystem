@@ -13,10 +13,9 @@ const HEADLINE_WORDS = [
 ];
 
 const STATS = [
-    { figure: '4B', label: 'disposable cups discarded yearly' },
-    { figure: '12,000+', label: 'branded beverage outlets' },
-    { figure: '1.5×', label: 'loyalty multiplier on cup match' },
-    { figure: '0%', label: 'handled by today’s bin networks' },
+    { figure: '4B', label: 'disposable cups discarded yearly in Malaysia' },
+    { figure: '12,000+', label: 'branded beverage outlets nationwide' },
+    { figure: '0%', label: 'recovered by today’s bin networks' },
 ];
 
 export function SharpFutureHero() {
@@ -30,24 +29,15 @@ export function SharpFutureHero() {
 
             <div className="relative mx-auto grid max-w-[1280px] grid-cols-1 gap-y-12 px-5 pt-24 pb-32 md:px-8 md:pt-28 md:pb-40 lg:grid-cols-12 lg:pt-36 lg:pb-48">
                 <div className="lg:col-span-9">
-                    <motion.p
-                        initial={fadeInitial}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                        className="text-xs font-medium uppercase tracking-[0.22em] text-primary"
-                    >
-                        Mobius · Recycling-revenue infrastructure
-                    </motion.p>
-
                     <h1
                         id="hero-heading"
-                        className="mt-6 text-[clamp(2.75rem,7vw,6rem)] font-semibold leading-[0.98] tracking-[-0.02em] text-foreground"
+                        className="text-[clamp(2.75rem,7vw,6rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-foreground"
                         style={{ textWrap: 'balance' }}
                     >
                         {HEADLINE_WORDS.map((word, i) => (
                             <span
                                 key={`${word}-${i}`}
-                                className="inline-block overflow-hidden align-baseline"
+                                className="inline-block align-baseline"
                             >
                                 <motion.span
                                     initial={wordInitial}
@@ -72,7 +62,7 @@ export function SharpFutureHero() {
                         transition={{ delay: 0.85, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                         className="mt-8 max-w-[58ch] text-base leading-relaxed text-muted-foreground md:text-lg"
                     >
-                        Mobius builds the bins, the AI, the rewards layer, and the route operations your outlets need. Tailored to your brand. Deployed at every store.
+                        Every disposable cup leaving your outlets is brand value walking out the door. Mobius brings it back. Hardware, AI, software, and route operations, tailored to your brand and deployed at every store.
                     </motion.p>
 
                     <motion.div
@@ -88,10 +78,10 @@ export function SharpFutureHero() {
                             Become a partner
                         </Link>
                         <a
-                            href="#technology"
+                            href="#docs"
                             className="text-sm font-semibold text-foreground underline-offset-4 hover:underline"
                         >
-                            Read the technology
+                            Read the docs
                             <span aria-hidden className="ml-2 text-primary">→</span>
                         </a>
                     </motion.div>
