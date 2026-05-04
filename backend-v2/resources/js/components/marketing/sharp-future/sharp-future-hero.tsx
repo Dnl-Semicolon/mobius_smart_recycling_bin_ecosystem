@@ -27,7 +27,7 @@ export function SharpFutureHero() {
         <section className="relative overflow-hidden border-b border-border" aria-labelledby="hero-heading">
             <HeroAurora />
 
-            <div className="relative mx-auto grid min-h-[calc(100vh-180px)] max-w-[1280px] grid-cols-1 content-center gap-y-10 px-5 py-16 md:px-8 md:py-20 lg:grid-cols-12 lg:py-12">
+            <div className="relative mx-auto grid min-h-[calc(100vh-220px)] max-w-[1280px] grid-cols-1 content-center gap-y-10 px-5 py-16 md:px-8 md:py-20 lg:grid-cols-12 lg:py-12">
                 <div className="lg:col-span-9">
                     <h1
                         id="hero-heading"
