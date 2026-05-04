@@ -6,12 +6,6 @@ type DeferredSection = {
 
 const DEFERRED: DeferredSection[] = [
     {
-        id: 'how-it-works',
-        label: '02 · How it works + dual-brand AI explainer',
-        summary:
-            'Three-step recycler flow paired with the cup × bin brand-match mechanic that drives the loyalty multiplier. Shape brief pending.',
-    },
-    {
         id: 'audience-proof',
         label: '03 · Three-audience proof + live impact counter',
         summary:

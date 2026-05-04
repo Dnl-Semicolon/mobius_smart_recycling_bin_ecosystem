@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 
+import { HowItWorks } from '@/components/marketing/sharp-future/how-it-works';
 import { MarketingFooter } from '@/components/marketing/marketing-footer';
 import { MarketingNav } from '@/components/marketing/marketing-nav';
 import { SharpFutureHero } from '@/components/marketing/sharp-future/sharp-future-hero';
@@ -21,6 +22,7 @@ export default function Welcome() {
                 <MarketingNav />
                 <main>
                     <SharpFutureHero />
+                    <HowItWorks />
                     <WireframeDeferredSections />
                 </main>
                 <MarketingFooter />
