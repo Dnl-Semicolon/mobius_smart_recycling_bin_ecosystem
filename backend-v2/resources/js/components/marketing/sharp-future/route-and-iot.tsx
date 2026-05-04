@@ -29,18 +29,18 @@ export function RouteAndIot() {
                 >
                     <div className="lg:col-span-5">
                         <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">
-                            Hardware → Software → Logistics
+                            How the ecosystem actually runs
                         </p>
                         <h2
                             id="route-heading"
                             className="mt-5 text-[clamp(2rem,4.5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground"
                             style={{ textWrap: 'balance' }}
                         >
-                            Bins call for pickup. Routes re-plan when they do.
+                            Bins call for pickup as soon as they fill, and the route engine re-plans the next collection in the same minute.
                         </h2>
                     </div>
                     <p className="max-w-[55ch] text-base leading-relaxed text-muted-foreground md:text-lg lg:col-span-7">
-                        Every Mobius bin reports fill state continuously. When a zone crosses threshold, the routing engine solves the vehicle problem with OSRM and VROOM, dispatches the next collection, and updates ETAs across all the drivers that share the zone. Operators see the order. Customers don’t notice it.
+                        Every Mobius bin reports fill state continuously. When a zone crosses threshold, the routing engine solves the vehicle problem with OSRM and VROOM, dispatches the next collection, and updates ETAs for every driver that shares the zone, with operators tracking the run on a dashboard while customers experience nothing different at the bin.
                     </p>
                 </motion.header>
             </div>

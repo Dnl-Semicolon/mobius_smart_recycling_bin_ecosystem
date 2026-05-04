@@ -5,18 +5,18 @@ import { getStarted } from '@/routes';
 const PRINCIPLES = [
     {
         figure: '01',
-        title: 'We operate. We do not vend.',
-        body: 'Every Mobius bin in the field is monitored, serviced, and improved by the same team that designed it. There is no second-tier vendor between you and the operation.',
+        title: 'The team running it built it.',
+        body: 'Every Mobius bin in the field is monitored, serviced, and improved by the same group that designed it, so there is never a second-tier vendor sitting between you and the operation.',
     },
     {
         figure: '02',
-        title: 'Hardware, AI, and software are one product.',
-        body: 'The bin, the detector, the rewards layer, and the route engine are built and deployed together. No integration tax, no finger-pointing when something fails.',
+        title: 'The bin, the AI, and the software ship together.',
+        body: 'Hardware, the detector, the rewards layer, and the route engine are built and deployed as one product, which means there is no integration tax and no finger-pointing when something needs fixing in the field.',
     },
     {
         figure: '03',
-        title: 'Local first. Global later.',
-        body: 'Mobius is built for Malaysian beverage outlets and Malaysian councils first. Hardware is tooled here. Compliance is local. Expansion follows operating proof, not roadmaps.',
+        title: 'Built for Malaysian outlets first.',
+        body: 'Mobius is registered in Malaysia and tooled in Malaysia for Malaysian beverage outlets and councils. Compliance, support, and replacement parts all live in the same time zone, and any expansion abroad has to clear that operating bar first.',
     },
 ];
 
@@ -47,7 +47,7 @@ export function TeamAndCta() {
                             className="mt-5 text-[clamp(2rem,4.5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground"
                             style={{ textWrap: 'balance' }}
                         >
-                            Built by operators. Run by the same people who built it.
+                            Built and run by the same operating team that ships into your outlets.
                         </h2>
                     </div>
                     <p className="max-w-[55ch] text-base leading-relaxed text-muted-foreground md:text-lg lg:col-span-5">
@@ -90,10 +90,10 @@ export function TeamAndCta() {
                             Talk to us
                         </p>
                         <h2 className="mt-4 text-[clamp(1.75rem,3.5vw,2.75rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground">
-                            Bring Mobius to your outlets.
+                            Bring Mobius into your outlets.
                         </h2>
                         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-                            Partner brands, agencies, and councils. Tell us where your cups are going, we will tell you what happens after Mobius arrives.
+                            We will sit down with your operations or sustainability lead and walk through what changes inside your stores once a Mobius bin is installed at the dispatch point and the detection feed starts writing to your loyalty data.
                         </p>
                     </div>
                     <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-5">
@@ -108,7 +108,7 @@ export function TeamAndCta() {
                             className="text-sm font-semibold text-foreground underline-offset-4 hover:underline"
                         >
                             Request the procurement deck
-                            <span aria-hidden className="ml-2 text-primary">→</span>
+                            <span aria-hidden className="ml-2 text-primary">›</span>
                         </a>
                     </div>
                 </div>

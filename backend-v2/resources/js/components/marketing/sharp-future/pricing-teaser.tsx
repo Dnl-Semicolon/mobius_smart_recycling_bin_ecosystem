@@ -102,11 +102,11 @@ export function PricingTeaser({ plans }: Props) {
                             className="mt-5 text-[clamp(2rem,4.5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground"
                             style={{ textWrap: 'balance' }}
                         >
-                            Start with one outlet. Operate every store. Talk to us about a city.
+                            From a single outlet on the Basic tier to a city-wide deployment on Custom, the same operating team supports the entire spread.
                         </h2>
                     </div>
                     <p className="max-w-[55ch] text-base leading-relaxed text-muted-foreground md:text-lg lg:col-span-5">
-                        Three tiers cover most beverage brand scenarios. Larger deployments with custom hardware, dedicated zones, or government partnerships move into Custom and start with a conversation.
+                        Three tiers cover most beverage-brand scenarios, and larger deployments with custom hardware, dedicated zones, or government partnerships move into Custom where the conversation usually starts with a scoping call rather than a checkout.
                     </p>
                 </motion.header>
 
@@ -178,7 +178,7 @@ export function PricingTeaser({ plans }: Props) {
                                     }
                                 >
                                     {card.ctaLabel}
-                                    <span aria-hidden>→</span>
+                                    <span aria-hidden>›</span>
                                 </Link>
                             </div>
                         </motion.article>

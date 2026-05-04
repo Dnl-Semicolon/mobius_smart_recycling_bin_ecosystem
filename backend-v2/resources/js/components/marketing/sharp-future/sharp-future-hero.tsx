@@ -62,7 +62,7 @@ export function SharpFutureHero() {
                         transition={{ delay: 0.85, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                         className="mt-8 max-w-[58ch] text-base leading-relaxed text-muted-foreground md:text-lg"
                     >
-                        Every disposable cup leaving your outlets is brand value walking out the door. Mobius brings it back. Hardware, AI, software, and route operations, tailored to your brand and deployed at every store.
+                        Every disposable cup leaving your outlets is brand value walking out the door, and Mobius is the recycling ecosystem that brings it back, ties each cup to your loyalty data, and runs collection logistics inside the network of stores you already operate.
                     </motion.p>
 
                     <motion.div
@@ -82,7 +82,7 @@ export function SharpFutureHero() {
                             className="text-sm font-semibold text-foreground underline-offset-4 hover:underline"
                         >
                             Read the docs
-                            <span aria-hidden className="ml-2 text-primary">→</span>
+                            <span aria-hidden className="ml-2 text-primary">›</span>
                         </a>
                     </motion.div>
                 </div>

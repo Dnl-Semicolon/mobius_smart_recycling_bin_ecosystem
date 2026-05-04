@@ -1,13 +1,6 @@
 import { Link } from '@inertiajs/react';
-import { animate, motion, useInView, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
-import { useEffect, useRef } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import { getStarted } from '@/routes';
-
-const COUNTERS = [
-    { label: 'Cups captured', target: 1247, prefix: '', suffix: '', step: 'one-by-one' },
-    { label: 'kg CO₂ saved', target: 12, prefix: '', suffix: '', step: 'one-by-one' },
-    { label: 'Partner brands', target: 3, prefix: '', suffix: '', step: 'one-by-one' },
-] as const;
 
 const AUDIENCES = [
     {
@@ -23,8 +16,8 @@ const AUDIENCES = [
     },
     {
         eyebrow: 'For recyclers',
-        title: 'Drop the cup. Earn the reward. Find the next bin.',
-        body: 'Scan the QR on any Mobius bin. The app opens already aware of which outlet you are at and which brand you are dropping into. Points settle in seconds.',
+        title: 'A simpler way to see the cup you just dropped become a reward.',
+        body: 'Scanning the QR on any Mobius bin opens the app already aware of which outlet you are at and which brand you are dropping into, so points settle within seconds and the next nearby bin is one tap away.',
         bullets: [
             { figure: '01', label: 'No login pressure at the bin.' },
             { figure: '02', label: 'Streaks, vouchers, and brand bonuses.' },
@@ -34,8 +27,8 @@ const AUDIENCES = [
     },
     {
         eyebrow: 'For councils and agencies',
-        title: 'A recycling stream you can audit, not just claim.',
-        body: 'Every cup is timestamped, geo-located, and tagged to the brand that issued it. Mobius writes to an audit ledger you can query directly. No vendor screenshots, no annual estimates.',
+        title: 'A recycling stream the city can audit directly.',
+        body: 'Every cup is timestamped, geo-located, and tagged to the brand that issued it, then written to an audit ledger your office can query without waiting on vendor screenshots or annualised estimates.',
         bullets: [
             { figure: '01', label: 'Per-zone, per-brand, per-day reports.' },
             { figure: '02', label: 'Deployable with existing collection contracts.' },
@@ -55,19 +48,6 @@ export function AudienceProof() {
             aria-labelledby="audience-heading"
             className="relative border-b border-border bg-background"
         >
-            <div className="border-b border-border bg-card/40">
-                <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-y-8 px-5 py-10 md:grid-cols-3 md:px-8 md:py-12">
-                    {COUNTERS.map((counter) => (
-                        <CounterCell key={counter.label} {...counter} prefersReducedMotion={!!prefersReducedMotion} />
-                    ))}
-                </div>
-                <div className="mx-auto max-w-[1280px] px-5 pb-6 md:px-8">
-                    <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                        Pilot, live since 2026 · numbers update on capture
-                    </p>
-                </div>
-            </div>
-
             <div className="mx-auto max-w-[1280px] px-5 pt-24 pb-28 md:px-8 md:pt-28 md:pb-32 lg:pt-32 lg:pb-40">
                 <motion.header
                     initial={fadeInitial}
@@ -84,7 +64,7 @@ export function AudienceProof() {
                         className="mt-5 text-[clamp(2rem,4.5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground"
                         style={{ textWrap: 'balance' }}
                     >
-                        One platform. Three readers. Each gets the answer they came for.
+                        One ecosystem serving the brands that fund it, the customers that use it, and the cities that audit it.
                     </h2>
                 </motion.header>
 
@@ -143,7 +123,7 @@ export function AudienceProof() {
                                     }
                                 >
                                     {aud.cta.label}
-                                    <span aria-hidden>→</span>
+                                    <span aria-hidden>›</span>
                                 </Link>
                             </div>
                         </motion.article>
@@ -151,54 +131,5 @@ export function AudienceProof() {
                 </div>
             </div>
         </section>
-    );
-}
-
-function CounterCell({
-    label,
-    target,
-    prefix,
-    suffix,
-    prefersReducedMotion,
-}: {
-    label: string;
-    target: number;
-    prefix: string;
-    suffix: string;
-    step: 'one-by-one';
-    prefersReducedMotion: boolean;
-}) {
-    const ref = useRef<HTMLDivElement>(null);
-    const inView = useInView(ref, { once: true, margin: '-80px' });
-    const value = useMotionValue(0);
-    const rounded = useTransform(value, (latest) => Math.round(latest).toLocaleString('en-MY'));
-
-    useEffect(() => {
-        if (!inView) return;
-        if (prefersReducedMotion) {
-            value.set(target);
-            return;
-        }
-        const controls = animate(value, target, {
-            duration: 1.6,
-            ease: [0.22, 1, 0.36, 1],
-        });
-        return () => controls.stop();
-    }, [inView, target, value, prefersReducedMotion]);
-
-    return (
-        <div ref={ref} className="flex flex-col gap-2">
-            <span
-                className="font-mono text-3xl font-semibold leading-none tracking-tight text-foreground tabular-nums md:text-4xl"
-                style={{ fontVariantNumeric: 'tabular-nums' }}
-            >
-                {prefix}
-                <motion.span>{rounded}</motion.span>
-                {suffix}
-            </span>
-            <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                {label}
-            </span>
-        </div>
     );
 }

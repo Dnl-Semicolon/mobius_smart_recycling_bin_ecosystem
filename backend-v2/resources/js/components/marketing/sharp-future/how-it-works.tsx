@@ -4,17 +4,17 @@ const STEPS = [
     {
         index: '01',
         title: 'Customer scans the bin',
-        body: 'The QR on every Mobius bin opens the app already aware of which outlet, which brand, which slot. No login pressure, no setup.',
+        body: 'The QR on every Mobius bin opens the app already aware of the outlet, the host brand, and the disposal slot, so the customer never has to log in or pick a category before dropping a cup.',
     },
     {
         index: '02',
         title: 'AI sees what went in',
-        body: 'Computer vision identifies the waste type and the cup brand at the moment of disposal. Cup, lid, straw, liquid, all separated. Brand classification runs in parallel.',
+        body: 'Computer vision identifies the waste type and the cup brand at the moment of disposal, separating cup from lid from straw from liquid in the same frame while a parallel classifier tags the brand on the cup.',
     },
     {
         index: '03',
         title: 'Points settle to the brand',
-        body: 'Matching cups earn the brand multiplier and write to your loyalty ledger. Competitor cups still get sorted but earn less. The next collection route updates in the background.',
+        body: 'Matching cups earn the brand multiplier and write to your loyalty ledger, while competitor cups still get sorted but earn less. The next collection route updates in the background once the bin reports its new fill level.',
     },
 ];
 
@@ -23,19 +23,19 @@ const MATRIX = [
         rowLabel: 'Brand match',
         outcome: '1.5×',
         outcomeKind: 'bonus' as const,
-        body: 'Customer drops your cup into your bin. Full brand multiplier applies and the loyalty card increments.',
+        body: 'When a customer drops your cup into your bin the full brand multiplier applies, and the loyalty card on their account increments against your ledger.',
     },
     {
         rowLabel: 'Unidentified',
         outcome: '1.0×',
         outcomeKind: 'neutral' as const,
-        body: 'Cup brand cannot be classified (smudged, novel, off-axis). Base points apply, sorting still happens.',
+        body: 'When the classifier cannot read the brand because the cup is smudged or unfamiliar, base points still apply and the cup is still sorted into the right waste stream.',
     },
     {
         rowLabel: 'Competitor cup',
         outcome: '0.3×',
         outcomeKind: 'deterrent' as const,
-        body: 'A competitor cup lands in your bin. Hard deterrent: points drop below base. Customer learns the bin is not a free bypass.',
+        body: 'When a competitor cup lands in your bin the multiplier drops well below base, which keeps your bin from quietly subsidising the rival brand whose cup the customer is throwing away.',
     },
 ];
 
@@ -65,7 +65,7 @@ export function HowItWorks() {
                         className="mt-5 text-[clamp(2rem,4.5vw,3.75rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground"
                         style={{ textWrap: 'balance' }}
                     >
-                        Disposal happens. Then we tell you which cup, which brand, which outlet.
+                        A customer drops a cup, and within seconds we know which cup it was, which brand made it, and which outlet sent it on its way.
                     </h2>
                 </motion.header>
 
