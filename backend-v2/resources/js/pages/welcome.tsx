@@ -4,6 +4,7 @@ import { AudienceProof } from '@/components/marketing/sharp-future/audience-proo
 import { HowItWorks } from '@/components/marketing/sharp-future/how-it-works';
 import { MarketingFooter } from '@/components/marketing/marketing-footer';
 import { MarketingNav } from '@/components/marketing/marketing-nav';
+import { RouteAndIot } from '@/components/marketing/sharp-future/route-and-iot';
 import { SharpFutureHero } from '@/components/marketing/sharp-future/sharp-future-hero';
 import { WireframeDeferredSections } from '@/components/marketing/wireframe-deferred-sections';
 
@@ -25,6 +26,7 @@ export default function Welcome() {
                     <SharpFutureHero />
                     <HowItWorks />
                     <AudienceProof />
+                    <RouteAndIot />
                     <WireframeDeferredSections />
                 </main>
                 <MarketingFooter />

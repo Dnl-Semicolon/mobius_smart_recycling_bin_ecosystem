@@ -6,12 +6,6 @@ type DeferredSection = {
 
 const DEFERRED: DeferredSection[] = [
     {
-        id: 'technology',
-        label: '04 · Route optimisation + IoT showcase',
-        summary:
-            'Map visual, OSRM and VROOM auto-dispatch story, smart-bin photography. Sells the end-to-end ecosystem claim. Shape brief pending.',
-    },
-    {
         id: 'pricing',
         label: '05 · Pricing and partnership tiers',
         summary:
