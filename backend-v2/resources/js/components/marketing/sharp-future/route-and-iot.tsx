@@ -45,24 +45,16 @@ export function RouteAndIot() {
                 <div className="mx-auto flex max-w-[1440px] flex-col items-stretch gap-y-6 px-5 py-14 md:flex-row md:gap-x-10 md:gap-y-0 md:px-8 md:py-16 lg:gap-x-16 lg:py-20">
                     <div className="md:w-1/3 lg:w-2/5">
                         <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                            Map placeholder · Penang pilot
+                            Penang pilot
                         </p>
                         <h3 className="mt-3 text-lg font-semibold leading-snug text-foreground md:text-xl">
-                            A real Penang Island overlay drops in here once the GeoJSON refinement lands.
+                            A live map of pilot bins across the island lands here.
                         </h3>
-                        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                            The visual will show pilot bins along the east-coast urban corridor, an active optimised collection route between full bins, and the candidate routes the engine rejected. Bin coordinates are already real lat/lng captured during the previous pass.
-                        </p>
                     </div>
                     <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border bg-card/40 p-10">
-                        <div className="text-center">
-                            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground/80">
-                                Section 04 · map overlay pending
-                            </p>
-                            <p className="mt-3 max-w-[36ch] text-xs leading-relaxed text-muted-foreground">
-                                Real Penang Island GeoJSON, projected via d3-geo, with bin nodes and route lines drawn over a tinted-card surface. Aspect retained at roughly 4:3 so this placeholder does not shift layout when the real asset replaces it.
-                            </p>
-                        </div>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground/80">
+                            Map preview pending
+                        </p>
                     </div>
                 </div>
             </div>
