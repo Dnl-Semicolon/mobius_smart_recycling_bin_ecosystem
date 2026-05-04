@@ -11,7 +11,7 @@ export function WireframeHero() {
         <section className="relative border-b border-border" aria-labelledby="hero-heading">
             <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-12 px-5 pt-16 pb-20 md:px-8 md:pt-20 md:pb-24 lg:grid-cols-12 lg:gap-8 lg:pt-24 lg:pb-32">
                 <div className="flex flex-col justify-center lg:col-span-7">
-                    <PlaceholderLabel>HEADLINE / 8–12 words / period-terminated</PlaceholderLabel>
+                    <PlaceholderLabel>HEADLINE / 8 to 12 words / period-terminated</PlaceholderLabel>
 
                     <h1
                         id="hero-heading"
@@ -21,7 +21,7 @@ export function WireframeHero() {
                         [Declarative claim about recycling-revenue infrastructure for beverage brands.]
                     </h1>
 
-                    <PlaceholderLabel className="mt-8 md:mt-10">SUBHEAD / 22–35 words / two sentences max</PlaceholderLabel>
+                    <PlaceholderLabel className="mt-8 md:mt-10">SUBHEAD / 22 to 35 words / two sentences max</PlaceholderLabel>
 
                     <p className="mt-3 max-w-[58ch] text-base leading-relaxed text-muted-foreground md:text-lg">
                         [Supporting statement explaining the end-to-end build, the partnership model, and the brand return. Mobius is the team beverage brands hire.]

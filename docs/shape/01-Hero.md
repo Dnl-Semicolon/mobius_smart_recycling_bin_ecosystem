@@ -1,6 +1,8 @@
-# Hero — Design Brief
+# Hero / Design Brief
 
 > Output of `/impeccable shape Hero`. Read once, edit if wrong, confirm. `/impeccable craft Hero` reads this each time before code. Not a substitute for PRODUCT.md.
+>
+> **Status as of 2026-04-30:** Hero crafted across all four variants. **`sharp-future` is the sole winner** and all future hero polish targets `feat/home-hifi-sharp-future`. The wireframe and the other two spins (`precise-premium`, `calm-infra`) are frozen on their branches as historical evidence.
 
 ---
 
