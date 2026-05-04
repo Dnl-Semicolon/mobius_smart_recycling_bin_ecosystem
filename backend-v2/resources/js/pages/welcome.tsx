@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 
+import { AudienceProof } from '@/components/marketing/sharp-future/audience-proof';
 import { HowItWorks } from '@/components/marketing/sharp-future/how-it-works';
 import { MarketingFooter } from '@/components/marketing/marketing-footer';
 import { MarketingNav } from '@/components/marketing/marketing-nav';
@@ -23,6 +24,7 @@ export default function Welcome() {
                 <main>
                     <SharpFutureHero />
                     <HowItWorks />
+                    <AudienceProof />
                     <WireframeDeferredSections />
                 </main>
                 <MarketingFooter />

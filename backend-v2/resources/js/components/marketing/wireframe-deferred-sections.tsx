@@ -6,12 +6,6 @@ type DeferredSection = {
 
 const DEFERRED: DeferredSection[] = [
     {
-        id: 'audience-proof',
-        label: '03 · Three-audience proof + live impact counter',
-        summary:
-            'For brands / for recyclers / for councils. Each panel carries its own value prop, supporting evidence, and CTA. Shape brief pending.',
-    },
-    {
         id: 'technology',
         label: '04 · Route optimisation + IoT showcase',
         summary:
